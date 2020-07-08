@@ -1,0 +1,119 @@
+targetId,comparatorId,outcomeId,outcomeName,type
+1103,1104,436409,Abnormal pupil,outcome
+1103,1104,199192,Abrasion and/or friction burn of trunk without infection,outcome
+1103,1104,4092879,Absent kidney,outcome
+1103,1104,436634,Acariasis,outcome
+1103,1104,44783954,Acid reflux,outcome
+1103,1104,75911,Acquired hallux valgus,outcome
+1103,1104,137951,Acquired keratoderma,outcome
+1103,1104,77965,Acquired trigger finger,outcome
+1103,1104,376707,Acute conjunctivitis,outcome
+1103,1104,4103640,Amputated foot,outcome
+1103,1104,432595,Amyloidosis,outcome
+1103,1104,73241,Anal and rectal polyp,outcome
+1103,1104,437082,Ankylosing spondylitis,outcome
+1103,1104,77650,Aseptic necrosis of bone,outcome
+1103,1104,378424,Astigmatism,outcome
+1103,1104,374923,Bell's palsy,outcome
+1103,1104,4110709,Benign epithelial neoplasm of skin,outcome
+1103,1104,133655,Burn of forearm,outcome
+1103,1104,73560,Calcaneal spur,outcome
+1103,1104,434327,Cannabis abuse,outcome
+1103,1104,4213540,Cervical somatic dysfunction,outcome
+1103,1104,381581,Chalazion,outcome
+1103,1104,140842,Changes in skin texture,outcome
+1103,1104,438531,Chondromalacia,outcome
+1103,1104,81378,Chondromalacia of patella,outcome
+1103,1104,432303,Cocaine abuse,outcome
+1103,1104,4201390,Colostomy present,outcome
+1103,1104,46269889,Complication due to Crohn's disease,outcome
+1103,1104,134438,Contact dermatitis,outcome
+1103,1104,78619,Contusion of knee,outcome
+1103,1104,201606,Crohn's disease,outcome
+1103,1104,260134,Croup,outcome
+1103,1104,76786,Derangement of knee,outcome
+1103,1104,4115402,Difficulty sleeping,outcome
+1103,1104,443767,Disorder of eye due to diabetes mellitus,outcome
+1103,1104,45757370,Disproportion of reconstructed breast,outcome
+1103,1104,433111,Effects of hunger,outcome
+1103,1104,441589,Endocarditis,outcome
+1103,1104,200775,Endometrial hyperplasia,outcome
+1103,1104,433527,Endometriosis,outcome
+1103,1104,73008,Enthesopathy,outcome
+1103,1104,4249170,Epicondylitis,outcome
+1103,1104,4170770,Epidermoid cyst,outcome
+1103,1104,4345472,Epstein-Barr virus disease,outcome
+1103,1104,4092896,Feces contents abnormal,outcome
+1103,1104,259995,Foreign body in orifice,outcome
+1103,1104,196456,Gallstone,outcome
+1103,1104,40481632,Ganglion cyst,outcome
+1103,1104,4166231,Genetic predisposition,outcome
+1103,1104,74855,Genital herpes simplex,outcome
+1103,1104,433577,Hammer toe,outcome
+1103,1104,441818,Hemangioma,outcome
+1103,1104,4231770,Hereditary thrombophilia,outcome
+1103,1104,440329,Herpes zoster without complication,outcome
+1103,1104,4012570,High risk sexual behavior,outcome
+1103,1104,4038835,Hodgkin's disease,outcome
+1103,1104,4012934,Homocystinuria,outcome
+1103,1104,441788,Human papilloma virus infection,outcome
+1103,1104,380688,Hypoglycemic coma,outcome
+1103,1104,4254542,Hypopituitarism,outcome
+1103,1104,4201717,Ileostomy present,outcome
+1103,1104,374375,Impacted cerumen,outcome
+1103,1104,140480,Impetigo,outcome
+1103,1104,4344500,Impingement syndrome of shoulder region,outcome
+1103,1104,139099,Ingrowing nail,outcome
+1103,1104,444132,Injury of knee,outcome
+1103,1104,434926,Iridocyclitis,outcome
+1103,1104,196168,Irregular periods,outcome
+1103,1104,75576,Irritable bowel syndrome,outcome
+1103,1104,432593,Kwashiorkor,outcome
+1103,1104,434203,Late effect of contusion,outcome
+1103,1104,438329,Late effect of motor vehicle accident,outcome
+1103,1104,443285,Lesion of cervix,outcome
+1103,1104,195873,Leukorrhea,outcome
+1103,1104,440638,Lyme disease,outcome
+1103,1104,4083487,Macular drusen,outcome
+1103,1104,4156115,Malignant neoplasm of endocrine gland,outcome
+1103,1104,4103703,Melena,outcome
+1103,1104,4134455,Mononeuropathy,outcome
+1103,1104,4209423,Nicotine dependence,outcome
+1103,1104,377572,Noise effects on inner ear,outcome
+1103,1104,136368,Non-toxic multinodular goiter,outcome
+1103,1104,40480893,Nonspecific tuberculin test reaction,outcome
+1103,1104,4215978,Onychomycosis,outcome
+1103,1104,140648,Onychomycosis due to dermatophyte,outcome
+1103,1104,438130,Opioid abuse,outcome
+1103,1104,192606,Paraplegia,outcome
+1103,1104,4091513,Passing flatus,outcome
+1103,1104,4112731,Polyp of intestine,outcome
+1103,1104,4202045,Postviral fatigue syndrome,outcome
+1103,1104,373478,Presbyopia,outcome
+1103,1104,46286594,Problem related to lifestyle,outcome
+1103,1104,439790,Psychalgia,outcome
+1103,1104,81634,Ptotic breast,outcome
+1103,1104,253954,Pulmonary tuberculosis,outcome
+1103,1104,4087647,Rectal mass,outcome
+1103,1104,380706,Regular astigmatism,outcome
+1103,1104,438688,Sarcoidosis,outcome
+1103,1104,4169984,Scar,outcome
+1103,1104,141932,Senile hyperkeratosis,outcome
+1103,1104,196236,Septic shock,outcome
+1103,1104,254443,Sjögren's syndrome,outcome
+1103,1104,36713918,Somatic dysfunction of lumbar region,outcome
+1103,1104,443172,"Splinter of face, without major open wound",outcome
+1103,1104,81151,Sprain of ankle,outcome
+1103,1104,72748,Strain of rotator cuff capsule,outcome
+1103,1104,378427,Tear film insufficiency,outcome
+1103,1104,134461,Tietze's disease,outcome
+1103,1104,437264,Tobacco dependence syndrome,outcome
+1103,1104,4234533,Tonsillitis,outcome
+1103,1104,4030042,Toxic goiter,outcome
+1103,1104,81893,Ulcerative colitis,outcome
+1103,1104,194083,Vaginitis and vulvovaginitis,outcome
+1103,1104,140641,Verruca vulgaris,outcome
+1103,1104,380038,Viral conjunctivitis,outcome
+1103,1104,4291005,Viral hepatitis,outcome
+1103,1104,4248870,Visceroptosis,outcome
+1103,1104,440193,Wristdrop,outcome
