@@ -53,7 +53,7 @@
 #'                             this can speed up the analyses.
 #' @param minCellCount         The minimum number of subjects contributing to a count before it can be included
 #'                             in packaged results.
-#' @param makePlots
+#' @param makePlots            Whether or not to generate diagnostic plots                              
 #'
 #' @examples
 #' \dontrun{

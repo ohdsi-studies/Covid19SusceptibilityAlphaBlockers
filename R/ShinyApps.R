@@ -18,6 +18,7 @@
 #'
 #' @param resultsZipFile  Path to a zip file containing results from a study executed by this package.
 #' @param dataFolder      A folder where the data files for the Evidence Explorer app will be stored.
+#' @param prettyLabels    Use nicer looking cohort labels
 #'
 #' @examples
 #'
@@ -32,7 +33,7 @@
 #' }
 #'
 #' @export
-prepareForEvidenceExplorer <- function(resultsZipFile, dataFolder, prettyLabels = FALSE) {
+prepareForEvidenceExplorer <- function(resultsZipFile, dataFolder, prettyLabels = TRUE) {
   # resultsZipFile <- "c:/temp/ResultsMDCD.zip"
   # dataFolder <- "c:/temp/shinyData"
   if (!file.exists(dataFolder)) {

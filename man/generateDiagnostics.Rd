@@ -11,6 +11,10 @@ generateDiagnostics(outputFolder, minSubjectsForPs = 10, makePlots, maxCores)
 (/). Do not use a folder on a network drive since this greatly impacts
 performance.}
 
+\item{minSubjectsForPs}{Specify minimum number of subjects to generate PS diagnostics}
+
+\item{makePlots}{Whether or not to generate diagnostic plots}
+
 \item{maxCores}{How many parallel cores should be used? If more cores are made
 available this can speed up the analyses.}
 }

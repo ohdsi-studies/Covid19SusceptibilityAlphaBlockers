@@ -4,12 +4,14 @@
 \alias{prepareForEvidenceExplorer}
 \title{Prepare results for the Evidence Explorer Shiny app.}
 \usage{
-prepareForEvidenceExplorer(resultsZipFile, dataFolder, prettyLabels = FALSE)
+prepareForEvidenceExplorer(resultsZipFile, dataFolder, prettyLabels = TRUE)
 }
 \arguments{
 \item{resultsZipFile}{Path to a zip file containing results from a study executed by this package.}
 
 \item{dataFolder}{A folder where the data files for the Evidence Explorer app will be stored.}
+
+\item{prettyLabels}{Use nicer looking cohort labels}
 }
 \description{
 Prepare results for the Evidence Explorer Shiny app.

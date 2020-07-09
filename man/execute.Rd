@@ -72,7 +72,7 @@ this can speed up the analyses.}
 \item{minCellCount}{The minimum number of subjects contributing to a count before it can be included
 in packaged results.}
 
-\item{makePlots}{}
+\item{makePlots}{Whether or not to generate diagnostic plots}
 }
 \description{
 Execute the Study
