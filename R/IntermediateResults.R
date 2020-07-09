@@ -12,7 +12,7 @@ packageIntermediateResults <- function(outputFolder,
   }
   cmAnalysisListFile <- system.file("settings",
                                     "cmAnalysisList.json",
-                                    package = "Covid19IncidenceAlphaBlockers")
+                                    package = "Covid19SusceptibilityAlphaBlockers")
   cmAnalysisList <- CohortMethod::loadCmAnalysisList(cmAnalysisListFile)
   # tcosList <- createTcos(outputFolder = outputFolder)
   outcomesOfInterest <- getOutcomesOfInterest()

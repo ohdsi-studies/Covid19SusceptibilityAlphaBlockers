@@ -1,10 +1,10 @@
-library(Covid19IncidenceAlphaBlockers)
+library(Covid19SusceptibilityAlphaBlockers)
 
 # Maximum number of cores to be used:
 maxCores <- parallel::detectCores()
 
 # The folder where the study intermediate and result files will be written:
-outputFolder <- "s:/Covid19IncidenceAlphaBlockers"
+outputFolder <- "s:/Covid19SusceptibilityAlphaBlockers"
 
 # Details for connecting to the server:
 connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = "pdw",

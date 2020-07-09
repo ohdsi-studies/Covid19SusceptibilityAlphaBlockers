@@ -1,13 +1,13 @@
 # Create negative control list
 
-controlFile <- system.file("settings", "NegativeControls.csv", package = "Covid19IncidenceAlphaBlockers")
+controlFile <- system.file("settings", "NegativeControls.csv", package = "Covid19SusceptibilityAlphaBlockers")
 controlData <- unique(read.csv(controlFile)[, c("outcomeId", "outcomeName", "type")])
 controlId <- controlData$outcomeId
 controlName <- as.character(controlData$outcomeName)
 which <- grepl(",", controlName)
 controlName[which] <- paste0("\"", controlName[which], "\"")
 
-tcs <- read.csv(system.file("settings", "TcosOfInterest.csv", package = "Covid19IncidenceAlphaBlockers"))[, c("targetId", "comparatorId")]
+tcs <- read.csv(system.file("settings", "TcosOfInterest.csv", package = "Covid19SusceptibilityAlphaBlockers"))[, c("targetId", "comparatorId")]
 tcs.list <- split(tcs, seq(nrow(tcs)))
 
 makeTcos <- function(row) {

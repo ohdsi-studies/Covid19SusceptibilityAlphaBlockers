@@ -3,7 +3,6 @@
 extras
 ^\.Rprofile$
 documents
-readme.md
+readme*.md
 studyReadme.md
 HydraConfig.json
-

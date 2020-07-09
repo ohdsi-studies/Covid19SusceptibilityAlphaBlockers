@@ -1,6 +1,6 @@
 # Copyright 2019 Observational Health Data Sciences and Informatics
 #
-# This file is part of Covid19IncidenceAlphaBlockers
+# This file is part of Covid19SusceptibilityAlphaBlockers
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -80,7 +80,7 @@ prepareForEvidenceExplorer <- function(resultsZipFile, dataFolder, prettyLabels 
     exposureOfInterest <- readRDS(file = exposureFile)
     cohortFile <- system.file("settings",
                                       "CohortsToCreate.csv",
-                                      package = "Covid19IncidenceAlphaBlockers")
+                                      package = "Covid19SusceptibilityAlphaBlockers")
     cohorts <- read.csv(cohortFile)[, c("cohortId", "shinyName", "shinyOrder")]
     cohorts$exposureId <- cohorts$cohortId
     colnames(cohorts) <- SqlRender::camelCaseToSnakeCase(colnames(cohorts))
@@ -93,7 +93,7 @@ prepareForEvidenceExplorer <- function(resultsZipFile, dataFolder, prettyLabels 
     outcomeOfInterest <- readRDS(file = outcomeFile)
     cohortFile <- system.file("settings",
                               "CohortsToCreate.csv",
-                              package = "Covid19IncidenceAlphaBlockers")
+                              package = "Covid19SusceptibilityAlphaBlockers")
     cohorts <- read.csv(cohortFile)[, c("cohortId", "shinyName", "shinyOrder")]
     cohorts$outcomeId <- cohorts$cohortId
     colnames(cohorts) <- SqlRender::camelCaseToSnakeCase(colnames(cohorts))
@@ -120,7 +120,7 @@ prepareForEvidenceExplorer <- function(resultsZipFile, dataFolder, prettyLabels 
 #' @export
 launchEvidenceExplorer <- function(dataFolder, blind = TRUE, launch.browser = TRUE) {
   ensure_installed("DT")
-  appDir <- system.file("shiny", "EvidenceExplorer", package = "Covid19IncidenceAlphaBlockers")
+  appDir <- system.file("shiny", "EvidenceExplorer", package = "Covid19SusceptibilityAlphaBlockers")
   .GlobalEnv$shinySettings <- list(dataFolder = dataFolder, blind = blind)
   on.exit(rm(shinySettings, envir=.GlobalEnv))
   shiny::runApp(appDir)

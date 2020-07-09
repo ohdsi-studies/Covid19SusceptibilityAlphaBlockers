@@ -1,4 +1,4 @@
-Package: Covid19IncidenceAlphaBlockers
+Package: Covid19SusceptibilityAlphaBlockers
 Type: Package
 Title: A Package Skeleton for Comparative Effectiveness Studies
 Version: 2.0.0

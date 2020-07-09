@@ -1,6 +1,6 @@
 # Copyright 2019 Observational Health Data Sciences and Informatics
 #
-# This file is part of Covid19IncidenceAlphaBlockers
+# This file is part of Covid19SusceptibilityAlphaBlockers
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,13 +16,13 @@
 
 # Format and check code ---------------------------------------------------
 OhdsiRTools::formatRFolder()
-OhdsiRTools::checkUsagePackage("Covid19IncidenceAlphaBlockers")
+OhdsiRTools::checkUsagePackage("Covid19SusceptibilityAlphaBlockers")
 OhdsiRTools::updateCopyrightYearFolder()
 devtools::spell_check()
 
 # Create manual -----------------------------------------------------------
-shell("rm extras/Covid19IncidenceAlphaBlockers.pdf")
-shell("R CMD Rd2pdf ./ --output=extras/Covid19IncidenceAlphaBlockers.pdf")
+shell("rm extras/Covid19SusceptibilityAlphaBlockers.pdf")
+shell("R CMD Rd2pdf ./ --output=extras/Covid19SusceptibilityAlphaBlockers.pdf")
 
 # Create vignettes ---------------------------------------------------------
 rmarkdown::render("vignettes/UsingSkeletonPackage.Rmd",
@@ -43,7 +43,7 @@ OhdsiRTools::insertCohortDefinitionSetInPackage(fileName = "CohortsToCreate.csv"
                                                 insertTableSql = TRUE,
                                                 insertCohortCreationR = TRUE,
                                                 generateStats = FALSE,
-                                                packageName = "Covid19IncidenceAlphaBlockers")
+                                                packageName = "Covid19SusceptibilityAlphaBlockers")
 
 # Create analysis details -------------------------------------------------
 source("extras/CreateStudyAnalysisDetails.R")
@@ -51,4 +51,4 @@ createAnalysesDetails("inst/settings/")
 createPositiveControlSynthesisArgs("inst/settings/")
 
 # Store environment in which the study was executed -----------------------
-OhdsiRTools::insertEnvironmentSnapshotInPackage("Covid19IncidenceAlphaBlockers")
+OhdsiRTools::insertEnvironmentSnapshotInPackage("Covid19SusceptibilityAlphaBlockers")

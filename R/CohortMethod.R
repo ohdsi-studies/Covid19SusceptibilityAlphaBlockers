@@ -1,6 +1,6 @@
 # Copyright 2019 Observational Health Data Sciences and Informatics
 #
-# This file is part of Covid19IncidenceAlphaBlockers
+# This file is part of Covid19SusceptibilityAlphaBlockers
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ runCohortMethod <- function(connectionDetails,
   }
   cmAnalysisListFile <- system.file("settings",
                                     "cmAnalysisList.json",
-                                    package = "Covid19IncidenceAlphaBlockers")
+                                    package = "Covid19SusceptibilityAlphaBlockers")
   cmAnalysisList <- CohortMethod::loadCmAnalysisList(cmAnalysisListFile)
   tcosList <- createTcos(outputFolder = outputFolder)
   outcomesOfInterest <- getOutcomesOfInterest()
@@ -148,7 +148,7 @@ computeCovariateBalance <- function(row, cmOutputFolder, balanceFolder) {
 addAnalysisDescription <- function(data, IdColumnName = "analysisId", nameColumnName = "analysisDescription") {
   cmAnalysisListFile <- system.file("settings",
                                     "cmAnalysisList.json",
-                                    package = "Covid19IncidenceAlphaBlockers")
+                                    package = "Covid19SusceptibilityAlphaBlockers")
   cmAnalysisList <- CohortMethod::loadCmAnalysisList(cmAnalysisListFile)
   idToName <- lapply(cmAnalysisList, function(x) data.frame(analysisId = x$analysisId, description = as.character(x$description)))
   idToName <- do.call("rbind", idToName)
@@ -164,7 +164,7 @@ addAnalysisDescription <- function(data, IdColumnName = "analysisId", nameColumn
 }
 
 createTcos <- function(outputFolder) {
-  pathToCsv <- system.file("settings", "TcosOfInterest.csv", package = "Covid19IncidenceAlphaBlockers")
+  pathToCsv <- system.file("settings", "TcosOfInterest.csv", package = "Covid19SusceptibilityAlphaBlockers")
   tcosOfInterest <- read.csv(pathToCsv, stringsAsFactors = FALSE)
   allControls <- getAllControls(outputFolder)
   tcs <- unique(rbind(tcosOfInterest[, c("targetId", "comparatorId")],
@@ -199,7 +199,7 @@ createTcos <- function(outputFolder) {
 }
 
 getOutcomesOfInterest <- function() {
-  pathToCsv <- system.file("settings", "TcosOfInterest.csv", package = "Covid19IncidenceAlphaBlockers")
+  pathToCsv <- system.file("settings", "TcosOfInterest.csv", package = "Covid19SusceptibilityAlphaBlockers")
   tcosOfInterest <- read.csv(pathToCsv, stringsAsFactors = FALSE) 
   outcomeIds <- as.character(tcosOfInterest$outcomeIds)
   outcomeIds <- do.call("c", (strsplit(outcomeIds, split = ";")))
@@ -214,7 +214,7 @@ getAllControls <- function(outputFolder) {
     allControls <- read.csv(allControlsFile)
   } else {
     # Include only negative controls
-    pathToCsv <- system.file("settings", "NegativeControls.csv", package = "Covid19IncidenceAlphaBlockers")
+    pathToCsv <- system.file("settings", "NegativeControls.csv", package = "Covid19SusceptibilityAlphaBlockers")
     allControls <- read.csv(pathToCsv)
     allControls$oldOutcomeId <- allControls$outcomeId
     allControls$targetEffectSize <- rep(1, nrow(allControls))
