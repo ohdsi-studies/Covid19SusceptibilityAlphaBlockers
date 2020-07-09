@@ -36,7 +36,7 @@ See [this video](https://youtu.be/K9_0s2Rchbo) for instructions on how to set up
 
 How to run
 ==========
-1. You will build a library `Covid19IncidenceAlphaBlockers` from the folder of the same name, which also contain installation instruction.
+1. You will build a library `Covid19SusceptibilityAlphaBlockers` from the folder of the same name, which also contain installation instruction.
 
  *Note: If you encounter errors in devtools pulling the study packages, you may find it easier to download the repo zip locally and uploading it through your RStudio console. Instructions to upload packages are provided in [The Book of OHDSI](https://ohdsi.github.io/TheBookOfOhdsi/PopulationLevelEstimation.html#running-the-study-package).*
 
@@ -75,4 +75,4 @@ max_parallel_workers = 8
 
 License
 =======
-The `Covid19IncidenceAlphaBlockers` is licensed under Apache License 2.0
+The `Covid19SusceptibilityAlphaBlockers` is licensed under Apache License 2.0
