@@ -79,7 +79,7 @@ readRdsCamelCase <- function(file) {
 \renewcommand\theContinuedFloat{\alph{ContinuedFloat}}
 
 ```{r, echo=FALSE}
-cohorts <- read.csv(file = system.file("settings", "CohortsToCreate.csv", package = "Covid19IncidenceAlphaBlockers")) %>% select(cohortId, shinyName)
+cohorts <- read.csv(file = system.file("settings", "CohortsToCreate.csv", package = "Covid19SusceptibilityAlphaBlockers")) %>% select(cohortId, shinyName)
 
 aceMonoId <- cohorts %>% filter(shinyName == "ACE mono") %>% select(cohortId) %>% pull()
 arbMonoId <- cohorts %>% filter(shinyName == "ARB mono") %>% select(cohortId) %>% pull()
@@ -542,9 +542,9 @@ print(xtable(tablePna, format = "latex"),
 
 ```{r, echo=FALSE}
 source(system.file("shiny", "EvidenceExplorer", "PlotsAndTables.R",
-                   package = "Covid19IncidenceAlphaBlockers"))
+                   package = "Covid19SusceptibilityAlphaBlockers"))
 # source(system.file("shiny", "EvidenceExplorer", "DataPulls.R",
-#                    package = "Covid19IncidenceAlphaBlockers"))
+#                    package = "Covid19SusceptibilityAlphaBlockers"))
 ```
 
 ```{r, echo=FALSE, results="asis", cache=FALSE, warning=FALSE}
@@ -625,7 +625,7 @@ balance <- getCovariateBalance(NULL, targetId, comparatorId, databaseId = databa
   cat(title)
 
   table <- prepareTable1(balance,pathToCsv = system.file("shiny", "EvidenceExplorer", "Table1Specs.csv", 
-                                      package = "Covid19IncidenceAlphaBlockers"))
+                                      package = "Covid19SusceptibilityAlphaBlockers"))
   table <- table[3:nrow(table),]
 
   print(xtable(table, format = "latex", align = c("l","l","r","r","r","r","r","r")),
@@ -833,7 +833,7 @@ plotScatter <- function(controlResults) {
 }
 
 getAllControls <- function() {
-  pathToCsv <- system.file("settings", "NegativeControls.csv", package = "Covid19IncidenceAlphaBlockers")
+  pathToCsv <- system.file("settings", "NegativeControls.csv", package = "Covid19SusceptibilityAlphaBlockers")
   allControls <- read.csv(pathToCsv)
   allControls$oldOutcomeId <- allControls$outcomeId
   allControls$targetEffectSize <- rep(1, nrow(allControls))
@@ -1253,7 +1253,7 @@ makeEffectTable <- function(outcomeName, designName, databaseName, table,
 ```{r, echo=FALSE}
 databaseId <- "SIDIAP"
 
-outcomesOfInterest <- Covid19IncidenceAlphaBlockers:::getOutcomesOfInterest()
+outcomesOfInterest <- Covid19SusceptibilityAlphaBlockers:::getOutcomesOfInterest()
 cmResults <- readRDS(file.path(studyFolder, databaseId, "shinyData", sprintf("cohort_method_result_%s.rds", databaseId)))
 colnames(cmResults) <- SqlRender::snakeCaseToCamelCase(colnames(cmResults))
 cmResults <- cmResults %>% select(-i2) %>% na.omit()
@@ -1273,7 +1273,7 @@ sidiapTable <- do.call(
 
 databaseId <- "VA-OMOP"
 
-outcomesOfInterest <- Covid19IncidenceAlphaBlockers:::getOutcomesOfInterest()
+outcomesOfInterest <- Covid19SusceptibilityAlphaBlockers:::getOutcomesOfInterest()
 cmResults <- readRDS(file.path(studyFolder, databaseId, "shinyData", sprintf("cohort_method_result_%s.rds", databaseId)))
 colnames(cmResults) <- SqlRender::snakeCaseToCamelCase(colnames(cmResults))
 cmResults <- cmResults %>% select(-i2) %>% na.omit()
@@ -1293,7 +1293,7 @@ vaTable <- do.call(
 
 databaseId <- "CUIMC"
 
-outcomesOfInterest <- Covid19IncidenceAlphaBlockers:::getOutcomesOfInterest()
+outcomesOfInterest <- Covid19SusceptibilityAlphaBlockers:::getOutcomesOfInterest()
 cmResults <- readRDS(file.path(studyFolder, databaseId, "shinyData", sprintf("cohort_method_result_%s.rds", databaseId))) 
 colnames(cmResults) <- SqlRender::snakeCaseToCamelCase(colnames(cmResults))
 cmResults <- cmResults %>% select(-i2) %>% na.omit()
@@ -1313,7 +1313,7 @@ cuimcTable <- do.call(
 
 databaseId <- "Meta-analysis"
 
-outcomesOfInterest <- Covid19IncidenceAlphaBlockers:::getOutcomesOfInterest()
+outcomesOfInterest <- Covid19SusceptibilityAlphaBlockers:::getOutcomesOfInterest()
 cmResults <- readRDS(file.path(studyFolder, databaseId, "shinyData", sprintf("cohort_method_result_%s.rds", databaseId))) 
 colnames(cmResults) <- SqlRender::snakeCaseToCamelCase(colnames(cmResults))
 cmResults <- cmResults %>% na.omit()

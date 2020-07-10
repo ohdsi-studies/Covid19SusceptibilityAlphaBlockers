@@ -5,11 +5,11 @@
 	"actions":[{
 		"type": "fileNameFindAndReplace",
 		"input": "packageName",
-		"find": "Covid19IncidenceAlphaBlockers"
+		"find": "Covid19SusceptibilityAlphaBlockers"
 	},{
 		"type": "stringFindAndReplace",
 		"input": "packageName",
-		"find": "Covid19IncidenceAlphaBlockers"
+		"find": "Covid19SusceptibilityAlphaBlockers"
 	},{
 		"type": "jsonArrayToCsv",
 		"input": "cohortDefinitions",

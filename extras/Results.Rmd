@@ -66,7 +66,7 @@ readRdsCamelCase <- function(file) {
 # Cohorts
 
 ```{r, echo=FALSE}
-cohorts <- read.csv(file = system.file("settings", "CohortsToCreate.csv", package = "Covid19IncidenceAlphaBlockers")) %>% select(cohortId, shinyName)
+cohorts <- read.csv(file = system.file("settings", "CohortsToCreate.csv", package = "Covid19SusceptibilityAlphaBlockers")) %>% select(cohortId, shinyName)
 
 aceMonoId <- cohorts %>% filter(shinyName == "ACE mono") %>% select(cohortId) %>% pull()
 arbMonoId <- cohorts %>% filter(shinyName == "ARB mono") %>% select(cohortId) %>% pull()
@@ -260,9 +260,9 @@ countText(targetName = "ACE (m)", comparatorName = "ARB (m)")
 
 ```{r, echo=FALSE}
 source(system.file("shiny", "EvidenceExplorer", "PlotsAndTables.R",
-                   package = "Covid19IncidenceAlphaBlockers"))
+                   package = "Covid19SusceptibilityAlphaBlockers"))
 # source(system.file("shiny", "EvidenceExplorer", "DataPulls.R",
-#                    package = "Covid19IncidenceAlphaBlockers"))
+#                    package = "Covid19SusceptibilityAlphaBlockers"))
 ```
 
 ```{r, echo=FALSE, results="asis", cache=FALSE, warning=FALSE}
@@ -333,23 +333,23 @@ blend <- function(databaseIds,
                                   covariate = covariate3, dataFolder = dataFolders[3])
   
     specifications <- read.csv(system.file("shiny", "EvidenceExplorer", "Table1Specs.csv",
-                                      package = "Covid19IncidenceAlphaBlockers"), stringsAsFactors = FALSE)
+                                      package = "Covid19SusceptibilityAlphaBlockers"), stringsAsFactors = FALSE)
 
 
   table1 <- prepareTable1(balance1,pathToCsv = system.file("shiny", "EvidenceExplorer", "Table1Specs.csv",
-                                      package = "Covid19IncidenceAlphaBlockers"))
+                                      package = "Covid19SusceptibilityAlphaBlockers"))
 
   table1 <- table1[3:nrow(table1),]
   colnames(table1) <- c("id","b","c","d","e","f","g")
 
   table2 <- prepareTable1(balance2,pathToCsv = system.file("shiny", "EvidenceExplorer", "Table1Specs.csv",
-                                      package = "Covid19IncidenceAlphaBlockers"))
+                                      package = "Covid19SusceptibilityAlphaBlockers"))
 
   table2 <- table2[3:nrow(table2),]
   colnames(table2) <- c("id","b","c","d","e","f","g")
   
   table3 <- prepareTable1(balance3,pathToCsv = system.file("shiny", "EvidenceExplorer", "Table1Specs.csv",
-                                      package = "Covid19IncidenceAlphaBlockers"))
+                                      package = "Covid19SusceptibilityAlphaBlockers"))
 
   table3 <- table3[3:nrow(table3),]
   colnames(table3) <- c("id","b","c","d","e","f","g")  

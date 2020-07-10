@@ -69151,7 +69151,7 @@
   ],
   "doPositiveControlSynthesis": false,
   "id": 51,
-  "packageName": "Covid19IncidenceAlphaBlockers",
+  "packageName": "Covid19SusceptibilityAlphaBlockers",
   "negativeControls": [
     {
       "targetId": 1103,
