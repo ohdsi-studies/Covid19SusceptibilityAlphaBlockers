@@ -100,8 +100,7 @@ prepareForEvidenceExplorer <- function(resultsZipFile, dataFolder, prettyLabels 
     colnames(cohorts) <- SqlRender::camelCaseToSnakeCase(colnames(cohorts))
     tmp <- outcomeOfInterest %>% dplyr::left_join(cohorts, by = "outcome_id") %>%
       dplyr::arrange(shiny_order) %>% dplyr::mutate(outcome_name = shiny_name) %>%
-      select(-shiny_name, -shiny_order) %>%
-      filter(outcome_id != 91) # Remove MACE
+      dplyr::select(-shiny_name, -shiny_order) 
     saveRDS(tmp, outcomeFile)    
   }
 }
