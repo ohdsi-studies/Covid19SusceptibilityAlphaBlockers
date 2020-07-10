@@ -119,7 +119,7 @@ matchByPsArgs$allowReverseMatch <- TRUE
 
 cmAnalysis1 <- CohortMethod::createCmAnalysis(analysisId = 1,
                                               description = "Crude/unadjusted",
-                                              getDbCohortMethodDataArgs = getDbCmDataArgsWithBphMeds,
+                                              getDbCohortMethodDataArgs = getDbCmDataArgsWithoutBphMeds,
                                               createStudyPopArgs = createStudyPopArgs,
                                               createPs = FALSE,
                                               fitOutcomeModel = TRUE,
@@ -129,7 +129,7 @@ cmAnalysis1 <- CohortMethod::createCmAnalysis(analysisId = 1,
 
 cmAnalysis2 <- CohortMethod::createCmAnalysis(analysisId = 2,
                                               description = "Adjusted outcome",
-                                              getDbCohortMethodDataArgs = getDbCmDataArgsWithBphMeds,
+                                              getDbCohortMethodDataArgs = getDbCmDataArgsWithoutBphMeds,
                                               createStudyPopArgs = createStudyPopArgs,
                                               createPs = FALSE,
                                               fitOutcomeModel = TRUE,
@@ -188,7 +188,7 @@ cmAnalysis6 <- CohortMethod::createCmAnalysis(analysisId = 6,
                                               fitOutcomeModel = TRUE,
                                               fitOutcomeModelArgs = fitPsOutcomeModelArgs)
 
-cmAnalysisList <- list(cmAnalysis1,cmAnalysis2,cmAnalysis3,cmAnalysis4,cmAnalysis5,cmAnalysis6)
+cmAnalysisList <- list(cmAnalysis1,cmAnalysis3,cmAnalysis4,cmAnalysis5,cmAnalysis6)
 
 CohortMethod::saveCmAnalysisList(cmAnalysisList, "cmAnalysisList.json")
 
