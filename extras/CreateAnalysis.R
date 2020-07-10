@@ -108,6 +108,8 @@ fitPsOutcomeModelArgs <- CohortMethod::createFitOutcomeModelArgs(
   useCovariates = FALSE,
   stratified = TRUE)
 
+fitPsOutcomeModelArgs$control$profileLogLikelihood <- TRUE
+
 stratifyByPsArgs <- CohortMethod::createStratifyByPsArgs(numberOfStrata = 5)
 
 matchByPsArgs <- CohortMethod::createMatchOnPsArgs(

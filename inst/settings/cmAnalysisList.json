@@ -275,6 +275,7 @@
         "initialBound": 2,
         "maxBoundCount": 5,
         "algorithm": "ccd",
+        "profileLogLikelihood": true,
         "attr_class": "cyclopsControl"
       },
       "attr_class": "args"
@@ -441,6 +442,7 @@
         "initialBound": 2,
         "maxBoundCount": 5,
         "algorithm": "ccd",
+        "profileLogLikelihood": true,
         "attr_class": "cyclopsControl"
       },
       "attr_class": "args"
@@ -604,6 +606,7 @@
         "initialBound": 2,
         "maxBoundCount": 5,
         "algorithm": "ccd",
+        "profileLogLikelihood": true,
         "attr_class": "cyclopsControl"
       },
       "attr_class": "args"
@@ -769,6 +772,7 @@
         "initialBound": 2,
         "maxBoundCount": 5,
         "algorithm": "ccd",
+        "profileLogLikelihood": true,
         "attr_class": "cyclopsControl"
       },
       "attr_class": "args"
