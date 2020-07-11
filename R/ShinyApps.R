@@ -24,12 +24,12 @@
 #'
 #' \dontrun{
 #' # Add results from three databases to the Shiny app data folder:
-#' prepareForEvidenceExplorer("ResultsMDCD.zip", "/shinyData")
-#' prepareForEvidenceExplorer("ResultsMDCR.zip", "/shinyData")
-#' prepareForEvidenceExplorer("ResultsCCAE.zip", "/shinyData")
+#' prepareForEvidenceExplorer("ResultsMDCD.zip", "shinyData")
+#' prepareForEvidenceExplorer("ResultsMDCR.zip", "shinyData")
+#' prepareForEvidenceExplorer("ResultsCCAE.zip", "shinyData")
 #'
 #' # Launch the Shiny app:
-#' launchEvidenceExplorer("/shinyData")
+#' launchEvidenceExplorer("shinyData")
 #' }
 #'
 #' @export
