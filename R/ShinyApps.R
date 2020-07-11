@@ -41,7 +41,7 @@ prepareForEvidenceExplorer <- function(resultsZipFile, dataFolder, prettyLabels 
   }
   tempFolder <- paste(tempdir(), "unzip")
   on.exit(unlink(tempFolder, recursive = TRUE))
-  utils::unzip(resultsZipFile, exdir = tempFolder)
+  utils::unzip(resultsZipFile, exdir = tempFolder, junkpaths = TRUE)
   databaseFileName <- file.path(tempFolder, "database.csv")
   if (!file.exists(databaseFileName)) {
     stop("Cannot find file database.csv in zip file")
