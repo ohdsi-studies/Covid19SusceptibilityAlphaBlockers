@@ -10,7 +10,7 @@ OHDSI COVID-19 Studyathon: Alpha-1 blocker for Palliating Inflammatory injury Se
 - Study lead forums tag: **[aki-nishimura](https://forums.ohdsi.org/u/aki-nishimura), [Daniel_Prieto](https://forums.ohdsi.org/u/daniel_prieto), [msuchard](https://forums.ohdsi.org/u/msuchard)**
 - Study start date: **July 7th, 2020**
 - Study end date: **-**
-- Protocol: **[PDF](https://github.com/ohdsi-studies/TBD/)**
+- Protocol: **[PDF](https://github.com/ohdsi-studies/Covid19SusceptibilityAlphaBlockers/blob/master/Documents/alpha_blocker_study_protocol.pdf)**
 - Publications: **-**
 - Results explorer: **-**
 
