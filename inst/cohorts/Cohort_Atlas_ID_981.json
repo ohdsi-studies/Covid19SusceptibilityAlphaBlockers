@@ -76,6 +76,80 @@
           "isExcluded": false,
           "concept": {
             "INVALID_REASON_CAPTION": "Valid",
+            "CONCEPT_ID": 37311061,
+            "STANDARD_CONCEPT": "S",
+            "CONCEPT_CODE": "840539006",
+            "VOCABULARY_ID": "SNOMED",
+            "CONCEPT_NAME": "Disease caused by 2019-nCoV",
+            "DOMAIN_ID": "Condition",
+            "STANDARD_CONCEPT_CAPTION": "Standard",
+            "CONCEPT_CLASS_ID": "Clinical Finding",
+            "INVALID_REASON": "V"
+          },
+          "includeMapped": false,
+          "includeDescendants": true
+        },
+        {
+          "isExcluded": false,
+          "concept": {
+            "INVALID_REASON_CAPTION": "Valid",
+            "CONCEPT_ID": 4100065,
+            "STANDARD_CONCEPT": "S",
+            "CONCEPT_CODE": "27619001",
+            "VOCABULARY_ID": "SNOMED",
+            "CONCEPT_NAME": "Disease due to Coronaviridae",
+            "DOMAIN_ID": "Condition",
+            "STANDARD_CONCEPT_CAPTION": "Standard",
+            "CONCEPT_CLASS_ID": "Clinical Finding",
+            "INVALID_REASON": "V"
+          },
+          "includeMapped": false,
+          "includeDescendants": true
+        },
+        {
+          "isExcluded": false,
+          "concept": {
+            "INVALID_REASON_CAPTION": "Valid",
+            "CONCEPT_ID": 439676,
+            "STANDARD_CONCEPT": "S",
+            "CONCEPT_CODE": "186747009",
+            "VOCABULARY_ID": "SNOMED",
+            "CONCEPT_NAME": "Coronavirus infection",
+            "DOMAIN_ID": "Condition",
+            "STANDARD_CONCEPT_CAPTION": "Standard",
+            "CONCEPT_CLASS_ID": "Clinical Finding",
+            "INVALID_REASON": "V"
+          },
+          "includeMapped": false,
+          "includeDescendants": true
+        },
+        {
+          "isExcluded": false,
+          "concept": {
+            "INVALID_REASON_CAPTION": "Valid",
+            "CONCEPT_ID": 37311060,
+            "STANDARD_CONCEPT": "S",
+            "CONCEPT_CODE": "840544004",
+            "VOCABULARY_ID": "SNOMED",
+            "CONCEPT_NAME": "Suspected disease caused by 2019-nCoV",
+            "DOMAIN_ID": "Observation",
+            "STANDARD_CONCEPT_CAPTION": "Standard",
+            "CONCEPT_CLASS_ID": "Context-dependent",
+            "INVALID_REASON": "V"
+          },
+          "includeMapped": false,
+          "includeDescendants": true
+        }
+      ]},
+      "name": "COVID-19 conditions",
+      "id": 4
+    },
+    {
+      "expression": {"items": [
+        {
+          "isExcluded": false,
+          "concept": {
+            "INVALID_REASON_CAPTION": "Valid",
             "CONCEPT_ID": 262,
             "STANDARD_CONCEPT": "S",
             "CONCEPT_CODE": "ERIP",
@@ -1725,6 +1799,54 @@
                 "Qualifier": null,
                 "First": null,
                 "OccurrenceStartDate": null,
+                "Age": null
+              }},
+              "Occurrence": {
+                "Type": 2,
+                "IsDistinct": false,
+                "Count": 1
+              }
+            },
+            {
+              "RestrictVisit": false,
+              "StartWindow": {
+                "UseEventEnd": false,
+                "Start": {
+                  "Days": 21,
+                  "Coeff": -1
+                },
+                "End": {
+                  "Days": null,
+                  "Coeff": 1
+                },
+                "UseIndexEnd": false
+              },
+              "IgnoreObservationPeriod": false,
+              "EndWindow": {
+                "UseEventEnd": false,
+                "Start": {
+                  "Days": null,
+                  "Coeff": -1
+                },
+                "End": {
+                  "Days": 0,
+                  "Coeff": 1
+                },
+                "UseIndexEnd": true
+              },
+              "Criteria": {"ConditionOccurrence": {
+                "OccurrenceEndDate": null,
+                "CorrelatedCriteria": null,
+                "ConditionTypeExclude": false,
+                "CodesetId": 4,
+                "ProviderSpecialty": null,
+                "Gender": null,
+                "VisitType": null,
+                "First": null,
+                "OccurrenceStartDate": null,
+                "ConditionType": null,
+                "ConditionSourceConcept": null,
+                "StopReason": null,
                 "Age": null
               }},
               "Occurrence": {
