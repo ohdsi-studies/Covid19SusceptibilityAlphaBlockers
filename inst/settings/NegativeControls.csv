@@ -117,3 +117,121 @@ targetId,comparatorId,outcomeId,outcomeName,type
 1103,1104,4291005,Viral hepatitis,outcome
 1103,1104,4248870,Visceroptosis,outcome
 1103,1104,440193,Wristdrop,outcome
+1200,1201,436409,Abnormal pupil,outcome
+1200,1201,199192,Abrasion and/or friction burn of trunk without infection,outcome
+1200,1201,4092879,Absent kidney,outcome
+1200,1201,436634,Acariasis,outcome
+1200,1201,44783954,Acid reflux,outcome
+1200,1201,75911,Acquired hallux valgus,outcome
+1200,1201,137951,Acquired keratoderma,outcome
+1200,1201,77965,Acquired trigger finger,outcome
+1200,1201,376707,Acute conjunctivitis,outcome
+1200,1201,4103640,Amputated foot,outcome
+1200,1201,432595,Amyloidosis,outcome
+1200,1201,73241,Anal and rectal polyp,outcome
+1200,1201,437082,Ankylosing spondylitis,outcome
+1200,1201,77650,Aseptic necrosis of bone,outcome
+1200,1201,378424,Astigmatism,outcome
+1200,1201,374923,Bell's palsy,outcome
+1200,1201,4110709,Benign epithelial neoplasm of skin,outcome
+1200,1201,133655,Burn of forearm,outcome
+1200,1201,73560,Calcaneal spur,outcome
+1200,1201,434327,Cannabis abuse,outcome
+1200,1201,4213540,Cervical somatic dysfunction,outcome
+1200,1201,381581,Chalazion,outcome
+1200,1201,140842,Changes in skin texture,outcome
+1200,1201,438531,Chondromalacia,outcome
+1200,1201,81378,Chondromalacia of patella,outcome
+1200,1201,432303,Cocaine abuse,outcome
+1200,1201,4201390,Colostomy present,outcome
+1200,1201,46269889,Complication due to Crohn's disease,outcome
+1200,1201,134438,Contact dermatitis,outcome
+1200,1201,78619,Contusion of knee,outcome
+1200,1201,201606,Crohn's disease,outcome
+1200,1201,260134,Croup,outcome
+1200,1201,76786,Derangement of knee,outcome
+1200,1201,4115402,Difficulty sleeping,outcome
+1200,1201,443767,Disorder of eye due to diabetes mellitus,outcome
+1200,1201,45757370,Disproportion of reconstructed breast,outcome
+1200,1201,433111,Effects of hunger,outcome
+1200,1201,441589,Endocarditis,outcome
+1200,1201,200775,Endometrial hyperplasia,outcome
+1200,1201,433527,Endometriosis,outcome
+1200,1201,73008,Enthesopathy,outcome
+1200,1201,4249170,Epicondylitis,outcome
+1200,1201,4170770,Epidermoid cyst,outcome
+1200,1201,4345472,Epstein-Barr virus disease,outcome
+1200,1201,4092896,Feces contents abnormal,outcome
+1200,1201,259995,Foreign body in orifice,outcome
+1200,1201,196456,Gallstone,outcome
+1200,1201,40481632,Ganglion cyst,outcome
+1200,1201,4166231,Genetic predisposition,outcome
+1200,1201,74855,Genital herpes simplex,outcome
+1200,1201,433577,Hammer toe,outcome
+1200,1201,441818,Hemangioma,outcome
+1200,1201,4231770,Hereditary thrombophilia,outcome
+1200,1201,440329,Herpes zoster without complication,outcome
+1200,1201,4012570,High risk sexual behavior,outcome
+1200,1201,4038835,Hodgkin's disease,outcome
+1200,1201,4012934,Homocystinuria,outcome
+1200,1201,441788,Human papilloma virus infection,outcome
+1200,1201,380688,Hypoglycemic coma,outcome
+1200,1201,4254542,Hypopituitarism,outcome
+1200,1201,4201717,Ileostomy present,outcome
+1200,1201,374375,Impacted cerumen,outcome
+1200,1201,140480,Impetigo,outcome
+1200,1201,4344500,Impingement syndrome of shoulder region,outcome
+1200,1201,139099,Ingrowing nail,outcome
+1200,1201,444132,Injury of knee,outcome
+1200,1201,434926,Iridocyclitis,outcome
+1200,1201,196168,Irregular periods,outcome
+1200,1201,75576,Irritable bowel syndrome,outcome
+1200,1201,432593,Kwashiorkor,outcome
+1200,1201,434203,Late effect of contusion,outcome
+1200,1201,438329,Late effect of motor vehicle accident,outcome
+1200,1201,443285,Lesion of cervix,outcome
+1200,1201,195873,Leukorrhea,outcome
+1200,1201,440638,Lyme disease,outcome
+1200,1201,4083487,Macular drusen,outcome
+1200,1201,4156115,Malignant neoplasm of endocrine gland,outcome
+1200,1201,4103703,Melena,outcome
+1200,1201,4134455,Mononeuropathy,outcome
+1200,1201,4209423,Nicotine dependence,outcome
+1200,1201,377572,Noise effects on inner ear,outcome
+1200,1201,136368,Non-toxic multinodular goiter,outcome
+1200,1201,40480893,Nonspecific tuberculin test reaction,outcome
+1200,1201,4215978,Onychomycosis,outcome
+1200,1201,140648,Onychomycosis due to dermatophyte,outcome
+1200,1201,438130,Opioid abuse,outcome
+1200,1201,192606,Paraplegia,outcome
+1200,1201,4091513,Passing flatus,outcome
+1200,1201,4112731,Polyp of intestine,outcome
+1200,1201,4202045,Postviral fatigue syndrome,outcome
+1200,1201,373478,Presbyopia,outcome
+1200,1201,46286594,Problem related to lifestyle,outcome
+1200,1201,439790,Psychalgia,outcome
+1200,1201,81634,Ptotic breast,outcome
+1200,1201,253954,Pulmonary tuberculosis,outcome
+1200,1201,4087647,Rectal mass,outcome
+1200,1201,380706,Regular astigmatism,outcome
+1200,1201,438688,Sarcoidosis,outcome
+1200,1201,4169984,Scar,outcome
+1200,1201,141932,Senile hyperkeratosis,outcome
+1200,1201,196236,Septic shock,outcome
+1200,1201,254443,Sjögren's syndrome,outcome
+1200,1201,36713918,Somatic dysfunction of lumbar region,outcome
+1200,1201,443172,"Splinter of face, without major open wound",outcome
+1200,1201,81151,Sprain of ankle,outcome
+1200,1201,72748,Strain of rotator cuff capsule,outcome
+1200,1201,378427,Tear film insufficiency,outcome
+1200,1201,134461,Tietze's disease,outcome
+1200,1201,437264,Tobacco dependence syndrome,outcome
+1200,1201,4234533,Tonsillitis,outcome
+1200,1201,4030042,Toxic goiter,outcome
+1200,1201,81893,Ulcerative colitis,outcome
+1200,1201,194083,Vaginitis and vulvovaginitis,outcome
+1200,1201,140641,Verruca vulgaris,outcome
+1200,1201,380038,Viral conjunctivitis,outcome
+1200,1201,4291005,Viral hepatitis,outcome
+1200,1201,4248870,Visceroptosis,outcome
+1200,1201,440193,Wristdrop,outcome
