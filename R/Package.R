@@ -25,7 +25,7 @@
 #' @importFrom stats aggregate density pnorm qnorm quantile
 #' @importFrom utils read.csv write.csv install.packages menu setTxtProgressBar txtProgressBar write.table
 #' @import DatabaseConnector
-#' @importFrom dplyr pull collect bind_rows group_by summarise ungroup `%>%`
+#' @importFrom dplyr pull collect bind_rows group_by summarise ungroup filter mutate `%>%`
 #' @importFrom rlang .data
 #'
 NULL
