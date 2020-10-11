@@ -21,7 +21,7 @@ doNegativeControlCalibration <- function(studyFolder,
                            maxCores) {
 
   outcomesOfInterest <- getOutcomesOfInterest()
-  negativeControlOutcome <- getAllControls() %>% filter(targetEffectSize == 1)
+  negativeControlOutcome <- getAllNegativeControls() %>% filter(targetEffectSize == 1)
 
 for(databaseId in databaseIds){
   singleCohortMethodResult<-readRDS(file.path(studyFolder,"shinyData",sprintf("cohort_method_result_%s.rds",databaseId)))
@@ -262,7 +262,8 @@ sumMinCellCount <- function(counts) {
   return(total)
 }
 
-getAllControls <- function(outputFolder) {
+# Modified version of 'getAllControls' function.
+getAllNegativeControls <- function() {
   pathToCsv <- system.file("settings", "NegativeControls.csv", package = "Covid19SusceptibilityAlphaBlockers")
   allControls <- read.csv(pathToCsv)
   allControls$oldOutcomeId <- allControls$outcomeId
