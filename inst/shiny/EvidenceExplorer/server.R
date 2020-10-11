@@ -60,6 +60,23 @@ shinyServer(function(input, output, session) {
                               databaseIds = databaseIds,
                               analysisIds = analysisIds)
     results <- results[order(results$analysisId), ]
+    
+    for (database_to_blind in c("CUIMC")) {
+      to_be_blinded <- (results$databaseId == database_to_blind)
+      results$rr[to_be_blinded] <- NA
+      results$ci95Lb[to_be_blinded] <- NA
+      results$ci95Ub[to_be_blinded] <- NA
+      results$logRr[to_be_blinded] <- NA
+      results$seLogRr[to_be_blinded] <- NA
+      results$p[to_be_blinded] <- NA
+      results$calibratedRr[to_be_blinded] <- NA
+      results$calibratedCi95Lb[to_be_blinded] <- NA
+      results$calibratedCi95Ub[to_be_blinded] <- NA
+      results$calibratedLogRr[to_be_blinded] <- NA
+      results$calibratedSeLogRr[to_be_blinded] <- NA
+      results$calibratedP[to_be_blinded] <- NA
+    }
+    
     if (blind) {
       results$rr <- rep(NA, nrow(results))
       results$ci95Ub <- rep(NA, nrow(results))
