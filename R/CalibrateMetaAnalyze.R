@@ -72,7 +72,6 @@ doMetaAnalysis <- function(studyFolder,
                            outputFolders,
                            maOutputFolder,
                            maName = "Meta-analysis",
-                           useImbalance = FALSE,
                            maxCores) {
 
   ParallelLogger::logInfo("Performing meta-analysis")
@@ -99,39 +98,6 @@ doMetaAnalysis <- function(studyFolder,
   #   (allResults$databaseId %in% c("CCAE", "DAGermany", "JMDC", "MDCD", "MDCR", "OptumEHR", "OpenClaims", "AmbEMR") & allResults$outcomeId %in% c(18, 19)) | # death, cv death
   #   (allResults$databaseId %in% c("AmbEMR", "CPRD", "DAGermany", "IMRD", "SIDIAP") & allResults$outcomeId %in% c(22, 13, 20, 21, 17, 8, 11)) # databases with no IP
   # allResults <- allResults[!drops, ]
-  #
-  # blind estimates that don't pass diagnostics
-  
-  if (useImbalance) {
-    
-    aceMonoId <- 143
-    arbMonoId <- 144
-    
-    arbComboId <- 138
-    ccbThzComboId <- 149
-    
-    blinds <- 
-      (allResults$databaseId == "CUIMC" & allResults$analysisId == 5 &
-         !(allResults$targetId == aceMonoId & allResults$comparatorId == arbMonoId)) |
-      (allResults$databaseId == "CUIMC" & allResults$analysisId == 6 &
-         (allResults$targetId == aceMonoId & allResults$comparatorId == arbMonoId)) |
-      (allResults$databaseId == "VA-OMOP" & allResults$analysisId == 5 &
-         (allResults$targetId == arbComboId & allResults$comparatorId == ccbThzComboId))
-  
-    allResults$rr[blinds] <- NA
-    allResults$ci95Lb[blinds] <- NA
-    allResults$ci95Ub[blinds] <- NA
-    allResults$logRr[blinds] <- NA
-    allResults$seLogRr[blinds] <- NA
-    allResults$p[blinds] <- NA
-    allResults$calibratedRr[blinds] <- NA
-    allResults$calibratedCi95Lb[blinds] <- NA
-    allResults$calibratedCi95Ub[blinds] <- NA
-    allResults$calibratedLogRr[blinds] <- NA
-    allResults$calibratedSeLogRr[blinds] <- NA
-    allResults$calibratedP[blinds] <- NA
-    
-  }
 
   # controls
   allControls <- lapply(outputFolders, getAllControls)
