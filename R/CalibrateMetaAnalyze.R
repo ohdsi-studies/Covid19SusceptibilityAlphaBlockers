@@ -85,6 +85,13 @@ doMetaAnalysis <- function(studyFolder,
     database <- basename(outputFolder)
     file <- list.files(file.path(outputFolder, "shinyData"), pattern = sprintf("cohort_method_result_%s.rds", database), full.names = TRUE)
     result <- readRDS(file)
+    if (database %in% c("Optum_DOD", "Optum_EHR_COVID")) {
+      # As a hack for proper meta-analysis, replace the on-treatment results with the intent-to-treat ones for Optum.
+      iit_analysis_target_id <- 1200
+      result <- result %>% dplyr::filter(target_id == iit_analysis_target_id)
+      result$target_id <- 1103
+      result$comparator_id <- 1104 
+    }
     colnames(result) <- SqlRender::snakeCaseToCamelCase(colnames(result))
     ParallelLogger::logInfo("Loading ", file, " for meta-analysis")
     return(result)
