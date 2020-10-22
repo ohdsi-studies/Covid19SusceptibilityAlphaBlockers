@@ -103,10 +103,10 @@ primaryAnalysisId <- 5 # Full stratified PS
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 
-sidiapDir <- "/Users/msuchard/Dropbox/Projects/Covid19Icarius/SIDIAP"
-cuimcDir <- "/Users/msuchard/Dropbox/Projects/Covid19Icarius/CUIMC"
-vaDir <- "/Users/msuchard/Dropbox/Projects/Covid19Icarius/VA-OMOP"
-studyFolder <- "/Users/msuchard/Dropbox/Projects/Covid19Icarius"
+studyFolder <- "/Users/aki-nishimura/Dropbox/Documents_Academic/Covid19AlphaBlocker"
+sidiapDir <- file.path(studyFolder, "SIDIAP")
+cuimcDir <- file.path(studyFolder, "CUIMC")
+vaDir <- file.path(studyFolder, "VA-OMOP")
 
 dataFolder <- file.path(sidiapDir, "shinyData")
 databaseId <- "SIDIAP"
