@@ -68,32 +68,16 @@ readRdsCamelCase <- function(file) {
 ```{r, echo=FALSE}
 cohorts <- read.csv(file = system.file("settings", "CohortsToCreate.csv", package = "Covid19SusceptibilityAlphaBlockers")) %>% select(cohortId, shinyName)
 
-aceMonoId <- cohorts %>% filter(shinyName == "ACE mono") %>% select(cohortId) %>% pull()
-arbMonoId <- cohorts %>% filter(shinyName == "ARB mono") %>% select(cohortId) %>% pull()
-aceArbMonoId <- cohorts %>% filter(shinyName == "ACE/ARB mono") %>% select(cohortId) %>% pull()
-ccbThzMonoId <- cohorts %>% filter(shinyName == "CCB/THZ mono") %>% select(cohortId) %>% pull()
+alphaBlockerId <- cohorts %>% filter(shinyName == "Alpha-1 blockers") %>% select(cohortId) %>% pull()
+fiveAlphaId <- cohorts %>% filter(shinyName == "5-alpha inhibitors") %>% select(cohortId) %>% pull()
 
-aceComboId <- cohorts %>% filter(shinyName == "ACE +combo") %>% select(cohortId) %>% pull()
-arbComboId <- cohorts %>% filter(shinyName == "ARB +combo") %>% select(cohortId) %>% pull()
-aceArbComboId <- cohorts %>% filter(shinyName == "ACE/ARB +combo") %>% select(cohortId) %>% pull()
-ccbThzComboId <- cohorts %>% filter(shinyName == "CCB/THZ +combo") %>% select(cohortId) %>% pull()
-
-ccbMonoId <- cohorts %>% filter(shinyName == "CCB mono") %>% select(cohortId) %>% pull()
-thzMonoId <- cohorts %>% filter(shinyName == "THZ mono") %>% select(cohortId) %>% pull()
-ccbComboId <- cohorts %>% filter(shinyName == "CCB +combo") %>% select(cohortId) %>% pull()
-thzComboId <- cohorts %>% filter(shinyName == "THZ +combo") %>% select(cohortId) %>% pull()
-
-covidNarrowId <- cohorts %>% filter(shinyName == "COVID-19 diagnosis") %>% select(cohortId) %>% pull()
-covidBroadId <- cohorts %>% filter(shinyName == "COVID-19 hospitalization") %>% select(cohortId) %>% pull()
-
-pnaId <- cohorts %>% filter(shinyName == "Pneumonia") %>% select(cohortId) %>% pull()
-adverseId <- cohorts %>% filter(shinyName == "PAAS event") %>% select(cohortId) %>% pull()
+covidNarrowId <- cohorts %>% filter(shinyName == "Diagnosis") %>% select(cohortId) %>% pull()
+hospitalizationId <- cohorts %>% filter(shinyName == "Hospitalization") %>% select(cohortId) %>% pull()
+intensiveServiceId <- cohorts %>% filter(shinyName == "Intensive services") %>% select(cohortId) %>% pull()
 
 prettyNames <- data.frame(
-  cohortId = c(aceMonoId, arbMonoId, aceArbMonoId, ccbMonoId, thzMonoId, ccbThzMonoId,
-               aceComboId, arbComboId, aceArbComboId, ccbComboId, thzComboId, ccbThzComboId),
-  cohortName = c("ACE", "ARB", "ACE/ARB", "CCB", "THZ", "CCB/THZ",
-                 "ACE+", "ARB+", "ACE/ARB+", "CCB+", "THZ+", "CCB/THZ+"))
+  cohortId = c(alphaBlockerId, fiveAlphaId),
+  cohortName = c("Alpha blocker", "5-alpha RI"))
 
 primaryAnalysisId <- 5 # Full stratified PS
 ```
@@ -130,18 +114,7 @@ makeSampleSizeTable <- function(databaseId,
   cmResults <- cmResults %>% filter(analysisId == primaryAnalysisId, outcomeId == covidNarrowId)
   
   table <- rbind(
-    # cmResults %>% filter(targetId == aceArbMonoId, comparatorId == ccbThzMonoId) %>% mutate(targetId = "ACE/ARB (m)", comparatorId = "CCB/THZ (m)"),
-    # cmResults %>% filter(targetId == aceMonoId, comparatorId == arbMonoId) %>% mutate(targetId = "ACE (m)", comparatorId = "ARB (m)"),
-    # cmResults %>% filter(targetId == aceArbComboId, comparatorId == ccbThzComboId) %>% mutate(targetId = "ACE/ARB (c)", comparatorId = "CCB/THZ (c)"),
-    # cmResults %>% filter(targetId == aceComboId, comparatorId == arbComboId) %>% mutate(targetId = "ACE (c)", comparatorId = "ARB (c)")  
-    cmResults %>% filter(targetId == aceArbMonoId, comparatorId == ccbThzMonoId) %>% mutate(targetId = "ACE/ARB (m)", comparatorId = "CCB/THZ (m)", order = 1),
-    cmResults %>% filter(targetId == aceArbComboId, comparatorId == ccbThzComboId) %>% mutate(targetId = "ACE/ARB (c)", comparatorId = "CCB/THZ (c)", order = 2),
-    cmResults %>% filter(targetId == aceMonoId, comparatorId == ccbThzMonoId) %>% mutate(targetId = "ACE (m)", comparatorId = "CCB/THZ (m)", order = 3),
-    cmResults %>% filter(targetId == aceComboId, comparatorId == ccbThzComboId) %>% mutate(targetId = "ACE (c)", comparatorId = "CCB/THZ (c)", order = 4),
-    cmResults %>% filter(targetId == arbMonoId, comparatorId == ccbThzMonoId) %>% mutate(targetId = "ARB (m)", comparatorId = "CCB/THZ (m)", order = 5),
-    cmResults %>% filter(targetId == arbComboId, comparatorId == ccbThzComboId) %>% mutate(targetId = "ARB (c)", comparatorId = "CCB/THZ (c)", order = 6),
-    cmResults %>% filter(targetId == aceMonoId, comparatorId == arbMonoId) %>% mutate(targetId = "ACE (m)", comparatorId = "ARB (m)", order = 7),
-    cmResults %>% filter(targetId == aceComboId, comparatorId == arbComboId) %>% mutate(targetId = "ACE (c)", comparatorId = "ARB (c)", order = 8) 
+    cmResults %>% filter(targetId == alphaBlockerId, comparatorId == fiveAlphaId) %>% mutate(targetId = "Alpha blocker", comparatorId = "5-alpha RI", order = 1)
   ) %>% mutate (databaseId = databaseId, databaseOrder = databaseOrder) %>% 
     select(targetId, comparatorId, databaseId, targetSubjects, comparatorSubjects, targetYears, comparatorYears, targetOutcomes, comparatorOutcomes, mdrr, order, databaseOrder)
   
@@ -420,8 +393,7 @@ blend <- function(databaseIds,
               numCovariates = c(nrow(balance1), nrow(balance2), nrow(balance3))))
 }
 
-tmp <- blend(aceArbMonoId, ccbThzMonoId,
-             #aceArbComboId, ccbThzComboId,
+tmp <- blend(alphaBlockerId, fiveAlphaId,
              databaseIds = c("SIDIAP", "VA-OMOP", "CUIMC"),
              dataFolders = c(dataFolder = file.path(sidiapDir, "shinyData"),
                              dataFolder = file.path(vaDir, "shinyData"),
@@ -443,8 +415,8 @@ t3 <- full_join(t2, tableOrder, by = "id") %>% arrange(order) %>%
 t3[is.na(t3)] <- ""
 t3$id <- sub("    ", "\\\\hspace{1em} ", as.character(t3$id))
 
-targetId <- aceArbMonoId
-comparatorId <- ccbThzMonoId
+targetId <- alphaBlockerId
+comparatorId <- fiveAlphaId
 databaseId = "SIDIAP, VA and CUIMC" 
 
 # Get counts for header
@@ -498,13 +470,13 @@ cuimcTc <- tableCuimc %>% head(1) %>% select(targetSubjects, comparatorSubjects)
   cat(footer)
 #}
 
- # tmp <- makeCharacteristicsTable(aceArbMonoId, ccbThzMonoId, 
+ # tmp <- makeCharacteristicsTable(alphaBlockerId, fiveAlphaId, 
  #                          databaseIds = c("SIDIAP", "CUIMC"),
  #                          dataFolders = c(dataFolder = file.path(sidiapDir, "shinyData"),
  #                                          dataFolder = file.path(cuimcDir, "shinyData")))
 
-# makeCharacteristicsTable(aceArbMonoId, ccbThzMonoId,   databaseId = "SIDIAP", dataFolder = file.path(sidiapDir, "shinyData"))
-# makeCharacteristicsTable(aceArbMonoId, ccbThzMonoId,   databaseId = "CUIMC", dataFolder = file.path(cuimcDir, "shinyData"))
+# makeCharacteristicsTable(alphaBlockerId, fiveAlphaId,   databaseId = "SIDIAP", dataFolder = file.path(sidiapDir, "shinyData"))
+# makeCharacteristicsTable(alphaBlockerId, fiveAlphaId,   databaseId = "CUIMC", dataFolder = file.path(cuimcDir, "shinyData"))
 
 ```
 
@@ -517,17 +489,7 @@ numCovariates
 ```{r, echo=FALSE, cache=TRUE}
 
 tcs <- list(
-  list(aceArbMonoId, ccbThzMonoId),
-  list(aceArbComboId, ccbThzComboId),
-
-  list(aceMonoId, ccbThzMonoId),
-  list(aceComboId, ccbThzComboId),
-  
-  list(arbMonoId, ccbThzMonoId),
-  list(arbComboId, ccbThzComboId),
-  
-  list(aceMonoId, arbMonoId),
-  list(aceComboId, arbComboId)  
+  list(alphaBlockerId, fiveAlphaId)
 )
 tcs <- lapply(tcs, function(x) { names(x) <- c("targetId", "comparatorId"); return(x) })
 
@@ -834,7 +796,7 @@ print(xtable(annotatedWideTable %>% filter(outcomeId == covidNarrowId) %>%
       & \multicolumn{1}{c}{HR} & \multicolumn{1}{c}{95\% CI} & \multicolumn{1}{c}{$p$} \\
     \midrule \showrowcolors
 ```{r, echo=FALSE, results="asis"}
-print(xtable(annotatedWideTable %>% filter(outcomeId == covidBroadId) %>% 
+print(xtable(annotatedWideTable %>% filter(outcomeId == hospitalizationId) %>% 
                select(-outcomeId, -stratImbalanced, -matchImbalanced) %>%
                mutate(targetName = "", comparatorName = ""), 
              format = "latex"),
@@ -878,7 +840,7 @@ print(xtable(annotatedWideTable %>% filter(outcomeId == covidBroadId) %>%
       & \multicolumn{1}{c}{HR} & \multicolumn{1}{c}{95\% CI} & \multicolumn{1}{c}{$p$} \\
     \midrule \showrowcolors
 ```{r, echo=FALSE, results="asis"}
-print(xtable(annotatedWideTable %>% filter(outcomeId == pnaId) %>% 
+print(xtable(annotatedWideTable %>% filter(outcomeId == intensiveServiceId) %>% 
                select(-outcomeId, -stratImbalanced, -matchImbalanced) %>%
                mutate(targetName = "", comparatorName = ""), 
              format = "latex"),
@@ -1012,7 +974,7 @@ clip_rm <- function(x) {
 
 library(wesanderson)
 
-outcomeIds <- c(covidNarrowId, covidBroadId, pnaId, adverseId)
+outcomeIds <- c(covidNarrowId, hospitalizationId, intensiveServiceId)
 outcomeNames <- c("Diagnosis", "+Hospital", "PNA", "PAAS")
 outcomeColors <- c(wes_palette("Moonrise3")[5],
                    wes_palette("Moonrise2")[2],
@@ -1378,14 +1340,8 @@ saveAllBalancePlots <- function(balance, file) {
                       base_height = 6))
 }
 
-saveAllBalancePlots(getAllBalancePlots(aceArbMonoId, ccbThzMonoId, limits = c(0, 0.6), yLimits = c(0, 0.2)),
+saveAllBalancePlots(getAllBalancePlots(alphaBlockerId, fiveAlphaId, limits = c(0, 0.6), yLimits = c(0, 0.2)),
                     file = "allBalanceRasMono.pdf")
-
-saveAllBalancePlots(getAllBalancePlots(arbComboId, ccbThzComboId, limits = c(0, 0.45), yLimits = c(0, 0.35)),
-                    file = "allBalanceArbCombo.pdf")
-
-saveAllBalancePlots(getAllBalancePlots(aceComboId, arbComboId, limits = c(0, 0.45), yLimits = c(0, 0.35)),
-                    file = "allBalanceAceArbCombo.pdf")
 ```
 
 
@@ -1393,19 +1349,5 @@ saveAllBalancePlots(getAllBalancePlots(aceComboId, arbComboId, limits = c(0, 0.4
   \caption{Covariate balance between ACE/ARB mono and CCB/THZ mono prevalent-user cohorts.  We plot balance before and after stratification and matching across data sources.}
   \centering{
     \includegraphics[width=0.9\textwidth]{allBalanceRasMono}
-  }
-\end{figure}
-
-\begin{figure}[H]
-  \caption{Covariate balance between ARB combo and CCB/THZ mono prevalent-user cohorts.  We plot balance before and after stratification and matching across data sources.}
-  \centering{
-    \includegraphics[width=0.9\textwidth]{allBalanceArbCombo}
-  }
-\end{figure}
-
-\begin{figure}[H]
-  \caption{Covariate balance between ACE combo and ARB combo prevalent-user cohorts.  We plot balance before and after stratification and matching across data sources.}
-  \centering{
-    \includegraphics[width=0.9\textwidth]{allBalanceAceArbCombo.pdf}
   }
 \end{figure}
