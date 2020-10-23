@@ -79,6 +79,7 @@ prettyNames <- data.frame(
   cohortId = c(alphaBlockerId, fiveAlphaId),
   cohortName = c("Alpha blocker", "5-alpha RI"))
 
+analysisIdToKeep <- c(5, 6)
 primaryAnalysisId <- 5 # Full stratified PS
 ```
 
@@ -111,7 +112,7 @@ makeSampleSizeTable <- function(databaseId,
   cmResults$targetYears <- cmResults$targetDays/365.25
   cmResults$comparatorYears <- cmResults$comparatorDays/365.25
   
-  cmResults <- cmResults %>% filter(analysisId == primaryAnalysisId, outcomeId == covidNarrowId)
+  cmResults <- cmResults %>% filter(analysisId %in% analysisIdToKeep, outcomeId == covidNarrowId)
   
   table <- rbind(
     cmResults %>% filter(targetId == alphaBlockerId, comparatorId == fiveAlphaId) %>% mutate(targetId = "Alpha blocker", comparatorId = "5-alpha RI", order = 1)
