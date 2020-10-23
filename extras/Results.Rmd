@@ -510,7 +510,7 @@ cmResults <- readRDS(file.path(studyFolder, databaseId, "shinyData", sprintf("co
 colnames(cmResults) <- SqlRender::snakeCaseToCamelCase(colnames(cmResults))
 cmResultsCuimc <- cmResults %>% filter(outcomeId %in% outcomesOfInterest, analysisId %in% c(5,6))
 
-databaseId <- "Meta-analysis-main"
+databaseId <- "Meta-analysis"
 cmResults <- readRDS(file.path(studyFolder, databaseId, "shinyData", sprintf("cohort_method_result_%s.rds", databaseId)))
 colnames(cmResults) <- SqlRender::snakeCaseToCamelCase(colnames(cmResults))
 cmResultsMa <- cmResults %>% filter(outcomeId %in% outcomesOfInterest, analysisId %in% c(5,6))
@@ -606,7 +606,7 @@ balance<-
   select(targetName, comparatorName, everything())  
 
   # Add meta-analysis
-  meta <- table %>% filter(databaseId == "Meta-analysis-main", outcomeId == covidNarrowId) %>% 
+  meta <- table %>% filter(databaseId == "Meta-analysis", outcomeId == covidNarrowId) %>% 
     mutate(imbalanced = i2 > 0.40) %>%
     select(targetName, comparatorName, databaseId, analysisId, imbalanced)
   balance <- rbind(balance, meta) # Comment out to remove meta-analysis
@@ -623,14 +623,14 @@ meta <- cmResultsMaWithSources %>%
   select(-targetId, -comparatorId) %>%
   select(targetName, comparatorName, everything())   
 
-knitr::kable(meta %>% filter(outcomeId == covidNarrowId, databaseId == "Meta-analysis-main") %>%
+knitr::kable(meta %>% filter(outcomeId == covidNarrowId, databaseId == "Meta-analysis") %>%
                arrange(analysisId) %>%
                filter(!is.na(is)) %>% select(targetName, comparatorName, analysisId, databaseId, i2, sources), 
              format = "latex",
              booktabs = TRUE)
 
 table <- table %>% select(-i2) %>% 
-  mutate(databaseId = ifelse(databaseId == "Meta-analysis-main", "Meta-analysis", databaseId))
+  mutate(databaseId = ifelse(databaseId == "Meta-analysis", "Meta-analysis", databaseId))
 
 ```
 
