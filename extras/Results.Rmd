@@ -494,7 +494,7 @@ tcs <- list(
 )
 tcs <- lapply(tcs, function(x) { names(x) <- c("targetId", "comparatorId"); return(x) })
 
-outcomesOfInterest <- c(123, 110, 139, 122) 
+outcomesOfInterest <- c(972, 974, 981)
 
 databaseId <- "SIDIAP"
 cmResults <- readRDS(file.path(studyFolder, databaseId, "shinyData", sprintf("cohort_method_result_%s.rds", databaseId)))
