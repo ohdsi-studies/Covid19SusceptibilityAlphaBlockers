@@ -213,22 +213,7 @@ countText <- function(targetName = "ACE/ARB (c)",
 ```
 
 ```{r, echo=TRUE}
-countText(targetName = "ACE/ARB (c)", comparatorName = "CCB/THZ (c)")
-
-countText(targetName = "ACE (c)", comparatorName = "CCB/THZ (c)")
-
-countText(targetName = "ARB (c)", comparatorName = "CCB/THZ (c)")
-
-countText(targetName = "ACE (c)", comparatorName = "ARB (c)")
-
-
-countText(targetName = "ACE/ARB (m)", comparatorName = "CCB/THZ (m)")
-
-countText(targetName = "ACE (m)", comparatorName = "CCB/THZ (m)")
-
-countText(targetName = "ARB (m)", comparatorName = "CCB/THZ (m)")
-
-countText(targetName = "ACE (m)", comparatorName = "ARB (m)")
+countText(targetName = "Alpha blocker", comparatorName = "5-alpha RI")
 ```
 
 ```{r, echo=FALSE}
