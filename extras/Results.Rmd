@@ -909,13 +909,13 @@ plot(0,0, type = "n",
 
 textCex <- 0.6
 
-cohortNames <- c("ACE/ARB vs CCB/THZ", "ACE vs CCB/THZ", "ARB vs CCB/THZ", "ACE vs ARB")
+cohortNames <- c("Alpha blocker vs 5-alpha RI")
 cohortPositions <- (c(1:length(cohortNames)) - 1) * (2 * dbs + 4) + 1
 text(x = 0, y = ymax - cohortPositions, labels = cohortNames, pos = 4, cex = textCex)
-
-minorNames <- rep(c("Monotherapy", "+ Combination"), length(cohortNames))
-minorTicks <- tab %>% filter(databaseId == "SIDIAP") %>% select(row) %>% pull() - 1
-text(x = 0.25, y = ymax - minorTicks, labels = minorNames, pos = 4, cex = textCex)
+# 
+# minorNames <- rep(c("Monotherapy", "+ Combination"), length(cohortNames))
+# minorTicks <- tab %>% filter(databaseId == "SIDIAP") %>% select(row) %>% pull() - 1
+# text(x = 0.25, y = ymax - minorTicks, labels = minorNames, pos = 4, cex = textCex)
 
 text(x = 0.5, y = ymax - tab$row, labels = tab$databaseId, pos = 4, cex = textCex)
 
@@ -960,7 +960,7 @@ clip_rm <- function(x) {
 library(wesanderson)
 
 outcomeIds <- c(covidNarrowId, hospitalizationId, intensiveServiceId)
-outcomeNames <- c("Diagnosis", "+Hospital", "PNA", "PAAS")
+outcomeNames <- c("Diagnosis", "+ Hospital", "+ Intensive services")
 outcomeColors <- c(wes_palette("Moonrise3")[5],
                    wes_palette("Moonrise2")[2],
                    wes_palette("Moonrise2")[3],
@@ -973,7 +973,7 @@ balancePointColor <- wes_palette("Moonrise2")[4]
 outcomeColors <- adjustcolor(outcomeColors, alpha.f = 0.2)
 designColors <- adjustcolor(designColors, alpha.f = 0.2)
 
-for (i in 1:4) {
+for (i in 1:length(outcomeIds)) {
 
   offset <- start + (i - 1) * spacer
 
