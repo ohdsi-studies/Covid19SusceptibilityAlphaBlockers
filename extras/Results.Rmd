@@ -15,7 +15,7 @@ mainfont: Arial
     #rticles::sim_article
 fontsize: 10pt
 geometry: margin=1in
-classoptions: doublespace
+classoption: doublespace
 longtable: true
 header-includes:
   - \usepackage[numbers,sort&compress]{natbib}
