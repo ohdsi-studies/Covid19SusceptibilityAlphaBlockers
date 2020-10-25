@@ -565,7 +565,7 @@ balance<-
     do.call(
       "rbind",
       lapply(tcs, function(tc) {
-        getBalanceDiagnostic(tc$targetId, tc$comparatorId, "SIDIAP", 5, covidNarrowId, sidiapCovariate,
+        getBalanceDiagnostic(tc$targetId, tc$comparatorId, "SIDIAP", 5, 972L, sidiapCovariate,
                              file.path(sidiapDir, "shinyData"))
       })),
     do.call(
