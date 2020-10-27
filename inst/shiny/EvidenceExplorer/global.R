@@ -56,7 +56,6 @@ outcomeOfInterest <- outcomeOfInterest[!duplicated(outcomeOfInterest), ]
 
 exposureOfInterest$definition <- NULL
 exposureOfInterest <- exposureOfInterest[!duplicated(exposureOfInterest), ]
-exposureOfInterest$exposureName <- c("Alpha-1 blocker", "5ARI / PDE5", "Alpha-1 blocker IIT", "5ARI / PDE5 IIT")
 
 cohortMethodAnalysis$definition <- NULL
 cohortMethodAnalysis <- cohortMethodAnalysis[!duplicated(cohortMethodAnalysis), ]
