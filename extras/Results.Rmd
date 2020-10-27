@@ -67,8 +67,8 @@ readRdsCamelCase <- function(file) {
 ```{r, echo=FALSE}
 cohorts <- read.csv(file = system.file("settings", "CohortsToCreate.csv", package = "Covid19SusceptibilityAlphaBlockers")) %>% select(cohortId, shinyName)
 
-alphaBlockerId <- cohorts %>% filter(shinyName == "Alpha-1 blockers") %>% select(cohortId) %>% pull()
-fiveAlphaId <- cohorts %>% filter(shinyName == "5-alpha inhibitors") %>% select(cohortId) %>% pull()
+alphaBlockerId <- cohorts %>% filter(shinyName == "Alpha-1 blocker") %>% select(cohortId) %>% pull()
+fiveAlphaId <- cohorts %>% filter(shinyName == "5ARI / PDE5") %>% select(cohortId) %>% pull()
 
 covidNarrowId <- cohorts %>% filter(shinyName == "Diagnosis") %>% select(cohortId) %>% pull()
 hospitalizationId <- cohorts %>% filter(shinyName == "Hospitalization") %>% select(cohortId) %>% pull()
@@ -76,7 +76,7 @@ intensiveServiceId <- cohorts %>% filter(shinyName == "Intensive services") %>% 
 
 prettyNames <- data.frame(
   cohortId = c(alphaBlockerId, fiveAlphaId),
-  cohortName = c("Alpha blocker", "5-alpha RI"))
+  cohortName = c("Alpha-1 blocker", "5ARI / PDE5"))
 
 analysisIdToKeep <- c(5, 6)
 primaryAnalysisId <- 5 # Full stratified PS

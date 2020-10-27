@@ -1,8 +1,8 @@
 atlasId,atlasName,cohortId,name,shinyName,shinyOrder
-1103,"[Aki] Prevalent male mono-users of alpha-1 blocker at corona era onset",1103,"Cohort_Atlas_ID_1103","Alpha-1 blockers",1
-1104,"[Aki] Prevalent male mono-users of 5-alpha inhibitor at corona onset",1104,"Cohort_Atlas_ID_1104","5-alpha inhibitors",2
-1200,"[Aki] Prevalent male mono-users of alpha-1 blocker at corona era onset ITT",1200,"Cohort_Atlas_ID_1200","Alpha-1 blockers ITT",3
-1201,"[Aki] Prevalent male mono-users of 5-alpha inhibitor at corona onset ITT",1201,"Cohort_Atlas_ID_1201","5-alpha inhibitors ITT",4
+1103,"[Aki] Prevalent male mono-users of alpha-1 blocker at corona era onset",1103,"Cohort_Atlas_ID_1103","Alpha-1 blocker",1
+1104,"[Aki] Prevalent male mono-users of 5-alpha inhibitor at corona onset",1104,"Cohort_Atlas_ID_1104","5ARI / PDE5",2
+1200,"[Aki] Prevalent male mono-users of alpha-1 blocker at corona era onset ITT",1200,"Cohort_Atlas_ID_1200","Alpha-1 blocker ITT",3
+1201,"[Aki] Prevalent male mono-users of 5-alpha inhibitor at corona onset ITT",1201,"Cohort_Atlas_ID_1201","5ARI / PDE5 ITT",4
 972,"[COVID ID133 V1] Persons with a COVID-19 diagnosis or a SARS-CoV-2 positive test with no required prior observation",972,"Cohort_Atlas_ID_972","Diagnosis",1
 974,"[COVID ID135 V1] Persons hospitalized with a COVID-19 diagnosis record or a SARS-CoV-2 positive test with no required prior observation",974,"Cohort_Atlas_ID_974","Hospitalization",2
 981,"[COVID ID137 V1] Persons hospitalized and requiring intensive services with a COVID-19 diagnosis record or a SARS-CoV-2 positive test with no required prior observation",981,"Cohort_Atlas_ID_981","Intensive services",3
