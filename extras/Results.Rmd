@@ -112,7 +112,7 @@ makeSampleSizeTable <- function(databaseId,
   cmResults <- cmResults %>% filter(analysisId %in% analysisIdToKeep, outcomeId == covidNarrowId)
   
   table <- rbind(
-    cmResults %>% filter(targetId == alphaBlockerId, comparatorId == fiveAlphaId) %>% mutate(targetId = "Alpha blocker", comparatorId = "5-alpha RI", order = 1)
+    cmResults %>% filter(targetId == alphaBlockerId, comparatorId == fiveAlphaId) %>% mutate(targetId = "Alpha-1 blocker", comparatorId = "5ARI / PDE5", order = 1)
   ) %>% mutate (databaseId = databaseId, databaseOrder = databaseOrder) %>% 
     select(targetId, comparatorId, databaseId, targetSubjects, comparatorSubjects, targetYears, comparatorYears, targetOutcomes, comparatorOutcomes, mdrr, order, databaseOrder)
   
@@ -166,7 +166,7 @@ print(xtable(table, format = "latex"),
       add.to.row = list(
         pos = as.list(c(0) * 3),
         command = c(
-          "                       \\multicolumn{9}{l}{Alpha blocker vs 5-alpha RI} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\"
+          "                       \\multicolumn{9}{l}{Alpha-1 blocker vs 5ARI / PDE5} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\"
           # "                        & \\multicolumn{8}{l}{+ Combination} \\\\",
           # "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{ACE vs CCB/THZ} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
           # "                        & \\multicolumn{8}{l}{+ Combination} \\\\",
@@ -211,7 +211,7 @@ countText <- function(targetName = "ACE/ARB (c)",
 ```
 
 ```{r, echo=TRUE}
-countText(targetName = "Alpha blocker", comparatorName = "5-alpha RI")
+countText(targetName = "Alpha-1 blocker", comparatorName = "5ARI / PDE5")
 ```
 
 ```{r, echo=FALSE}
@@ -643,7 +643,7 @@ print(xtable(wideTable %>% filter(outcomeId == covidNarrowId) %>%
  add.to.row = list(
         pos = as.list(c(0) * numDb),
         command = c(
-          "                       \\multicolumn{6}{l}{Alpha blocker vs 5-alpha RI} \\\\ & \\multicolumn{5}{l}{Monotherapy}  \\\\"
+          "                       \\multicolumn{6}{l}{Alpha-1 blocker vs 5ARI / PDE5} \\\\ & \\multicolumn{5}{l}{Monotherapy}  \\\\"
           # "                        & \\multicolumn{5}{l}{+ Combination} \\\\",
           # "\\rowcolor{white} \\\\ \\multicolumn{6}{l}{ACE vs CCB/THZ} \\\\ & \\multicolumn{5}{l}{Monotherapy}  \\\\",
           # "                        & \\multicolumn{5}{l}{+ Combination} \\\\",
@@ -734,7 +734,7 @@ print(xtable(annotatedWideTable %>% filter(outcomeId == covidNarrowId) %>%
  add.to.row = list(
         pos = as.list(c(0) * numDb),
         command = c(
-          "                       \\multicolumn{10}{l}{Alpha blocker vs 5-alpha RI} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\"
+          "                       \\multicolumn{10}{l}{Alpha-1 blocker vs 5ARI / PDE5} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\"
           # "                        & \\multicolumn{9}{l}{+ Combination} \\\\",
           # "\\rowcolor{white} \\\\ \\multicolumn{10}{l}{ACE vs CCB/THZ} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
           # "                        & \\multicolumn{9}{l}{+ Combination} \\\\",
@@ -779,7 +779,7 @@ print(xtable(annotatedWideTable %>% filter(outcomeId == hospitalizationId) %>%
  add.to.row = list(
         pos = as.list(c(0) * numDb),
         command = c(
-          "                       \\multicolumn{10}{l}{Alpha blocker vs 5-alpha RI} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\"
+          "                       \\multicolumn{10}{l}{Alpha-1 blocker vs 5ARI / PDE5} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\"
           # "                        & \\multicolumn{9}{l}{+ Combination} \\\\",
           # "\\rowcolor{white} \\\\ \\multicolumn{10}{l}{ACE vs CCB/THZ} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
           # "                        & \\multicolumn{9}{l}{+ Combination} \\\\",
@@ -823,7 +823,7 @@ print(xtable(annotatedWideTable %>% filter(outcomeId == intensiveServiceId) %>%
  add.to.row = list(
         pos = as.list(c(0) * numDb),
         command = c(
-          "                       \\multicolumn{10}{l}{Alpha blocker vs 5-alpha RI} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\"
+          "                       \\multicolumn{10}{l}{Alpha-1 blocker vs 5ARI / PDE5} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\"
           # "                        & \\multicolumn{9}{l}{+ Combination} \\\\",
           # "\\rowcolor{white} \\\\ \\multicolumn{10}{l}{ACE vs CCB/THZ} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
           # "                        & \\multicolumn{9}{l}{+ Combination} \\\\",
@@ -896,7 +896,7 @@ plot(0,0, type = "n",
 
 textCex <- 0.6
 
-cohortNames <- c("Alpha blocker vs 5-alpha RI")
+cohortNames <- c("Alpha-1 blocker vs 5ARI / PDE5")
 cohortPositions <- (c(1:length(cohortNames)) - 1) * (2 * dbs + 4) + 1
 text(x = 0, y = ymax - cohortPositions, labels = cohortNames, pos = 4, cex = textCex)
 # 
