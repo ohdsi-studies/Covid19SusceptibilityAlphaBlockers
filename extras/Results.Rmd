@@ -90,10 +90,6 @@ primaryAnalysisId <- 5 # Full stratified PS
 studyFolder <- "/Users/aki-nishimura/Dropbox/Documents_Academic/Covid19AlphaBlocker"
 databaseIds <- c("SIDIAP", "VA-OMOP", "CUIMC")
 dataDirs <- sapply(databaseIds, function (databaseId) file.path(studyFolder, databaseId))
-sidiapDir <- file.path(studyFolder, "SIDIAP")
-cuimcDir <- file.path(studyFolder, "CUIMC")
-vaDir <- file.path(studyFolder, "VA-OMOP")
-
 
 makeSampleSizeTable <- function(databaseId, 
                                 dataFolder,
@@ -424,16 +420,21 @@ tcs <- lapply(
   title <- sub("-0.5em", "+0.5em", x = title)
 
   title <- gsub("% Extra row",
-               paste0("& \\\\multicolumn{3}{c}{$N$ = ", tcs[["SIDIAP"]]$targetSubjects, 
-                      " } & \\\\multicolumn{3}{c}{$N$ = ", tcs[["SIDIAP"]]$comparatorSubjects, " } ",
-                      "& \\\\multicolumn{3}{c}{$N$ = ",     tcs[["VA-OMOP"]]$targetSubjects, 
-                      " } & \\\\multicolumn{3}{c}{$N$ = ",     tcs[["VA-OMOP"]]$comparatorSubjects, " } ",
-                      "& \\\\multicolumn{3}{c}{$N$ = ", tcs[["CUIMC"]]$targetSubjects, 
-                      " } & \\\\multicolumn{3}{c}{$N$ = ", tcs[["CUIMC"]]$comparatorSubjects, " } ",
-                      " \\\\\\\\"),
+              paste(
+                c(
+                  sapply(databaseIds,
+                    function (databaseId) {
+                      paste0("& \\\\multicolumn{3}{c}{$N$ = ", tcs[[databaseId]]$targetSubjects, 
+                        " } & \\\\multicolumn{3}{c}{$N$ = ", tcs[[databaseId]]$comparatorSubjects, " } ")
+                    }
+                  ), 
+                  " \\\\\\\\"
+                ), 
+                collapse = ""
+              ),
                # , "\\\\\\\\ \n",
                #        "\& \\\\multicolumn{3}{c}{Before stratification} \& \\\\multicolumn{3}{c}{After stratification} "),
-               x = title)
+              x = title)
   
   # if (targetName == "THZ" && comparatorName == "ARB") {
   #   title <- sub("table}", "table}[H]\\\\ContinuedFloat*", title)
@@ -473,20 +474,12 @@ tcs <- lapply(tcs, function(x) { names(x) <- c("targetId", "comparatorId"); retu
 
 outcomesOfInterest <- c(972, 974, 981)
 
-databaseId <- "SIDIAP"
-cmResults <- readRDS(file.path(studyFolder, databaseId, "shinyData", sprintf("cohort_method_result_%s.rds", databaseId)))
-colnames(cmResults) <- SqlRender::snakeCaseToCamelCase(colnames(cmResults))
-cmResultsSidiap <- cmResults %>% filter(outcomeId %in% outcomesOfInterest, analysisId %in% c(5,6))
-
-databaseId <- "VA-OMOP"
-cmResults <- readRDS(file.path(studyFolder, databaseId, "shinyData", sprintf("cohort_method_result_%s.rds", databaseId)))
-colnames(cmResults) <- SqlRender::snakeCaseToCamelCase(colnames(cmResults))
-cmResultsVa <- cmResults %>% filter(outcomeId %in% outcomesOfInterest, analysisId %in% c(5,6))
-
-databaseId <- "CUIMC"
-cmResults <- readRDS(file.path(studyFolder, databaseId, "shinyData", sprintf("cohort_method_result_%s.rds", databaseId)))
-colnames(cmResults) <- SqlRender::snakeCaseToCamelCase(colnames(cmResults))
-cmResultsCuimc <- cmResults %>% filter(outcomeId %in% outcomesOfInterest, analysisId %in% c(5,6))
+processCmResults <- function (databaseId) {
+  cmResults <- readRDS(file.path(studyFolder, databaseId, "shinyData", sprintf("cohort_method_result_%s.rds", databaseId)))
+  colnames(cmResults) <- SqlRender::snakeCaseToCamelCase(colnames(cmResults))
+  cmResults <- cmResults %>% filter(outcomeId %in% outcomesOfInterest, analysisId %in% c(5,6))
+  return(cmResults)
+}
 
 databaseId <- "Meta-analysis"
 cmResults <- readRDS(file.path(studyFolder, databaseId, "shinyData", sprintf("cohort_method_result_%s.rds", databaseId)))
@@ -495,7 +488,11 @@ cmResultsMa <- cmResults %>% filter(outcomeId %in% outcomesOfInterest, analysisI
 cmResultsMaWithSources <- cmResultsMa
 cmResultsMa <- cmResultsMa %>% select(-sources)
 
-cmResults <- rbind(cmResultsSidiap, cmResultsVa, cmResultsCuimc, cmResultsMa)
+cmResultsList <- lapply(c(databaseIds, "Meta-analysis"), processCmResults)
+names(cmResultsList) <- c(databaseIds, "Meta-analysis")
+cmResultsMaWithSources <- cmResultsList[["Meta-analysis"]]
+cmResultsList[["Meta-analysis"]] <- cmResultsMaWithSources %>% select(-sources)
+cmResults <- bind_rows(cmResultsList)
 
 table <- do.call(
   "rbind",
@@ -521,9 +518,14 @@ table <- do.call(
 ```
 
 ```{r, echo=FALSE, cache=FALSE}
-sidiapCovariate <- readRdsCamelCase(file.path(sidiapDir, "shinyData", "covariate_SIDIAP.rds"))
-cuimcCovariate <- readRdsCamelCase(file.path(cuimcDir, "shinyData", "covariate_CUIMC.rds"))
-vaCovariate <- readRdsCamelCase(file.path(vaDir, "shinyData", "covariate_VA-OMOP.rds"))
+
+covariates <- lapply(
+  databaseIds, 
+  function (databaseId) readRdsCamelCase(
+    file.path(dataDirs[[databaseId]], "shinyData", sprintf("covariate_%s.rds", databaseId))
+  )
+)
+names(covariates) <- databaseIds
 
 getBalanceDiagnostic <- function(targetId, comparatorId, databaseId, analysisId, outcomeId, covariate, dataFolder) {
   balance <- getCovariateBalance(NULL, 
@@ -536,47 +538,27 @@ getBalanceDiagnostic <- function(targetId, comparatorId, databaseId, analysisId,
              imbalanced = sum(balance$absAfterMatchingStdDiff > 0.1, na.rm = TRUE))
 }
 
-balance<- 
-  rbind(
-    # SIDIAP 
-    do.call(
-      "rbind",
-      lapply(tcs, function(tc) {
-        getBalanceDiagnostic(tc$targetId, tc$comparatorId, "SIDIAP", 5, covidNarrowId, sidiapCovariate,
-                             file.path(sidiapDir, "shinyData"))
-      })),
-    do.call(
-      "rbind",
-      lapply(tcs, function(tc) {
-        getBalanceDiagnostic(tc$targetId, tc$comparatorId, "SIDIAP", 6, covidNarrowId, sidiapCovariate,
-                             file.path(sidiapDir, "shinyData"))
-      })),
-    # VA
-    do.call(
-      "rbind",
-      lapply(tcs, function(tc) {
-        getBalanceDiagnostic(tc$targetId, tc$comparatorId, "VA-OMOP", 5, covidNarrowId, vaCovariate,
-                             file.path(vaDir, "shinyData"))
-      })),
-    do.call(
-      "rbind",
-      lapply(tcs, function(tc) {
-        getBalanceDiagnostic(tc$targetId, tc$comparatorId, "VA-OMOP", 6, covidNarrowId, vaCovariate,
-                             file.path(vaDir, "shinyData"))
-      })),    
-    # CUIMC
-    do.call(
-      "rbind",
-      lapply(tcs, function(tc) {
-        getBalanceDiagnostic(tc$targetId, tc$comparatorId, "CUIMC", 5, covidNarrowId, cuimcCovariate,
-                             file.path(cuimcDir, "shinyData"))
-      })),
-    do.call(
-      "rbind",
-      lapply(tcs, function(tc) {
-        getBalanceDiagnostic(tc$targetId, tc$comparatorId, "CUIMC", 6, covidNarrowId, cuimcCovariate,
-                             file.path(cuimcDir, "shinyData"))
-      }))    
+analysisIds <- c(5, 6)
+rbindBalanceDiagnosticOverAnalysisAndTcs <- function (databaseId) {
+  bind_rows(
+    lapply(analysisIds, 
+      function (analysisId) {
+        bind_rows(
+          lapply(tcs, 
+          function(tc) {
+            getBalanceDiagnostic(
+              tc$targetId, tc$comparatorId, databaseId, analysisId, covidNarrowId,
+              covariates[[databaseId]], file.path(dataDirs[[databaseId]], "shinyData")
+            )}
+          )
+        )
+      }
+    )
+  )
+}
+
+balance <- bind_rows(
+    lapply(databaseIds, rbindBalanceDiagnosticOverAnalysisAndTcs)
   ) %>% 
   left_join(prettyNames, by = c("targetId" = "cohortId")) %>% rename(targetName = cohortName) %>%
   left_join(prettyNames, by = c("comparatorId" = "cohortId")) %>% rename(comparatorName = cohortName) %>%
@@ -851,8 +833,8 @@ print(xtable(annotatedWideTable %>% filter(outcomeId == intensiveServiceId) %>%
 ```{r, echo=FALSE, warning=FALSE}
 
 design <- data.frame(
-  databaseId = c("SIDIAP", "VA-OMOP", "CUIMC", "Meta-analysis"),
-  point = c(20, 20, 18, 20)
+  databaseId = c(databaseIds, "Meta-analysis")
+  # point = c(20, 20, 18, 20) # Seemingly unused
 )
 
 poorBalance <- "grey70"
@@ -1088,91 +1070,49 @@ invisible(dev.off())
 # Min/max covariate counts across data sources
 
 ```{r, echo=FALSE, cache=FALSE}
-# SIDIAP
-files <- list.files(file.path(sidiapDir, "shinyData"),
+
+countCovariate <- function (dataDir) {
+  
+  files <- list.files(file.path(dataDir, "shinyData"),
                     pattern = "covariate_balance_t\\d",
                     full.names = TRUE)
-
-sidiapCounts <- do.call("rbind.data.frame",
-                        lapply(files, function(file) {
-                          bal <- readRDS(file)
-                          t <- sub(".*t", "", file)
-                          target <- sub("_.*", "", t)
-                          c <- sub(".*c", "", file)
-                          comparator <- sub("_.*", "", c)
-                          return(list(rows = bal %>% filter(analysis_id == primaryAnalysisId,
-                                                            outcome_id == covidNarrowId) %>% nrow(),
-                                      target = as.numeric(target),
-                                      comparator = as.numeric(comparator)))
-                        }))
-
-# VA
-files <- list.files(file.path(vaDir, "shinyData"),
-                    pattern = "covariate_balance_t\\d",
-                    full.names = TRUE)
-
-vaCounts <- do.call("rbind.data.frame",
-                        lapply(files, function(file) {
-                          bal <- readRDS(file)
-                          t <- sub(".*t", "", file)
-                          target <- sub("_.*", "", t)
-                          c <- sub(".*c", "", file)
-                          comparator <- sub("_.*", "", c)
-                          return(list(rows = bal %>% filter(analysis_id == primaryAnalysisId,
-                                                            outcome_id == covidNarrowId) %>% nrow(),
-                                      target = as.numeric(target),
-                                      comparator = as.numeric(comparator)))
-                        }))
-
-
-#CUIMC
-files <- list.files(file.path(cuimcDir, "shinyData"),
-                    pattern = "covariate_balance_t\\d",
-                    full.names = TRUE)
-
-cuimcCounts <- do.call("rbind.data.frame",
-                       lapply(files, function(file) {
-                         bal <- readRDS(file)
-                         t <- sub(".*t", "", file)
-                         target <- sub("_.*", "", t)
-                         c <- sub(".*c", "", file)
-                         comparator <- sub("_.*", "", c)
-                         return(list(rows = bal %>% filter(analysis_id == primaryAnalysisId,
-                                                            outcome_id == covidNarrowId) %>% nrow(),
-                                     target = as.numeric(target),
-                                     comparator = as.numeric(comparator)))
-                       }))
+  
+  counts <- do.call(
+    "rbind.data.frame",
+    lapply(files, function(file) {
+      bal <- readRDS(file)
+      t <- sub(".*t", "", file)
+      target <- sub("_.*", "", t)
+      c <- sub(".*c", "", file)
+      comparator <- sub("_.*", "", c)
+      return(list(rows = bal %>% filter(analysis_id == primaryAnalysisId,
+                                        outcome_id == covidNarrowId) %>% nrow(),
+                  target = as.numeric(target),
+                  comparator = as.numeric(comparator)))
+    }
+  )
+)
+}
+counts <- lapply(dataDirs, countCovariate)
+names(counts) <- databaseIds
 ```
 
 ```{r, echo=FALSE}
-#library(dplyr)
-sidiapCounts %>% filter(rows == max(sidiapCounts$rows) | rows == min(sidiapCounts$rows)) %>%
-  inner_join(cohorts, by = c("target" = "cohortId")) %>%
-  rename(targetName = shinyName) %>%
-  inner_join(cohorts, by = c("comparator" = "cohortId")) %>%
-  rename(comparatorName = shinyName) %>%
-  select(rows, targetName, comparatorName) %>% mutate(databaseId = "SIDIAP")
-
-vaCounts %>% filter(rows == max(vaCounts$rows) | rows == min(vaCounts$rows)) %>%
-  inner_join(cohorts, by = c("target" = "cohortId")) %>%
-  rename(targetName = shinyName) %>%
-  inner_join(cohorts, by = c("comparator" = "cohortId")) %>%
-  rename(comparatorName = shinyName) %>%
-  select(rows, targetName, comparatorName) %>% mutate(databaseId = "VA-OMOP")
-
-cuimcCounts %>% filter(rows == max(cuimcCounts$rows) | rows == min(cuimcCounts$rows)) %>%
-  inner_join(cohorts, by = c("target" = "cohortId")) %>%
-  rename(targetName = shinyName) %>%
-  inner_join(cohorts, by = c("comparator" = "cohortId")) %>%
-  rename(comparatorName = shinyName) %>%
-  select(rows, targetName, comparatorName) %>% mutate(databaseId = "CUIMC")
+for (databaseId in databaseIds) {
+  count <- counts[[databaseId]]
+  print(
+    count %>% filter(rows == max(count$rows) | rows == min(count$rows)) %>%
+    inner_join(cohorts, by = c("target" = "cohortId")) %>%
+    rename(targetName = shinyName) %>%
+    inner_join(cohorts, by = c("comparator" = "cohortId")) %>%
+    rename(comparatorName = shinyName) %>%
+    select(rows, targetName, comparatorName) %>% mutate(databaseId = databaseId) 
+  )
+}
 ```
 
 # Important PS variables
 ```{r, echo=FALSE, cache=FALSE}
-files <- list.files(file.path(sidiapDir, "shinyData"),
-                    pattern = "covariate_balance_t\\d",
-                    full.names = TRUE)
 
 getTopPsCovariates <- function(studyFolder, databaseId, length = 25) {
   psModel <- readRdsCamelCase(file.path(studyFolder, "shinyData", paste0("propensity_model_", databaseId, ".rds")))
@@ -1185,25 +1125,14 @@ getTopPsCovariates <- function(studyFolder, databaseId, length = 25) {
 }
 ```
 
-## SIDIAP
-
-```{r, echo=FALSE}
-sidiapFreq <- getTopPsCovariates(sidiapDir, "SIDIAP", length = 40)
-knitr::kable(sidiapFreq, longtable = TRUE) %>% kableExtra::column_spec(2, width = "40em")
-```
-
-## VA
-
-```{r, echo=FALSE}
-vaFreq <- getTopPsCovariates(vaDir, "VA-OMOP", length = 40)
-knitr::kable(vaFreq, longtable = TRUE) %>% kableExtra::column_spec(2, width = "40em")
-```
-
-## CUIMC
-
-```{r, echo=FALSE}
-cuimcFreq <- getTopPsCovariates(cuimcDir, "CUIMC", length = 40)
-knitr::kable(cuimcFreq, longtable = TRUE) %>% kableExtra::column_spec(2, width = "40em")
+```{r, results="asis", echo = FALSE}
+for (databaseId in databaseIds) {
+  cat(sprintf("## %s \n\n", databaseId))
+  freq <- getTopPsCovariates(dataDirs[[databaseId]], databaseId, length = 40)
+  print(
+    knitr::kable(freq, longtable = TRUE) %>% kableExtra::column_spec(2, width = "40em")
+  )
+}
 ```
 
 # Balance plots
@@ -1254,72 +1183,53 @@ library(cowplot)
 
 getAllBalancePlots <- function(targetId, comparatorId, limits, yLimits) {
 
-  balanceStrat <- list(
-    plotCovariateBalanceScatterPlot(
-      getCovariateBalance(NULL, targetId, comparatorId, analysisId = 5, outcomeId = covidNarrowId,
-                          databaseId = "SIDIAP", covariate = sidiapCovariate,
-                          dataFolder = file.path(studyFolder, "SIDIAP", "shinyData")),
-      beforeLabel = "Before stratification", afterLabel = "After stratification", 
-      limits = limits, yLimits = yLimits, backgroundColor = designColors[1], pointColor = balancePointColor),
-    plotCovariateBalanceScatterPlot(
-      getCovariateBalance(NULL, targetId, comparatorId, analysisId = 5, outcomeId = covidNarrowId,
-                          databaseId = "VA-OMOP", covariate = vaCovariate,
-                          dataFolder = file.path(studyFolder, "VA-OMOP", "shinyData")),
-      beforeLabel = "Before stratification", afterLabel = "After stratification", 
-      limits = limits, yLimits = yLimits, backgroundColor = designColors[1], pointColor = balancePointColor), 
-    plotCovariateBalanceScatterPlot(
-      getCovariateBalance(NULL, targetId, comparatorId, analysisId = 5, outcomeId = covidNarrowId,
-                          databaseId = "CUIMC", covariate = cuimcCovariate,
-                          dataFolder = file.path(studyFolder, "CUIMC", "shinyData")),
-      beforeLabel = "Before stratification", afterLabel = "After stratification", 
-      limits = limits, yLimits = yLimits, backgroundColor = designColors[1], pointColor = balancePointColor))
-  balanceMatch <- list(
-    plotCovariateBalanceScatterPlot(
-      getCovariateBalance(NULL, targetId, comparatorId, analysisId = 6, outcomeId = covidNarrowId,
-                          databaseId = "SIDIAP", covariate = sidiapCovariate,
-                          dataFolder = file.path(studyFolder, "SIDIAP", "shinyData")),
-      beforeLabel = "Before matching", afterLabel = "After matching", 
-      limits = limits, yLimits = yLimits, backgroundColor = designColors[2], pointColor = balancePointColor),
-    plotCovariateBalanceScatterPlot(
-      getCovariateBalance(NULL, targetId, comparatorId, analysisId = 6, outcomeId = covidNarrowId,
-                          databaseId = "VA-OMOP", covariate = vaCovariate,
-                          dataFolder = file.path(studyFolder, "VA-OMOP", "shinyData")),
-      beforeLabel = "Before matching", afterLabel = "After matching", 
-      limits = limits, yLimits = yLimits, backgroundColor = designColors[2], pointColor = balancePointColor), 
-    plotCovariateBalanceScatterPlot(
-      getCovariateBalance(NULL, targetId, comparatorId, analysisId = 6, outcomeId = covidNarrowId,
-                          databaseId = "CUIMC", covariate = cuimcCovariate,
-                          dataFolder = file.path(studyFolder, "CUIMC", "shinyData")),
-      beforeLabel = "Before matching", afterLabel = "After matching", 
-      limits = limits, yLimits = yLimits, backgroundColor = designColors[2], pointColor = balancePointColor))    
+  balanceStrat <- lapply(databaseIds,
+    function (databaseId) {
+      plotCovariateBalanceScatterPlot(
+        getCovariateBalance(NULL, targetId, comparatorId, analysisId = 5, outcomeId = covidNarrowId,
+                            databaseId = databaseId, covariate = covariates[[databaseId]],
+                            dataFolder = file.path(studyFolder, databaseId, "shinyData")),
+        beforeLabel = "Before stratification", afterLabel = "After stratification", 
+        limits = limits, yLimits = yLimits, backgroundColor = designColors[1], pointColor = balancePointColor
+      )
+    }
+  )
+  balanceMatch <- lapply(databaseIds,
+    function (databaseId) {
+      plotCovariateBalanceScatterPlot(
+        getCovariateBalance(NULL, targetId, comparatorId, analysisId = 6, outcomeId = covidNarrowId,
+                            databaseId = databaseId, covariate = covariates[[databaseId]],
+                            dataFolder = file.path(studyFolder, databaseId, "shinyData")),
+        beforeLabel = "Before matching", afterLabel = "After matching", 
+        limits = limits, yLimits = yLimits, backgroundColor = designColors[2], pointColor = balancePointColor
+      )
+    }
+  )
   return(list(strat = balanceStrat, match = balanceMatch))
 }
 
 saveAllBalancePlots <- function(balance, file) {
   
-  sidiap <-  ggplot2::ggplot() + 
-    ggplot2::annotate("text", x = 0, y = 0, size = 6, angle = -90, label = "SIDIAP      ") + ggplot2::theme_void()
-
-  va <-  ggplot2::ggplot() + 
-    ggplot2::annotate("text", x = 0, y = 10, size = 6, angle = -90, label = "VA-OMOP      ") + ggplot2::theme_void()
-  
-  cuimc <-  ggplot2::ggplot() + 
-    ggplot2::annotate("text", x = 0, y = 0, size = 6, angle = -90, label = "CUIMC      ") + ggplot2::theme_void()  
-  
+  labelPlots <- lapply(databaseIds,
+    function (databaseId) {
+      label <- paste0(databaseId, paste0(rep(" ", 12 - nchar(databaseId)), collapse = ""))
+      ggplot2::ggplot() + 
+        ggplot2::annotate("text", x = 0, y = 0, size = 6, angle = -90, label = label) +
+        ggplot2::theme_void()
+    }
+  )
+  plotList <- lapply(1:length(databaseIds),
+                     function (i) list(balance$strat[[i]], balance$match[[i]], labelPlots[[i]]))
+  plotList <- do.call(c, plotList)
   invisible(save_plot(file,
-                      plot_grid(
-                        balance$strat[[1]], balance$match[[1]], sidiap,
-                        balance$strat[[2]], balance$match[[2]], va,
-                        balance$strat[[3]], balance$match[[3]], cuimc,
-                        ncol = 3, rel_widths = c(1, 1, 0.1))
-                      ,
+                      plot_grid(plotlist = plotList, ncol = 3, rel_widths = c(1, 1, 0.1)),
                       base_asp = 3 * 2/3, 
                       #ncol = 5,
                       base_height = 6))
 }
 
-saveAllBalancePlots(getAllBalancePlots(alphaBlockerId, fiveAlphaId, limits = c(0, 0.6), yLimits = c(0, 0.2)),
-                    file = "allBalanceRasMono.pdf")
+balance <- getAllBalancePlots(alphaBlockerId, fiveAlphaId, limits = c(0, 0.6), yLimits = c(0, 0.2))
+saveAllBalancePlots(balance, file = "allBalanceRasMono.pdf")
 ```
 
 
