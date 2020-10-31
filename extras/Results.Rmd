@@ -88,6 +88,8 @@ primaryAnalysisId <- 5 # Full stratified PS
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 
 studyFolder <- "/Users/aki-nishimura/Dropbox/Documents_Academic/Covid19AlphaBlocker"
+databaseIds <- c("SIDIAP", "VA-OMOP", "CUIMC")
+dataDirs <- sapply(databaseIds, function (databaseId) file.path(studyFolder, databaseId))
 sidiapDir <- file.path(studyFolder, "SIDIAP")
 cuimcDir <- file.path(studyFolder, "CUIMC")
 vaDir <- file.path(studyFolder, "VA-OMOP")
@@ -134,11 +136,17 @@ makeSampleSizeTable <- function(databaseId,
   return(table)
 }
 
-tableSidiap <- makeSampleSizeTable(databaseId = "SIDIAP", dataFolder = file.path(sidiapDir, "shinyData"), databaseOrder = 1)
-tableVa <- makeSampleSizeTable(databaseId = "VA-OMOP", dataFolder = file.path(vaDir, "shinyData"), databaseOrder = 2)
-tableCuimc <- makeSampleSizeTable(databaseId = "CUIMC", dataFolder = file.path(cuimcDir, "shinyData"), databaseOrder = 3)
+tables <- lapply(
+  1:length(databaseIds),
+  function (i) makeSampleSizeTable(
+    databaseId = databaseIds[i], 
+    dataFolder = file.path(dataDirs[i], "shinyData"), 
+    databaseOrder = i
+  ) 
+)
+names(tables) <- databaseIds
 
-table <- rbind(tableSidiap, tableCuimc, tableVa) %>% arrange(order, databaseOrder) %>% 
+table <- bind_rows(tables) %>% arrange(order, databaseOrder) %>% 
   mutate(targetId = "", comparatorId = "") %>% select(-order, -databaseOrder)
 ```
 
@@ -188,7 +196,7 @@ countText <- function(targetName = "ACE/ARB (c)",
                       comparatorName = "CCB/THZ (c)") {
   
   tS <- do.call("rbind",
-                lapply(list(tableSidiap, tableVa, tableCuimc), function(tab) {
+                lapply(tables, function(tab) {
                   tab %>% filter(targetId == targetName, comparatorId == comparatorName) %>%
                     mutate(targetSubjects = as.numeric(sub(",", "", targetSubjects)),
                            comparatorSubjects = as.numeric(sub(",", "", comparatorSubjects)),
@@ -375,13 +383,11 @@ blend <- function(databaseIds,
 }
 
 tmp <- blend(alphaBlockerId, fiveAlphaId,
-             databaseIds = c("SIDIAP", "VA-OMOP", "CUIMC"),
-             dataFolders = c(dataFolder = file.path(sidiapDir, "shinyData"),
-                             dataFolder = file.path(vaDir, "shinyData"),
-                             dataFolder = file.path(cuimcDir, "shinyData")))
+             databaseIds = databaseIds,
+             dataFolders = sapply(dataDirs, function (dataDir) file.path(dataDir, "shinyData")))
  
  numCovariates <- tmp$numCovariates
- names(numCovariates) <- c("SIDIAP", "VA-OMOP", "CUIMC")
+ names(numCovariates) <- databaseIds
  
  t2 <- full_join(tmp[[1]], tmp[[2]], by = "id")
  t2 <- full_join(t2, tmp[[3]], by = "id") %>% 
@@ -401,9 +407,9 @@ comparatorId <- fiveAlphaId
 databaseId = "SIDIAP, VA and CUIMC" 
 
 # Get counts for header
-sidiapTc <- tableSidiap %>% head(1) %>% select(targetSubjects, comparatorSubjects)
-vaTc <- tableVa %>% head(1) %>% select(targetSubjects, comparatorSubjects)
-cuimcTc <- tableCuimc %>% head(1) %>% select(targetSubjects, comparatorSubjects)
+tcs <- lapply(
+  tables, function (table) table %>% head(1) %>% select(targetSubjects, comparatorSubjects)
+)
 
   scale <- 0.8
   header <- readr::read_file("Table1TopTriple.tex")
@@ -418,12 +424,12 @@ cuimcTc <- tableCuimc %>% head(1) %>% select(targetSubjects, comparatorSubjects)
   title <- sub("-0.5em", "+0.5em", x = title)
 
   title <- gsub("% Extra row",
-               paste0("& \\\\multicolumn{3}{c}{$N$ = ", sidiapTc$targetSubjects, 
-                      " } & \\\\multicolumn{3}{c}{$N$ = ", sidiapTc$comparatorSubjects, " } ",
-                      "& \\\\multicolumn{3}{c}{$N$ = ",     vaTc$targetSubjects, 
-                      " } & \\\\multicolumn{3}{c}{$N$ = ",     vaTc$comparatorSubjects, " } ",
-                      "& \\\\multicolumn{3}{c}{$N$ = ", cuimcTc$targetSubjects, 
-                      " } & \\\\multicolumn{3}{c}{$N$ = ", cuimcTc$comparatorSubjects, " } ",
+               paste0("& \\\\multicolumn{3}{c}{$N$ = ", tcs[["SIDIAP"]]$targetSubjects, 
+                      " } & \\\\multicolumn{3}{c}{$N$ = ", tcs[["SIDIAP"]]$comparatorSubjects, " } ",
+                      "& \\\\multicolumn{3}{c}{$N$ = ",     tcs[["VA-OMOP"]]$targetSubjects, 
+                      " } & \\\\multicolumn{3}{c}{$N$ = ",     tcs[["VA-OMOP"]]$comparatorSubjects, " } ",
+                      "& \\\\multicolumn{3}{c}{$N$ = ", tcs[["CUIMC"]]$targetSubjects, 
+                      " } & \\\\multicolumn{3}{c}{$N$ = ", tcs[["CUIMC"]]$comparatorSubjects, " } ",
                       " \\\\\\\\"),
                # , "\\\\\\\\ \n",
                #        "\& \\\\multicolumn{3}{c}{Before stratification} \& \\\\multicolumn{3}{c}{After stratification} "),
