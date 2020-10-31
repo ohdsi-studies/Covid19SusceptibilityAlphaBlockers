@@ -520,7 +520,7 @@ table <- do.call(
   }))
 ```
 
-```{r, echo=FALSE, cache=TRUE}
+```{r, echo=FALSE, cache=FALSE}
 sidiapCovariate <- readRdsCamelCase(file.path(sidiapDir, "shinyData", "covariate_SIDIAP.rds"))
 cuimcCovariate <- readRdsCamelCase(file.path(cuimcDir, "shinyData", "covariate_CUIMC.rds"))
 vaCovariate <- readRdsCamelCase(file.path(vaDir, "shinyData", "covariate_VA-OMOP.rds"))
@@ -1087,7 +1087,7 @@ invisible(dev.off())
 
 # Min/max covariate counts across data sources
 
-```{r, echo=FALSE, cache=TRUE}
+```{r, echo=FALSE, cache=FALSE}
 # SIDIAP
 files <- list.files(file.path(sidiapDir, "shinyData"),
                     pattern = "covariate_balance_t\\d",
@@ -1169,7 +1169,7 @@ cuimcCounts %>% filter(rows == max(cuimcCounts$rows) | rows == min(cuimcCounts$r
 ```
 
 # Important PS variables
-```{r, echo=FALSE, cache=TRUE}
+```{r, echo=FALSE, cache=FALSE}
 files <- list.files(file.path(sidiapDir, "shinyData"),
                     pattern = "covariate_balance_t\\d",
                     full.names = TRUE)
@@ -1248,7 +1248,7 @@ plotCovariateBalanceScatterPlot <- function(balance,
 
 ## Across data sources
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE, cache=TRUE}
+```{r, echo=FALSE, warning=FALSE, message=FALSE, cache=FALSE}
 
 library(cowplot)
 
