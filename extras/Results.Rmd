@@ -92,8 +92,6 @@ sidiapDir <- file.path(studyFolder, "SIDIAP")
 cuimcDir <- file.path(studyFolder, "CUIMC")
 vaDir <- file.path(studyFolder, "VA-OMOP")
 
-dataFolder <- file.path(sidiapDir, "shinyData")
-databaseId <- "SIDIAP"
 
 makeSampleSizeTable <- function(databaseId, 
                                 dataFolder,
@@ -219,8 +217,6 @@ countText(targetName = "Alpha blocker", comparatorName = "5-alpha RI")
 ```{r, echo=FALSE}
 source(system.file("shiny", "EvidenceExplorer", "PlotsAndTables.R",
                    package = "Covid19SusceptibilityAlphaBlockers"))
-# source(system.file("shiny", "EvidenceExplorer", "DataPulls.R",
-#                    package = "Covid19SusceptibilityAlphaBlockers"))
 ```
 
 ```{r, echo=FALSE, results="asis", cache=FALSE, warning=FALSE}
@@ -453,15 +449,6 @@ cuimcTc <- tableCuimc %>% head(1) %>% select(targetSubjects, comparatorSubjects)
 
   footer <- readr::read_file("Table1BottomTriple.tex")
   cat(footer)
-#}
-
- # tmp <- makeCharacteristicsTable(alphaBlockerId, fiveAlphaId, 
- #                          databaseIds = c("SIDIAP", "CUIMC"),
- #                          dataFolders = c(dataFolder = file.path(sidiapDir, "shinyData"),
- #                                          dataFolder = file.path(cuimcDir, "shinyData")))
-
-# makeCharacteristicsTable(alphaBlockerId, fiveAlphaId,   databaseId = "SIDIAP", dataFolder = file.path(sidiapDir, "shinyData"))
-# makeCharacteristicsTable(alphaBlockerId, fiveAlphaId,   databaseId = "CUIMC", dataFolder = file.path(cuimcDir, "shinyData"))
 
 ```
 
