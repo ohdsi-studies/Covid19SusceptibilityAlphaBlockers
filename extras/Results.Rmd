@@ -464,7 +464,7 @@ tcs <- lapply(
 numCovariates
 ```
 
-```{r, echo=FALSE, cache=TRUE}
+```{r, echo=FALSE, cache=FALSE}
 
 tcs <- list(
   list(alphaBlockerId, fiveAlphaId)
