@@ -88,7 +88,9 @@ primaryAnalysisId <- 5 # Full stratified PS
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 
 studyFolder <- "/Users/aki-nishimura/Dropbox/Documents_Academic/Covid19AlphaBlocker"
-databaseIds <- c("SIDIAP", "VA-OMOP", "CUIMC")
+databaseIds <- c("SIDIAP", "VA-OMOP", "CUIMC", "IQVIA_OpenClaims", "Optum_DOD", "Optum_EHR_COVID")
+databaseIdLabels <- c("SIDIAP", "VA", "CUIMC", "OpenClaims", "Optum DOD", "Optum EHR")
+names(databaseIdLabels) <- databaseIds
 dataDirs <- sapply(databaseIds, function (databaseId) file.path(studyFolder, databaseId))
 
 makeSampleSizeTable <- function(databaseId, 
@@ -129,6 +131,7 @@ makeSampleSizeTable <- function(databaseId,
   table$comparatorOutcomes <- gsub("^-", "<", table$comparatorOutcomes)
   # table$targetIr <- gsub("^-", "<", table$targetIr)
   # table$comparatorIr <- gsub("^-", "<", table$comparatorIr)
+  table$databaseId <- databaseIdLabels[[databaseId]]
   return(table)
 }
 
@@ -1201,7 +1204,8 @@ saveAllBalancePlots <- function(balance, file) {
   
   labelPlots <- lapply(databaseIds,
     function (databaseId) {
-      label <- paste0(databaseId, paste0(rep(" ", 12 - nchar(databaseId)), collapse = ""))
+      label <- databaseIdLabels[[databaseId]]
+      label <- paste0(label, paste0(rep(" ", 12 - nchar(label)), collapse = ""))
       ggplot2::ggplot() + 
         ggplot2::annotate("text", x = 0, y = 0, size = 6, angle = -90, label = label) +
         ggplot2::theme_void()
