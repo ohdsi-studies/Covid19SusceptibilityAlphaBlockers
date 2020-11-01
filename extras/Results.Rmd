@@ -70,7 +70,7 @@ cohorts <- read.csv(file = system.file("settings", "CohortsToCreate.csv", packag
 alphaBlockerId <- cohorts %>% filter(shinyName == "Alpha-1 blocker") %>% select(cohortId) %>% pull()
 fiveAlphaId <- cohorts %>% filter(shinyName == "5ARI / PDE5") %>% select(cohortId) %>% pull()
 
-covidNarrowId <- cohorts %>% filter(shinyName == "Diagnosis") %>% select(cohortId) %>% pull()
+covidDiagnosisId <- cohorts %>% filter(shinyName == "Diagnosis") %>% select(cohortId) %>% pull()
 hospitalizationId <- cohorts %>% filter(shinyName == "Hospitalization") %>% select(cohortId) %>% pull()
 intensiveServiceId <- cohorts %>% filter(shinyName == "Intensive services") %>% select(cohortId) %>% pull()
 
@@ -109,7 +109,7 @@ makeSampleSizeTable <- function(databaseId,
   cmResults$targetYears <- cmResults$targetDays/365.25
   cmResults$comparatorYears <- cmResults$comparatorDays/365.25
   
-  cmResults <- cmResults %>% filter(analysisId %in% analysisIdToKeep, outcomeId == covidNarrowId)
+  cmResults <- cmResults %>% filter(analysisId %in% analysisIdToKeep, outcomeId == covidDiagnosisId)
   
   table <- rbind(
     cmResults %>% filter(targetId == alphaBlockerId, comparatorId == fiveAlphaId) %>% mutate(targetId = "Alpha-1 blocker", comparatorId = "5ARI / PDE5", order = 1)
@@ -269,7 +269,7 @@ blend <- function(databaseIds,
                   targetId,
                   comparatorId,
                   dataFolders,
-                  outcomeId = covidNarrowId) {
+                  outcomeId = covidDiagnosisId) {
   
   harmonizeRace <- function(table) {
     
@@ -539,7 +539,7 @@ rbindBalanceDiagnosticOverAnalysisAndTcs <- function (databaseId) {
           lapply(tcs, 
           function(tc) {
             getBalanceDiagnostic(
-              tc$targetId, tc$comparatorId, databaseId, analysisId, covidNarrowId,
+              tc$targetId, tc$comparatorId, databaseId, analysisId, covidDiagnosisId,
               covariates[[databaseId]], file.path(dataDirs[[databaseId]], "shinyData")
             )}
           )
@@ -558,7 +558,7 @@ balance <- bind_rows(
   select(targetName, comparatorName, everything())  
 
   # Add meta-analysis
-  meta <- table %>% filter(databaseId == "Meta-analysis", outcomeId == covidNarrowId) %>% 
+  meta <- table %>% filter(databaseId == "Meta-analysis", outcomeId == covidDiagnosisId) %>% 
     mutate(imbalanced = i2 > 0.40) %>%
     select(targetName, comparatorName, databaseId, analysisId, imbalanced)
   balance <- rbind(balance, meta) # Comment out to remove meta-analysis
@@ -575,7 +575,7 @@ meta <- cmResultsMaWithSources %>%
   select(-targetId, -comparatorId) %>%
   select(targetName, comparatorName, everything())   
 
-knitr::kable(meta %>% filter(outcomeId == covidNarrowId, databaseId == "Meta-analysis") %>%
+knitr::kable(meta %>% filter(outcomeId == covidDiagnosisId, databaseId == "Meta-analysis") %>%
                arrange(analysisId) %>%
                filter(!is.na(is)) %>% select(targetName, comparatorName, analysisId, databaseId, i2, sources), 
              format = "latex",
@@ -611,7 +611,7 @@ wideTable <- inner_join(table5, table6, by = c("databaseId", "targetName", "comp
 
 numDb <- length(unique(wideTable$databaseId))
 
-print(xtable(wideTable %>% filter(outcomeId == covidNarrowId) %>% 
+print(xtable(wideTable %>% filter(outcomeId == covidDiagnosisId) %>% 
                #mutate(calibratedRr = ifself(is.na(calibratedRr), "--", calibratedRr)) %>%
                select(-outcomeId, -stratImbalanced, -matchCalRr, -matchCalCi, -matchCalP, -matchImbalanced) %>%
                mutate(targetName = "", comparatorName = ""), 
@@ -703,7 +703,7 @@ annotatedWideTable <- annotatedWideTable %>% mutate(gap = "") %>%
          gap, 
          matchCalRr, matchCalCi, matchCalP, matchImbalanced)
 
-print(xtable(annotatedWideTable %>% filter(outcomeId == covidNarrowId) %>% 
+print(xtable(annotatedWideTable %>% filter(outcomeId == covidDiagnosisId) %>% 
                select(-outcomeId, -stratImbalanced, -matchImbalanced) %>%
                mutate(targetName = "", comparatorName = ""), 
              format = "latex"),
@@ -861,7 +861,7 @@ map <- function(index) {
   floor(index / dbs) + 2 * floor(index / (2 * dbs)) + 3 + index
 }
 
-tab <- table5 %>% filter(outcomeId == covidNarrowId) %>%
+tab <- table5 %>% filter(outcomeId == covidDiagnosisId) %>%
   mutate(index = row_number() - 1,
          row = map(index))
 
@@ -926,7 +926,7 @@ clip_rm <- function(x) {
 
 library(wesanderson)
 
-outcomeIds <- c(covidNarrowId, hospitalizationId, intensiveServiceId)
+outcomeIds <- c(covidDiagnosisId, hospitalizationId, intensiveServiceId)
 outcomeNames <- c("Diagnosis", "+ Hospital", "+ Intensive services")
 outcomeColors <- c(wes_palette("Moonrise3")[5],
                    wes_palette("Moonrise2")[2],
@@ -1078,7 +1078,7 @@ countCovariate <- function (dataDir) {
       c <- sub(".*c", "", file)
       comparator <- sub("_.*", "", c)
       return(list(rows = bal %>% filter(analysis_id == primaryAnalysisId,
-                                        outcome_id == covidNarrowId) %>% nrow(),
+                                        outcome_id == covidDiagnosisId) %>% nrow(),
                   target = as.numeric(target),
                   comparator = as.numeric(comparator)))
     }
@@ -1178,7 +1178,7 @@ getAllBalancePlots <- function(targetId, comparatorId, limits, yLimits) {
   balanceStrat <- lapply(databaseIds,
     function (databaseId) {
       plotCovariateBalanceScatterPlot(
-        getCovariateBalance(NULL, targetId, comparatorId, analysisId = 5, outcomeId = covidNarrowId,
+        getCovariateBalance(NULL, targetId, comparatorId, analysisId = 5, outcomeId = covidDiagnosisId,
                             databaseId = databaseId, covariate = covariates[[databaseId]],
                             dataFolder = file.path(studyFolder, databaseId, "shinyData")),
         beforeLabel = "Before stratification", afterLabel = "After stratification", 
@@ -1189,7 +1189,7 @@ getAllBalancePlots <- function(targetId, comparatorId, limits, yLimits) {
   balanceMatch <- lapply(databaseIds,
     function (databaseId) {
       plotCovariateBalanceScatterPlot(
-        getCovariateBalance(NULL, targetId, comparatorId, analysisId = 6, outcomeId = covidNarrowId,
+        getCovariateBalance(NULL, targetId, comparatorId, analysisId = 6, outcomeId = covidDiagnosisId,
                             databaseId = databaseId, covariate = covariates[[databaseId]],
                             dataFolder = file.path(studyFolder, databaseId, "shinyData")),
         beforeLabel = "Before matching", afterLabel = "After matching", 
