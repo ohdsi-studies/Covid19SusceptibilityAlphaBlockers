@@ -383,12 +383,12 @@ if (length(databaseIds) == 3) {
 }
  
 tableOrder <- read.csv("CombinedDemographics.csv")
-t3 <- full_join(table_tmp, tableOrder, by = "id") %>% arrange(order) %>% 
+table_tmp <- full_join(table_tmp, tableOrder, by = "id") %>% arrange(order) %>% 
   filter(order < 300) %>%
   mutate(id = newNames) %>%
   select(-starts_with("order"), -newNames)
-t3[is.na(t3)] <- ""
-t3$id <- sub("    ", "\\\\hspace{1em} ", as.character(t3$id))
+table_tmp[is.na(table_tmp)] <- ""
+table_tmp$id <- sub("    ", "\\\\hspace{1em} ", as.character(table_tmp$id))
 
 targetId <- alphaBlockerId
 comparatorId <- fiveAlphaId
@@ -399,55 +399,55 @@ tcs <- lapply(
   tables, function (table) table %>% head(1) %>% select(targetSubjects, comparatorSubjects)
 )
 
-  scale <- 0.8
-  header <- readr::read_file("Table1TopTriple.tex")
+scale <- 0.8
+header <- readr::read_file("Table1TopTriple.tex")
 
-  targetName <- cohorts %>% filter(cohortId == targetId) %>% select(shinyName) %>% pull
-  comparatorName <- cohorts %>% filter(cohortId == comparatorId) %>% select(shinyName) %>% pull
-  title <- sub(pattern = "Patient demographics",
-               replacement = paste0("Baseline patient characteristcs for ", targetName," (T) and ", comparatorName, " (C) prevalent-users in the ", databaseId, " data source"),
+targetName <- cohorts %>% filter(cohortId == targetId) %>% select(shinyName) %>% pull
+comparatorName <- cohorts %>% filter(cohortId == comparatorId) %>% select(shinyName) %>% pull
+title <- sub(pattern = "Patient demographics",
+             replacement = paste0("Baseline patient characteristcs for ", targetName," (T) and ", comparatorName, " (C) prevalent-users in the ", databaseId, " data source"),
                x = header)
 
-  title <- sub("0.5\\\\textwidth", paste0(scale, "\\\\textwidth"), x = title)
-  title <- sub("-0.5em", "+0.5em", x = title)
+title <- sub("0.5\\\\textwidth", paste0(scale, "\\\\textwidth"), x = title)
+title <- sub("-0.5em", "+0.5em", x = title)
 
-  title <- gsub("% Extra row",
-              paste(
-                c(
-                  sapply(databaseIds,
-                    function (databaseId) {
-                      paste0("& \\\\multicolumn{3}{c}{$N$ = ", tcs[[databaseId]]$targetSubjects, 
-                        " } & \\\\multicolumn{3}{c}{$N$ = ", tcs[[databaseId]]$comparatorSubjects, " } ")
-                    }
-                  ), 
-                  " \\\\\\\\"
+title <- gsub("% Extra row",
+            paste(
+              c(
+                sapply(databaseIds,
+                  function (databaseId) {
+                    paste0("& \\\\multicolumn{3}{c}{$N$ = ", tcs[[databaseId]]$targetSubjects, 
+                      " } & \\\\multicolumn{3}{c}{$N$ = ", tcs[[databaseId]]$comparatorSubjects, " } ")
+                  }
                 ), 
-                collapse = ""
-              ),
-               # , "\\\\\\\\ \n",
-               #        "\& \\\\multicolumn{3}{c}{Before stratification} \& \\\\multicolumn{3}{c}{After stratification} "),
-              x = title)
-  
-  # if (targetName == "THZ" && comparatorName == "ARB") {
-  #   title <- sub("table}", "table}[H]\\\\ContinuedFloat*", title)
-  # } else {
-  #   title <- sub("table}", "table}[H]\\\\ContinuedFloat", title)
-  # }
+                " \\\\\\\\"
+              ), 
+              collapse = ""
+            ),
+             # , "\\\\\\\\ \n",
+             #        "\& \\\\multicolumn{3}{c}{Before stratification} \& \\\\multicolumn{3}{c}{After stratification} "),
+            x = title)
 
-  cat(title)
-  
-  table <- t3 # %>% select(-order.y, -order)
+# if (targetName == "THZ" && comparatorName == "ARB") {
+#   title <- sub("table}", "table}[H]\\\\ContinuedFloat*", title)
+# } else {
+#   title <- sub("table}", "table}[H]\\\\ContinuedFloat", title)
+# }
 
-  print(xtable(table, format = "latex", align = c("l", "l", rep("r", 6 * length(databaseIds)))),
-        include.rownames = FALSE,
-        include.colnames = FALSE,
-        hline.after = NULL,
-        only.contents = TRUE,
-        add.to.row = list(pos = list(nrow(table)), command = c("\\bottomrule")),
-        sanitize.text.function = identity)
+cat(title)
 
-  footer <- readr::read_file("Table1BottomTriple.tex")
-  cat(footer)
+table <- table_tmp # %>% select(-order.y, -order)
+
+print(xtable(table, format = "latex", align = c("l", "l", rep("r", 6 * length(databaseIds)))),
+      include.rownames = FALSE,
+      include.colnames = FALSE,
+      hline.after = NULL,
+      only.contents = TRUE,
+      add.to.row = list(pos = list(nrow(table)), command = c("\\bottomrule")),
+      sanitize.text.function = identity)
+
+footer <- readr::read_file("Table1BottomTriple.tex")
+cat(footer)
 
 ```
 
