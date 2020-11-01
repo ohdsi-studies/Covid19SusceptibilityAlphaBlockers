@@ -633,6 +633,7 @@ wideTable <- inner_join(table5, table6, by = c("databaseId", "targetName", "comp
 
 numDb <- length(unique(wideTable$databaseId))
 
+wideTable$databaseId <- databaseIdLabels[wideTable$databaseId]
 print(xtable(wideTable %>% filter(outcomeId == covidDiagnosisId) %>% 
                #mutate(calibratedRr = ifself(is.na(calibratedRr), "--", calibratedRr)) %>%
                select(-outcomeId, -stratImbalanced, -matchCalRr, -matchCalCi, -matchCalP, -matchImbalanced) %>%
@@ -906,7 +907,7 @@ text(x = 0, y = ymax - cohortPositions, labels = cohortNames, pos = 4, cex = tex
 # minorTicks <- tab %>% filter(databaseId == "SIDIAP") %>% select(row) %>% pull() - 1
 # text(x = 0.25, y = ymax - minorTicks, labels = minorNames, pos = 4, cex = textCex)
 
-text(x = 0.5, y = ymax - tab$row, labels = tab$databaseId, pos = 4, cex = textCex)
+text(x = 0.5, y = ymax - tab$row, labels = databaseIdLabels[tab$databaseId], pos = 4, cex = textCex)
 
 start <- 3.5
 width <- 2
