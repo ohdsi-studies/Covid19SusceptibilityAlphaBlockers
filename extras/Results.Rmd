@@ -226,7 +226,7 @@ source(system.file("shiny", "EvidenceExplorer", "PlotsAndTables.R",
                    package = "Covid19SusceptibilityAlphaBlockers"))
 ```
 
-```{r, echo=FALSE, results="asis", cache=FALSE, warning=FALSE}
+```{r, echo=FALSE, results="asis", cache=TRUE, warning=FALSE}
 
 getCovariateBalance <- function(connection,
                                 targetId,
@@ -457,7 +457,7 @@ tcs <- lapply(
 numCovariates
 ```
 
-```{r, echo=FALSE, cache=FALSE}
+```{r, echo=FALSE, cache=TRUE}
 
 tcs <- list(
   list(alphaBlockerId, fiveAlphaId)
@@ -509,7 +509,7 @@ table <- do.call(
   }))
 ```
 
-```{r, echo=FALSE, cache=FALSE}
+```{r, echo=FALSE, cache=TRUE}
 
 covariates <- lapply(
   databaseIds, 
@@ -1061,7 +1061,7 @@ invisible(dev.off())
 
 # Min/max covariate counts across data sources
 
-```{r, echo=FALSE, cache=FALSE}
+```{r, echo=FALSE, cache=TRUE}
 
 countCovariate <- function (dataDir) {
   
@@ -1104,7 +1104,7 @@ for (databaseId in databaseIds) {
 ```
 
 # Important PS variables
-```{r, echo=FALSE, cache=FALSE}
+```{r, echo=FALSE, cache=TRUE}
 
 getTopPsCovariates <- function(studyFolder, databaseId, length = 25) {
   psModel <- readRdsCamelCase(file.path(studyFolder, "shinyData", paste0("propensity_model_", databaseId, ".rds")))
@@ -1169,7 +1169,7 @@ plotCovariateBalanceScatterPlot <- function(balance,
 
 ## Across data sources
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE, cache=FALSE}
+```{r, echo=FALSE, warning=FALSE, message=FALSE, cache=TRUE}
 
 library(cowplot)
 
