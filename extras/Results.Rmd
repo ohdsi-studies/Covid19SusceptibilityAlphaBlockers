@@ -386,10 +386,13 @@ printBaselineCharacteristicTable <- function (databaseIds, dataDirs, databaseIdL
   }
    
   tableOrder <- read.csv("CombinedDemographics.csv")
-  table_tmp <- full_join(table_tmp, tableOrder, by = "id") %>% arrange(order) %>% 
+  table_tmp$join_id <- gsub(" ", "", table_tmp$id) # Remove all spaces from ID
+  tableOrder$join_id <- gsub(" ", "", tableOrder$id)
+  tableOrder$id <- NULL
+  table_tmp <- full_join(table_tmp, tableOrder, by = "join_id") %>% arrange(order) %>% 
     filter(order < 300) %>%
     mutate(id = newNames) %>%
-    select(-starts_with("order"), -newNames)
+    select(-starts_with("order"), -newNames, -join_id)
   table_tmp[is.na(table_tmp)] <- ""
   table_tmp$id <- sub("    ", "\\\\hspace{1em} ", as.character(table_tmp$id))
   
