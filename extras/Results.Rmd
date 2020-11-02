@@ -41,10 +41,6 @@ header-includes:
   - \usepackage{mas_fun}
   - \usepackage{hyperref}
 ---
-```{r, echo=FALSE}
-outputTableAsPng <- TRUE # If TRUE, output each table individually as a png file.
-```
-
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 options(kableExtra.latex.load_packages = FALSE)
 library(kableExtra)
@@ -153,31 +149,22 @@ table <- bind_rows(tables) %>% arrange(order, databaseOrder) %>%
   mutate(targetId = "", comparatorId = "") %>% select(-order, -databaseOrder)
 ```
 
+\begin{table}[H]
+ \caption{Population size, total exposure time and COVID-19 diagnoses for Alpha-1 blocker and 5ARI / PDE5 user target (T) and comparator (C) cohorts.}
+  \rowcolors{2}{gray!6}{white}
+  \centering{
+  \begin{tabular}{p{-2em}p{-2em}rrrrrrrr}
+    \hiderowcolors
+    \toprule
+    &  &  & \multicolumn{2}{c}{Patients} & \multicolumn{2}{c}{Time (years)} & \multicolumn{2}{c}{Events} \\
+    \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9}
+    &  &
+    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C}
+    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C}
+    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C} 
+    & MDRR \\
+    \midrule \showrowcolors
 ```{r, echo=FALSE, results="asis"}
-if (outputTableAsPng) {
-  table_name <- "population_size_exposure_time_table"
-  texfile_name <- paste0(table_name,".tex")
-  sink(file=texfile_name)
-}
-
-cat(
-  "\\begin{table}[H]
-   \\caption{Population size, total exposure time and COVID-19 diagnoses for Alpha-1 blocker and 5ARI / PDE5 user target (T) and comparator (C) cohorts.}
-    \\rowcolors{2}{gray!6}{white}
-    \\centering{
-    \\begin{tabular}{p{-2em}p{-2em}rrrrrrrr}
-      \\hiderowcolors
-      \\toprule
-      &  &  & \\multicolumn{2}{c}{Patients} & \\multicolumn{2}{c}{Time (years)} & \\multicolumn{2}{c}{Events} \\\\
-      \\cmidrule(lr){4-5} \\cmidrule(lr){6-7} \\cmidrule(lr){8-9}
-      &  &
-      & \\multicolumn{1}{c}{T} & \\multicolumn{1}{c}{C}
-      & \\multicolumn{1}{c}{T} & \\multicolumn{1}{c}{C}
-      & \\multicolumn{1}{c}{T} & \\multicolumn{1}{c}{C} 
-      & MDRR \\\\
-      \\midrule \\showrowcolors"
-)
-
 print(xtable(table, format = "latex"),
       include.rownames = FALSE,
       include.colnames = FALSE,
@@ -197,23 +184,11 @@ print(xtable(table, format = "latex"),
           )
       ),
       sanitize.text.function = identity)
-
-cat("
-  \\bottomrule
-  \\end{tabular}
-  }
-\\end{table}"
-)
-
-if (outputTableAsPng) {
-  sink()
-  tools::texi2dvi(file=texfile_name)
-  cmd <- paste("dvipng -T tight", shQuote(paste0(table_name, ".dvi")))
-  invisible(system(cmd))
-  cleaner <- c(".tex", ".aux", ".log", ".dvi")
-  invisible(file.remove(paste0(table_name, cleaner, sep="")))
-}
 ```
+  \bottomrule
+  \end{tabular}
+  }
+\end{table}   
 
 ```{r, echo=FALSE}
 countText <- function(targetName = "Alpha-1 blockers",
@@ -647,26 +622,17 @@ table6 <- table %>% filter(analysisId == 6) %>% select(-analysisId) %>%
 wideTable <- inner_join(table5, table6, by = c("databaseId", "targetName", "comparatorName", "outcomeId"))
 ```
 
-
-```{r, echo=FALSE, results="asis"}
-if (outputTableAsPng) {
-  table_name <- "population_size_exposure_time_table"
-  texfile_name <- paste0(table_name,".tex")
-  sink(file=texfile_name)
-}
-
-cat(
-  "\\begin{table}[H]
- \\caption{Relative risk of COVID-19 diagnosis for Alpha-1 blocker and 5ARI / PDE5 prevalent-users. We report calibrated hazard ratios (HRs) and their 95\\% confidence intervals (CIs) across data sources.}
-  \\rowcolors{2}{gray!6}{white}
-  \\centering{
-  \\begin{tabular}{p{-2em}p{-2em}lrrr}
-    \\hiderowcolors
-    \\toprule
+\begin{table}[H]
+ \caption{Relative risk of COVID-19 diagnosis for Alpha-1 blocker and 5ARI / PDE5 prevalent-users. We report calibrated hazard ratios (HRs) and their 95\% confidence intervals (CIs) across data sources.}
+  \rowcolors{2}{gray!6}{white}
+  \centering{
+  \begin{tabular}{p{-2em}p{-2em}lrrr}
+    \hiderowcolors
+    \toprule
      & 
-    & & \\multicolumn{1}{c}{HR} & \\multicolumn{1}{c}{95\\% CI} & \\multicolumn{1}{c}{$p$} \\\\
-    \\midrule \\showrowcolors"
-)
+    & & \multicolumn{1}{c}{HR} & \multicolumn{1}{c}{95\% CI} & \multicolumn{1}{c}{$p$} \\
+    \midrule \showrowcolors
+```{r, echo=FALSE, results="asis"}
 
 numDb <- length(unique(wideTable$databaseId))
 
@@ -694,23 +660,11 @@ print(xtable(wideTable %>% filter(outcomeId == covidDiagnosisId) %>%
           )
       ),      
       sanitize.text.function = identity)
-
-cat("
-  \\bottomrule
-  \\end{tabular}
-  }
-\\end{table}"
-)
-
-if (outputTableAsPng) {
-  sink()
-  tools::texi2dvi(file=texfile_name)
-  cmd <- paste("dvipng -T tight", shQuote(paste0(table_name, ".dvi")))
-  invisible(system(cmd))
-  cleaner <- c(".tex", ".aux", ".log", ".dvi")
-  invisible(file.remove(paste0(table_name, cleaner, sep="")))
-}
 ```
+  \bottomrule
+  \end{tabular}
+  }
+\end{table}
 
 \definecolor{light-gray}{gray}{0.50}
 \begin{table}[H]
