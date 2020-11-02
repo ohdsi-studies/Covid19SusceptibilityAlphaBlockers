@@ -879,7 +879,7 @@ if (do56) {
   delta6 <- -0.25
 }
 
-pdf(file = "SixEffect.pdf", height = 10, width = 6)
+pdf(file = "allHazardRatioWithCI.pdf", height = 10, width = 6)
 
 dbs <- numDb
 
@@ -1081,7 +1081,7 @@ invisible(dev.off())
     labeled by propensity score (PS) adjustment method (black/white), across data sources.  Grayed out entries do not pass study diagnostics.}
     \vspace*{-0.25in}
   \centerline{
-    \includegraphics[width=0.95\textwidth]{SixEffect}
+    \includegraphics[width=0.95\textwidth]{allHazardRatioWithCI}
   }
 \end{figure}
 
@@ -1250,13 +1250,13 @@ saveAllBalancePlots <- function(balance, file) {
 }
 
 balance <- getAllBalancePlots(alphaBlockerId, fiveAlphaId, limits = c(0, 0.6), yLimits = c(0, 0.2))
-saveAllBalancePlots(balance, file = "allBalanceRasMono.pdf")
+saveAllBalancePlots(balance, file = "allBalanceBeforeAndAfter.pdf")
 ```
 
 
 \begin{figure}[H]
   \caption{Covariate balance between Alpha-1 blocker and 5ARI / PDE5 prevalent-user cohorts.  We plot balance before and after stratification and matching across data sources.}
   \centering{
-    \includegraphics[width=0.9\textwidth]{allBalanceRasMono}
+    \includegraphics[width=0.9\textwidth]{allBalanceBeforeAndAfter}
   }
 \end{figure}
