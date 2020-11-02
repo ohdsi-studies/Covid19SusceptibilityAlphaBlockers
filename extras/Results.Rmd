@@ -173,7 +173,7 @@ print(xtable(table, format = "latex"),
       add.to.row = list(
         pos = as.list(c(0) * 3),
         command = c(
-          "                       \\multicolumn{9}{l}{Alpha-1 blocker vs 5ARI / PDE5} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\"
+          "                       \\multicolumn{9}{l}{Alpha-1 blocker vs 5ARI / PDE5} \\\\"
           # "                        & \\multicolumn{8}{l}{+ Combination} \\\\",
           # "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{ACE vs CCB/THZ} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
           # "                        & \\multicolumn{8}{l}{+ Combination} \\\\",
@@ -649,7 +649,7 @@ print(xtable(wideTable %>% filter(outcomeId == covidDiagnosisId) %>%
  add.to.row = list(
         pos = as.list(c(0) * numDb),
         command = c(
-          "                       \\multicolumn{6}{l}{Alpha-1 blocker vs 5ARI / PDE5} \\\\ & \\multicolumn{5}{l}{Monotherapy}  \\\\"
+          "                       \\multicolumn{6}{l}{Alpha-1 blocker vs 5ARI / PDE5} \\\\"
           # "                        & \\multicolumn{5}{l}{+ Combination} \\\\",
           # "\\rowcolor{white} \\\\ \\multicolumn{6}{l}{ACE vs CCB/THZ} \\\\ & \\multicolumn{5}{l}{Monotherapy}  \\\\",
           # "                        & \\multicolumn{5}{l}{+ Combination} \\\\",
@@ -740,7 +740,7 @@ print(xtable(annotatedWideTable %>% filter(outcomeId == covidDiagnosisId) %>%
  add.to.row = list(
         pos = as.list(c(0) * numDb),
         command = c(
-          "                       \\multicolumn{10}{l}{Alpha-1 blocker vs 5ARI / PDE5} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\"
+          "                       \\multicolumn{10}{l}{Alpha-1 blocker vs 5ARI / PDE5} \\\\"
           # "                        & \\multicolumn{9}{l}{+ Combination} \\\\",
           # "\\rowcolor{white} \\\\ \\multicolumn{10}{l}{ACE vs CCB/THZ} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
           # "                        & \\multicolumn{9}{l}{+ Combination} \\\\",
@@ -785,7 +785,7 @@ print(xtable(annotatedWideTable %>% filter(outcomeId == hospitalizationId) %>%
  add.to.row = list(
         pos = as.list(c(0) * numDb),
         command = c(
-          "                       \\multicolumn{10}{l}{Alpha-1 blocker vs 5ARI / PDE5} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\"
+          "                       \\multicolumn{10}{l}{Alpha-1 blocker vs 5ARI / PDE5} \\\\"
           # "                        & \\multicolumn{9}{l}{+ Combination} \\\\",
           # "\\rowcolor{white} \\\\ \\multicolumn{10}{l}{ACE vs CCB/THZ} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
           # "                        & \\multicolumn{9}{l}{+ Combination} \\\\",
@@ -829,7 +829,7 @@ print(xtable(annotatedWideTable %>% filter(outcomeId == intensiveServiceId) %>%
  add.to.row = list(
         pos = as.list(c(0) * numDb),
         command = c(
-          "                       \\multicolumn{10}{l}{Alpha-1 blocker vs 5ARI / PDE5} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\"
+          "                       \\multicolumn{10}{l}{Alpha-1 blocker vs 5ARI / PDE5} \\\\"
           # "                        & \\multicolumn{9}{l}{+ Combination} \\\\",
           # "\\rowcolor{white} \\\\ \\multicolumn{10}{l}{ACE vs CCB/THZ} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
           # "                        & \\multicolumn{9}{l}{+ Combination} \\\\",
