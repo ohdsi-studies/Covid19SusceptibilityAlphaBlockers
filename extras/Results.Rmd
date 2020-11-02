@@ -150,7 +150,7 @@ table <- bind_rows(tables) %>% arrange(order, databaseOrder) %>%
 ```
 
 \begin{table}[H]
- \caption{Population size, total exposure time and COVID-19 diagnoses for ACEI, ARB and CCB/THZ monotherapy and in-combination user target (T) and comparator (C) cohorts.}
+ \caption{Population size, total exposure time and COVID-19 diagnoses for Alpha-1 blocker and 5ARI / PDE5 user target (T) and comparator (C) cohorts.}
   \rowcolors{2}{gray!6}{white}
   \centering{
   \begin{tabular}{p{-2em}p{-2em}rrrrrrrr}
@@ -191,8 +191,8 @@ print(xtable(table, format = "latex"),
 \end{table}   
 
 ```{r, echo=FALSE}
-countText <- function(targetName = "ACE/ARB (c)",
-                      comparatorName = "CCB/THZ (c)") {
+countText <- function(targetName = "Alpha-1 blockers",
+                      comparatorName = "5ARI / PDE5") {
   
   tS <- do.call("rbind",
                 lapply(tables, function(tab) {
@@ -623,7 +623,7 @@ wideTable <- inner_join(table5, table6, by = c("databaseId", "targetName", "comp
 ```
 
 \begin{table}[H]
- \caption{Relative risk of COVID-19 diagnosis for ACE inhibitors, ARB, CCB and THZ prevalent-users. We report calibrated hazard ratios (HRs) and their 95\% confidence intervals (CIs) across data sources.}
+ \caption{Relative risk of COVID-19 diagnosis for Alpha-1 blocker and 5ARI / PDE5 prevalent-users. We report calibrated hazard ratios (HRs) and their 95\% confidence intervals (CIs) across data sources.}
   \rowcolors{2}{gray!6}{white}
   \centering{
   \begin{tabular}{p{-2em}p{-2em}lrrr}
@@ -668,7 +668,7 @@ print(xtable(wideTable %>% filter(outcomeId == covidDiagnosisId) %>%
 
 \definecolor{light-gray}{gray}{0.50}
 \begin{table}[H]
- \caption{Relative risk of COVID-19 diagnosis for ACE inhibitors, ARB, CCB and THZ prevalent-users. We report calibrated hazard ratios (HRs) and their 95\% confidence intervals (CIs) across data sources. Grayed out entries do not pass study diagnostics.}
+ \caption{Relative risk of COVID-19 diagnosis for Alpha-1 blocker and 5ARI / PDE5 prevalent-users. We report calibrated hazard ratios (HRs) and their 95\% confidence intervals (CIs) across data sources. Grayed out entries do not pass study diagnostics.}
   \rowcolors{2}{gray!6}{white}
   \centering{
   \begin{tabular}{p{-2em}p{-2em}lrrrc@{}rrr}
@@ -761,7 +761,7 @@ print(xtable(annotatedWideTable %>% filter(outcomeId == covidDiagnosisId) %>%
 
 \definecolor{light-gray}{gray}{0.50}
 \begin{table}[H]
- \caption{Relative risk of COVID-19 hospitalization for ACE inhibitors, ARB, CCB and THZ prevalent-users. We report calibrated hazard ratios (HRs) and their 95\% confidence intervals (CIs) across data sources. Grayed out entries do not pass study diagnostics.}
+ \caption{Relative risk of COVID-19 hospitalization for Alpha-1 blocker and 5ARI / PDE5 prevalent-users. We report calibrated hazard ratios (HRs) and their 95\% confidence intervals (CIs) across data sources. Grayed out entries do not pass study diagnostics.}
   \rowcolors{2}{gray!6}{white}
   \centering{
   \begin{tabular}{p{-2em}p{-2em}lrrrc@{}rrr}
@@ -805,7 +805,7 @@ print(xtable(annotatedWideTable %>% filter(outcomeId == hospitalizationId) %>%
 \clearpage
 
 \begin{table}[H]
- \caption{Relative risk of pneumonia for ACE inhibitors, ARB, CCB and THZ prevalent-users. We report calibrated hazard ratios (HRs) and their 95\% confidence intervals (CIs) across data sources. Grayed out entries do not pass study diagnostics.}
+ \caption{Relative risk of COVID-19 hospitalization requiring intensive services for Alpha-1 blocker and 5ARI / PDE5 prevalent-users. We report calibrated hazard ratios (HRs) and their 95\% confidence intervals (CIs) across data sources. Grayed out entries do not pass study diagnostics.}
   \rowcolors{2}{gray!6}{white}
   \centering{
   \begin{tabular}{p{-2em}p{-2em}lrrrc@{}rrr}
@@ -1075,9 +1075,9 @@ invisible(dev.off())
 
 
 \begin{figure}[H]
-  \caption{Relative risk of COVID-19-related outcomes for ACE inhibitor, ARB, CCB and THZ prevalent-users.  
-    Outcomes are COVID-19 diagnosis, COVID-19 hospitalization (+Hospital), patients hospitalized with pneumonia (PNA) and patients hospitalized with pneunomia, acute respiratory distree syndrome, acute kidney injury or sepsis (PAAS). 
-    We plot calibrated hazard ratios (circles) and their 95% confidence intervals (wiskers) for both monotherapy and in-combination cohort definitions,
+  \caption{Relative risk of COVID-19-related outcomes for Alpha-1 blocker and 5ARI / PDE5 prevalent-users.  
+    Outcomes are COVID-19 diagnosis, COVID-19 hospitalization (+ Hospital), COVID-19 hospitalization requiring intensive services (+ Intensive services). 
+    We plot calibrated hazard ratios (circles) and their 95% confidence intervals (wiskers),
     labeled by propensity score (PS) adjustment method (black/white), across data sources.  Grayed out entries do not pass study diagnostics.}
     \vspace*{-0.25in}
   \centerline{
@@ -1253,7 +1253,7 @@ saveAllBalancePlots(balance, file = "allBalanceRasMono.pdf")
 
 
 \begin{figure}[H]
-  \caption{Covariate balance between ACE/ARB mono and CCB/THZ mono prevalent-user cohorts.  We plot balance before and after stratification and matching across data sources.}
+  \caption{Covariate balance between Alpha-1 blocker and 5ARI / PDE5 prevalent-user cohorts.  We plot balance before and after stratification and matching across data sources.}
   \centering{
     \includegraphics[width=0.9\textwidth]{allBalanceRasMono}
   }
