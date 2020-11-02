@@ -1231,7 +1231,10 @@ saveAllBalancePlots <- function(balance, file) {
   labelPlots <- lapply(databaseIds,
     function (databaseId) {
       label <- databaseIdLabels[[databaseId]]
-      label <- paste0(label, paste0(rep(" ", 12 - nchar(label)), collapse = ""))
+      labelCharWidth <- 18
+      nSpace <- labelCharWidth - nchar(label)
+      nSpaceTail <- floor(nSpace / 2)
+      label <- paste0(label, paste0(rep(" ", nSpaceTail), collapse = ""))
       ggplot2::ggplot() + 
         ggplot2::annotate("text", x = 0, y = 0, size = 6, angle = -90, label = label) +
         ggplot2::theme_void()
@@ -1242,9 +1245,8 @@ saveAllBalancePlots <- function(balance, file) {
   plotList <- do.call(c, plotList)
   invisible(save_plot(file,
                       plot_grid(plotlist = plotList, ncol = 3, rel_widths = c(1, 1, 0.1)),
-                      base_asp = 3 * 2/3, 
-                      #ncol = 5,
-                      base_height = 6))
+                      base_asp = 3 * 2 / length(databaseIds),
+                      base_height = 2 * length(databaseIds)))
 }
 
 balance <- getAllBalancePlots(alphaBlockerId, fiveAlphaId, limits = c(0, 0.6), yLimits = c(0, 0.2))
