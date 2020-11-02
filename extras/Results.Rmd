@@ -879,7 +879,7 @@ if (do56) {
   delta6 <- -0.25
 }
 
-pdf(file = "allHazardRatioWithCI.pdf", height = 10, width = 6)
+pdf(file = "allHazardRatioWithCI.pdf", height = 10, width = 8)
 
 dbs <- numDb
 
