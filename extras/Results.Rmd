@@ -41,6 +41,9 @@ header-includes:
   - \usepackage{mas_fun}
   - \usepackage{hyperref}
 ---
+ 
+\pagenumbering{gobble} <!-- Remove pagenumbering -->
+
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 options(kableExtra.latex.load_packages = FALSE)
 library(kableExtra)
