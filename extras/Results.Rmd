@@ -603,6 +603,13 @@ meta <- cmResultsMaWithSources %>%
   select(-targetId, -comparatorId) %>%
   select(targetName, comparatorName, everything())   
 
+rename_and_paste <- function (source) {
+  paste(
+    sapply(strsplit(source, ', '), function (databaseId) databaseIdLabels[databaseId]), 
+    collapse = ', '
+  )
+} 
+meta$sources <- sapply(meta$sources, rename_and_paste)
 knitr::kable(meta %>% filter(outcomeId == covidDiagnosisId, databaseId == "Meta-analysis") %>%
                arrange(analysisId) %>%
                filter(!is.na(is)) %>% select(targetName, comparatorName, analysisId, databaseId, i2, sources), 
