@@ -906,7 +906,7 @@ if (do56) {
 }
 
 png(file = "allHazardRatioWithCI.png", height = 10, width = 8, 
-    units = 'in', bg = "transparent", res = 600)
+    units = 'in', bg = "transparent", res = 300)
 
 dbs <- numDb
 
@@ -1274,7 +1274,7 @@ saveAllBalancePlots <- function(balance, file) {
                       plot_grid(plotlist = plotList, ncol = 3, rel_widths = c(1, 1, 0.1)),
                       base_asp = 3 * 2 / length(databaseIds),
                       base_height = 2 * length(databaseIds),
-                      units = "in", dpi = 600))
+                      units = "in", dpi = 300))
 }
 
 balance <- getAllBalancePlots(alphaBlockerId, fiveAlphaId, limits = c(0, 0.6), yLimits = c(0, 0.2))
