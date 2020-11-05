@@ -927,7 +927,7 @@ plot(0,0, type = "n",
      xlim = c(0, 12), axes = FALSE, 
      ylab = "", xlab = "")
 
-textCex <- 0.6
+textCex <- 1.0
 
 cohortNames <- c("Alpha-1 blocker vs 5ARI / PDE5")
 cohortPositions <- (c(1:length(cohortNames)) - 1) * (2 * dbs + 4) + 1
@@ -1093,7 +1093,7 @@ for (i in 1:length(outcomeIds)) {
   text(x = offset,
        y = bt - 2,
        labels = outcomeNames[i],
-       cex = 0.8)
+       cex = 1.)
 }
 
 invisible(dev.off())
