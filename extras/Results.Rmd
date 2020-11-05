@@ -693,6 +693,7 @@ print(xtable(wideTable %>% filter(outcomeId == covidDiagnosisId) %>%
   \begin{tabular}{p{-2em}p{-2em}lrrrc@{}rrr}
     \hiderowcolors
     \toprule
+    & & & \multicolumn{7}{c}{Diagnosis} \\
     & & & \multicolumn{3}{c}{PS-stratified} & &  \multicolumn{3}{c}{PS-matched} \\
      \cmidrule(lr){4-6} \cmidrule(lr){8-10}
      & 
@@ -788,6 +789,7 @@ print(xtable(annotatedWideTable %>% filter(outcomeId == covidDiagnosisId) %>%
   \begin{tabular}{p{-2em}p{-2em}lrrrc@{}rrr}
     \hiderowcolors
     \toprule
+    & & & \multicolumn{7}{c}{Hospitalization} \\
     & & & \multicolumn{3}{c}{PS-stratified} & &  \multicolumn{3}{c}{PS-matched} \\
      \cmidrule(lr){4-6} \cmidrule(lr){8-10}
      & 
