@@ -92,8 +92,8 @@ primaryAnalysisId <- 5 # Full stratified PS
 
 studyFolder <- "/Users/aki-nishimura/Dropbox/Documents_Academic/Covid19AlphaBlocker"
 databaseIds <- c("SIDIAP", "VA-OMOP", "CUIMC", "IQVIA_OpenClaims", "Optum_DOD", "Optum_EHR_COVID")
-databaseIdLabels <- c("SIDIAP", "VA", "CUIMC", "OpenClaims", "Optum DOD", "Optum EHR")
-names(databaseIdLabels) <- databaseIds
+databaseIdLabels <- c("SIDIAP", "VA", "CUIMC", "OpenClaims", "Optum DOD", "Optum EHR", "Meta-analysis")
+names(databaseIdLabels) <- c(databaseIds, "Meta-analysis")
 dataDirs <- sapply(databaseIds, function (databaseId) file.path(studyFolder, databaseId))
 
 makeSampleSizeTable <- function(databaseId, 
