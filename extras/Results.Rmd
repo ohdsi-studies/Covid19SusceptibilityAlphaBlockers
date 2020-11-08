@@ -829,6 +829,7 @@ print(xtable(annotatedWideTable %>% filter(outcomeId == hospitalizationId) %>%
 \clearpage
 
 % Table begins: relative_risk_covid_intensive_services_stratified_and_matched_analysis_table
+\definecolor{light-gray}{gray}{0.50}
 \begin{table}[H]
  \caption{Relative risk of COVID-19 hospitalization requiring intensive services for Alpha-1 blocker and 5ARI / PDE5 prevalent-users. We report calibrated hazard ratios (HRs) and their 95\% confidence intervals (CIs) across data sources. Grayed out entries do not pass study diagnostics.}
   \rowcolors{2}{gray!6}{white}
