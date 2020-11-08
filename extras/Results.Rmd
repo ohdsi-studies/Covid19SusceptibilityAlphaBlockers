@@ -849,6 +849,7 @@ print(xtable(annotatedWideTable %>% filter(outcomeId == intensiveServiceId) %>%
                select(-outcomeId, -stratImbalanced, -matchImbalanced) %>%
                mutate(targetName = "", comparatorName = ""), 
              format = "latex"),
+      NA.string="NA",
       include.rownames = FALSE,
       include.colnames = FALSE,
       hline.after = NULL,
