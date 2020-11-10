@@ -150,6 +150,13 @@ names(tables) <- databaseIds
 
 table <- bind_rows(tables) %>% arrange(order, databaseOrder) %>% 
   mutate(targetId = "", comparatorId = "") %>% select(-order, -databaseOrder)
+
+addAnalysisInfo <- function (analysisId) {
+  info <- rep("(matched)", length(analysisId))
+  info[analysisId == 5] <- "(stratified)"
+  return(info)
+}
+table <- table %>% mutate(databaseId = paste(databaseId, addAnalysisInfo(analysisId)))
 ```
 
 Total number of target and comparator subjects.
