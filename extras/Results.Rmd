@@ -117,7 +117,7 @@ makeSampleSizeTable <- function(databaseId,
   table <- rbind(
     cmResults %>% filter(targetId == alphaBlockerId, comparatorId == fiveAlphaId) %>% mutate(targetId = "Alpha-1 blocker", comparatorId = "5ARI / PDE5", order = 1)
   ) %>% mutate (databaseId = databaseId, databaseOrder = databaseOrder) %>% 
-    select(targetId, comparatorId, databaseId, targetSubjects, comparatorSubjects, targetYears, comparatorYears, targetOutcomes, comparatorOutcomes, mdrr, order, databaseOrder)
+    select(targetId, comparatorId, databaseId, targetSubjects, comparatorSubjects, targetYears, comparatorYears, targetOutcomes, comparatorOutcomes, mdrr, order, databaseOrder, analysisId)
   
   table$targetSubjects <- formatC(table$targetSubjects, big.mark = ",", format = "d")
   table$comparatorSubjects <- formatC(table$comparatorSubjects, big.mark = ",", format = "d")
@@ -150,6 +150,26 @@ names(tables) <- databaseIds
 
 table <- bind_rows(tables) %>% arrange(order, databaseOrder) %>% 
   mutate(targetId = "", comparatorId = "") %>% select(-order, -databaseOrder)
+```
+
+Total number of target and comparator subjects.
+```{r, echo=FALSE}
+# Count number of subjects
+
+analysisId <- 6
+nTargetSubjects <- sapply(
+  table %>% filter(analysisId == analysisId) %>% select(targetSubjects), 
+  function (x) as.numeric(gsub(",", "", x))
+)
+
+nComparatorSubjects <- sapply(
+  table %>% filter(analysisId == analysisId) %>% select(comparatorSubjects), 
+  function (x) as.numeric(gsub(",", "", x))
+)
+
+print(sprintf("Target: %d, Comparator: %d", sum(nTargetSubjects), sum(nComparatorSubjects)))
+
+table <- table %>% select(-analysisId)
 ```
 
 % Table begins: population_size_exposure_time_covid_diagnosis_table
