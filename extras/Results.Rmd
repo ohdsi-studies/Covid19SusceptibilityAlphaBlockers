@@ -421,7 +421,13 @@ printBaselineCharacteristicTable <- function (databaseIds, dataDirs, databaseIdL
   }
    
   if (reduced) {
-    tableOrder <- read.csv("ReducedDemographics.csv")
+    if (any(c("VA-OMOP", "CUIMC") %in% databaseIds)) {
+      tableOrder <- read.csv("ReducedDemographics.csv")
+    } else {
+      # No race or ethnicity info.
+      tableOrder <- read.csv("ReducedDemographicsWoRace.csv")
+    }
+    
   } else {
     tableOrder <- read.csv("CombinedDemographics.csv")
   }
@@ -528,9 +534,11 @@ cat("% Table ends\n\n")
 ```{r, echo=FALSE, results="asis"}
 header <- readr::read_file("ReducedTableTop.tex")
 footer <- readr::read_file("ReducedTableBottom.tex")
-printBaselineCharacteristicTable(
-  c("IQVIA_OpenClaims"), c(dataDirs["IQVIA_OpenClaims"]), c(databaseIdLabels["IQVIA_OpenClaims"]), header, footer,
-  reduced = TRUE
+invisible(
+  printBaselineCharacteristicTable(
+    c("IQVIA_OpenClaims"), c(dataDirs["IQVIA_OpenClaims"]), c(databaseIdLabels["IQVIA_OpenClaims"]), header, footer,
+    reduced = TRUE
+  )
 )
 ```
 % Table ends

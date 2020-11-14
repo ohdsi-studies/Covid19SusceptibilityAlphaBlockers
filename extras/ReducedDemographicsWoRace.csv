@@ -1,0 +1,42 @@
+order,id,newNames
+1,Age group,Age group
+502,    15-19,    <20
+3,    20-24,    <25
+4,    25-29,    25-29
+5,    30-34,    30-34
+6,    35-39,    35-39
+7,    40-44,    40-44
+8,    45-49,    45-49
+9,    50-54,    50-54
+10,    55-59,    55-59
+11,    60-64,    60-64
+12,    65-69,    65-69
+13,    70-74,    70-74
+14,    75-79,    75-79
+15,    80-84,    80-84
+16,    85-89,    85-89
+17,    90-94,    90-94
+18,    95-99,    95+
+519,    00-04,    100-104
+21,Medical history: General,Medical history: General
+24,    Chronic liver disease,    Chronic liver disease
+25,    Chronic obstructive lung disease,    Chronic obstructive lung disease
+27,    Dementia,    Dementia
+29,    Diabetes mellitus,    Diabetes mellitus
+33,    Hyperlipidemia,    Hyperlipidemia
+34,    Hypertensive disorder,    Hypertensive disorder
+36,    Obesity,    Obesity
+40,    Renal impairment,    Renal impairment
+47,Medical history: Cardiovascular disease,Medical history: Cardiovascular disease
+49,    Cerebrovascular disease,    Cerebrovascular disease
+53,    Ischemic heart disease,    Ischemic heart disease
+57,Medical history: Neoplasms,Medical history: Neoplasms
+61,    Malignant neoplastic disease,    Malignant neoplastic disease
+66,    Primary malignant neoplasm of prostate,    Primary malignant neoplasm of prostate
+67,Medication use,Medication use
+300,    Agents acting on the renin-angiotensin system,    Agents acting on the renin-angiotensin system
+72,    Antiinflammatory and antirheumatic products,    Antiinflammatory and antirheumatic products
+73,    Antineoplastic agents,    Antineoplastic agents
+75,    Antithrombotic agents,    Antithrombotic agents
+81,    Drugs used in diabetes,    Drugs used in diabetes
+82,    Immunosuppressants,    Immunosuppressants
