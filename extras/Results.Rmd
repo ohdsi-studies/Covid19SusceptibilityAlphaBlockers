@@ -98,6 +98,7 @@ dataDirs <- sapply(databaseIds, function (databaseId) file.path(studyFolder, dat
 
 makeSampleSizeTable <- function(databaseId, 
                                 dataFolder,
+                                primaryOutcomeId,
                                 databaseOrder = 1) {
   cmResults <- readRDS(file = file.path(dataFolder, paste0("cohort_method_result_", databaseId, ".rds")))
   colnames(cmResults) <- SqlRender::snakeCaseToCamelCase(colnames(cmResults))
@@ -112,7 +113,7 @@ makeSampleSizeTable <- function(databaseId,
   cmResults$targetYears <- cmResults$targetDays/365.25
   cmResults$comparatorYears <- cmResults$comparatorDays/365.25
   
-  cmResults <- cmResults %>% filter(analysisId %in% analysisIdToKeep, outcomeId == covidDiagnosisId)
+  cmResults <- cmResults %>% filter(analysisId %in% analysisIdToKeep, outcomeId == primaryOutcomeId)
   
   table <- rbind(
     cmResults %>% filter(targetId == alphaBlockerId, comparatorId == fiveAlphaId) %>% mutate(targetId = "Alpha-1 blocker", comparatorId = "5ARI / PDE5", order = 1)
@@ -138,16 +139,17 @@ makeSampleSizeTable <- function(databaseId,
   return(table)
 }
 
+
 tables <- lapply(
   1:length(databaseIds),
   function (i) makeSampleSizeTable(
     databaseId = databaseIds[i], 
     dataFolder = file.path(dataDirs[i], "shinyData"), 
+    primaryOutcomeId = covidDiagnosisId,
     databaseOrder = i
   ) 
 )
 names(tables) <- databaseIds
-
 table <- bind_rows(tables) %>% arrange(order, databaseOrder) %>% 
   mutate(targetId = "", comparatorId = "") %>% select(-order, -databaseOrder)
 
@@ -179,24 +181,69 @@ print(sprintf("Target: %d, Comparator: %d", sum(nTargetSubjects), sum(nComparato
 table <- table %>% select(-analysisId)
 ```
 
+```{r, echo=FALSE, warning=FALSE}
+# Add columns of hospitalization and intensive services event numbers
+
+# First make tables for hospitalization and intensive services
+hospitalizationTables <- lapply(
+  1:length(databaseIds),
+  function (i) makeSampleSizeTable(
+    databaseId = databaseIds[i], 
+    dataFolder = file.path(dataDirs[i], "shinyData"), 
+    primaryOutcomeId = hospitalizationId,
+    databaseOrder = i
+  ) 
+)
+names(hospitalizationTables) <- databaseIds
+hospitalizationTable <- bind_rows(hospitalizationTables) %>% arrange(order, databaseOrder) %>% 
+  mutate(targetId = "", comparatorId = "") %>% select(-order, -databaseOrder)
+
+intensiveServiceTables <- lapply(
+  1:length(databaseIds),
+  function (i) makeSampleSizeTable(
+    databaseId = databaseIds[i], 
+    dataFolder = file.path(dataDirs[i], "shinyData"), 
+    primaryOutcomeId = intensiveServiceId,
+    databaseOrder = i
+  ) 
+)
+names(intensiveServiceTables) <- databaseIds
+intensiveServiceTable <- bind_rows(intensiveServiceTables) %>% arrange(order, databaseOrder) %>% 
+  mutate(targetId = "", comparatorId = "") %>% select(-order, -databaseOrder)
+
+# Add columns
+table_to_print <- table
+table_to_print <- table_to_print %>% mutate(
+  targetHospitalization = hospitalizationTable$targetOutcomes, 
+  comparatorHospitalization = hospitalizationTable$comparatorOutcomes,
+  .before=mdrr
+)
+table_to_print <- table_to_print %>% mutate(
+  targetIntensiveService = intensiveServiceTable$targetOutcomes, 
+  comparatorIntensiveService = intensiveServiceTable$comparatorOutcomes,
+  .before=mdrr
+)
+```
 % Table begins: population_size_exposure_time_covid_diagnosis_table
 \begin{table}[H]
  \caption{Population size, total exposure time and COVID-19 diagnoses for Alpha-1 blocker and 5ARI / PDE5 user target (T) and comparator (C) cohorts.}
   \rowcolors{2}{gray!6}{white}
   \centering{
-  \begin{tabular}{p{-2em}p{-2em}rrrrrrrr}
+  \begin{tabular}{p{-2em}p{-2em}rrrrrrrrrrrr}
     \hiderowcolors
     \toprule
-    &  &  & \multicolumn{2}{c}{Patients} & \multicolumn{2}{c}{Time (years)} & \multicolumn{2}{c}{Events} \\
-    \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9}
+    &  &  & \multicolumn{2}{c}{Patients} & \multicolumn{2}{c}{Time (years)} & \multicolumn{2}{c}{Diagnosis} & \multicolumn{2}{c}{Hospital} & \multicolumn{2}{c}{Intensive} \\
+    \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11} \cmidrule(lr){12-13}
     &  &
     & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C}
     & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C}
     & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C} 
+    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C} 
+    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C} 
     & MDRR \\
     \midrule \showrowcolors
 ```{r, echo=FALSE, results="asis"}
-print(xtable(table, format = "latex"),
+print(xtable(table_to_print, format = "latex"),
       include.rownames = FALSE,
       include.colnames = FALSE,
       hline.after = NULL,
