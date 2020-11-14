@@ -398,7 +398,7 @@ blend <- function(databaseIds,
 
 ```{r, echo=FALSE, results="asis", cache=TRUE, warning=FALSE}
 
-printBaselineCharacteristicTable <- function (databaseIds, dataDirs, databaseIdLabels, header, footer) {
+printBaselineCharacteristicTable <- function (databaseIds, dataDirs, databaseIdLabels, header, footer, reduced = FALSE) {
   tmp <- blend(alphaBlockerId, fiveAlphaId,
              databaseIds = databaseIds,
              dataFolders = sapply(dataDirs, function (dataDir) file.path(dataDir, "shinyData")))
@@ -407,21 +407,33 @@ printBaselineCharacteristicTable <- function (databaseIds, dataDirs, databaseIdL
   names(numCovariates) <- databaseIds
   
   table_tmp <- tmp$tables[[1]]
-  for (i in 2:length(databaseIds)) {
-    table_tmp <- full_join(table_tmp, tmp$tables[[i]], 
-                           by = 'id', suffix = c(sprintf(".%d", i - 1), sprintf(".%d", i)))
+  if (length(databaseIds) > 1) {
+    for (i in 2:length(databaseIds)) {
+      table_tmp <- full_join(table_tmp, tmp$tables[[i]], 
+                             by = 'id', suffix = c(sprintf(".%d", i - 1), sprintf(".%d", i)))
+    }
   }
+
   if (length(databaseIds) == 3) {
     # Not sure why this is necessary only for length(databaseIds) == 3
     table_tmp <- table_tmp %>%
       rename(b.3 = b, c.3 = c, d.3 = d, e.3 = e, f.3 = f, g.3 = g, order.3 = order)
   }
    
-  tableOrder <- read.csv("CombinedDemographics.csv")
+  if (reduced) {
+    tableOrder <- read.csv("ReducedDemographics.csv")
+  } else {
+    tableOrder <- read.csv("CombinedDemographics.csv")
+  }
+  
   table_tmp$join_id <- gsub(" ", "", table_tmp$id) # Remove all spaces from ID
   tableOrder$join_id <- gsub(" ", "", tableOrder$id)
   tableOrder$id <- NULL
-  table_tmp <- full_join(table_tmp, tableOrder, by = "join_id") %>% arrange(order) %>% 
+  table_tmp <- full_join(table_tmp, tableOrder, by = "join_id")
+  if (length(databaseIds) == 1) {
+    table_tmp <- table_tmp %>% rename(order = order.y)
+  }
+  table_tmp <- table_tmp %>% arrange(order) %>% 
     filter(order < 300) %>%
     mutate(id = newNames) %>%
     select(-starts_with("order"), -newNames, -join_id)
@@ -511,6 +523,17 @@ numCovariates <- c(
 cat("% Table ends\n\n")
 
 ```
+
+% Table begins: baseline_characteristic_reduced_table
+```{r, echo=FALSE, results="asis"}
+header <- readr::read_file("ReducedTableTop.tex")
+footer <- readr::read_file("ReducedTableBottom.tex")
+printBaselineCharacteristicTable(
+  c("IQVIA_OpenClaims"), c(dataDirs["IQVIA_OpenClaims"]), c(databaseIdLabels["IQVIA_OpenClaims"]), header, footer,
+  reduced = TRUE
+)
+```
+% Table ends
 
 ## Numbers of covariates
 
