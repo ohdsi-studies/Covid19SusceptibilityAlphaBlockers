@@ -475,8 +475,7 @@ printBaselineCharacteristicTable <- function (databaseIds, dataDirs, databaseIdL
                 c(
                   sapply(databaseIds,
                     function (databaseId) {
-                      paste0("& \\\\multicolumn{3}{c}{$N$ = ", tcs[[databaseId]]$targetSubjects, 
-                        " } & \\\\multicolumn{3}{c}{$N$ = ", tcs[[databaseId]]$comparatorSubjects, " } ")
+                      paste0("& \\\\multicolumn{6}{c}{$N =$ ", tcs[[databaseId]]$targetSubjects, " (T) and \\\\thinspace ", tcs[[databaseId]]$comparatorSubjects, " (C) }")
                     }
                   ), 
                   " \\\\\\\\"
@@ -534,11 +533,9 @@ cat("% Table ends\n\n")
 ```{r, echo=FALSE, results="asis"}
 header <- readr::read_file("ReducedTableTop.tex")
 footer <- readr::read_file("ReducedTableBottom.tex")
-invisible(
-  printBaselineCharacteristicTable(
-    c("IQVIA_OpenClaims"), c(dataDirs["IQVIA_OpenClaims"]), c(databaseIdLabels["IQVIA_OpenClaims"]), header, footer,
-    reduced = TRUE
-  )
+dummy <- printBaselineCharacteristicTable(
+  c("IQVIA_OpenClaims"), c(dataDirs["IQVIA_OpenClaims"]), c(databaseIdLabels["IQVIA_OpenClaims"]), header, footer,
+  reduced = TRUE
 )
 ```
 % Table ends
