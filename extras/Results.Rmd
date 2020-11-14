@@ -112,26 +112,39 @@ makeSampleSizeTable <- function(databaseId,
   cmResults$targetYears <- cmResults$targetDays/365.25
   cmResults$comparatorYears <- cmResults$comparatorDays/365.25
   
-  cmResults <- cmResults %>% filter(analysisId %in% analysisIdToKeep, outcomeId == covidDiagnosisId)
+  outcomeIds <- c(covidDiagnosisId, hospitalizationId, intensiveServiceId)
+  names(outcomeIds) <- c("Diagnosis", "Hospitalization", "IntensiveService")
+  cmResults <- cmResults %>% filter(
+    analysisId %in% analysisIdToKeep, 
+    outcomeId %in% outcomeIds 
+  )
+  
+  recodeList <- names(outcomeIds)
+  names(recodeList) <- sapply(outcomeIds, toString)
+  cmResults <- cmResults %>% mutate(outcomeId = recode(outcomeId, !!!recodeList))
+  cmResults <- cmResults %>% rename(target = targetOutcomes, comparator = comparatorOutcomes)
+  cmResults <- cmResults %>% pivot_wider(names_from = outcomeId, values_from = c(target, comparator), names_sep = "")
   
   table <- rbind(
     cmResults %>% filter(targetId == alphaBlockerId, comparatorId == fiveAlphaId) %>% mutate(targetId = "Alpha-1 blocker", comparatorId = "5ARI / PDE5", order = 1)
   ) %>% mutate (databaseId = databaseId, databaseOrder = databaseOrder) %>% 
-    select(targetId, comparatorId, databaseId, targetSubjects, comparatorSubjects, targetYears, comparatorYears, targetOutcomes, comparatorOutcomes, mdrr, order, databaseOrder, analysisId)
+    select(targetId, comparatorId, databaseId, targetSubjects, comparatorSubjects, targetYears, comparatorYears, targetDiagnosis, targetHospitalization, targetIntensiveService, comparatorDiagnosis, comparatorHospitalization, comparatorIntensiveService, mdrr, order, databaseOrder, analysisId)
   
   table$targetSubjects <- formatC(table$targetSubjects, big.mark = ",", format = "d")
   table$comparatorSubjects <- formatC(table$comparatorSubjects, big.mark = ",", format = "d")
   table$targetYears <- formatC(table$targetYears, big.mark = ",", format = "d")
   table$comparatorYears <- formatC(table$comparatorYears, big.mark = ",", format = "d")
-  table$targetOutcomes <- formatC(table$targetOutcomes, big.mark = ",", format = "d")
-  table$comparatorOutcomes <- formatC(table$comparatorOutcomes, big.mark = ",", format = "d")
+  for (outcome in names(outcomeIds)) {
+    targetOutcome <- paste0("target", outcome)
+    table[[targetOutcome]] <- gsub("^-", "<", formatC(table[[targetOutcome]], big.mark = ",", format = "d"))
+    comparatorOutcome <- paste0("comparator", outcome)
+    table[[comparatorOutcome]] <- gsub("^-", "<", formatC(table[[comparatorOutcome]], big.mark = ",", format = "d"))
+  }
   # table$targetIr <- sprintf("%.2f", table$targetIr)
   # table$comparatorIr <- sprintf("%.2f", table$comparatorIr)
   table$mdrr <- sprintf("%.2f", table$mdrr)
   table$targetSubjects <- gsub("^-", "<", table$targetSubjects)
   table$comparatorSubjects <- gsub("^-", "<", table$comparatorSubjects)
-  table$targetOutcomes <- gsub("^-", "<", table$targetOutcomes)
-  table$comparatorOutcomes <- gsub("^-", "<", table$comparatorOutcomes)
   # table$targetIr <- gsub("^-", "<", table$targetIr)
   # table$comparatorIr <- gsub("^-", "<", table$comparatorIr)
   table$databaseId <- databaseIdLabels[[databaseId]]
