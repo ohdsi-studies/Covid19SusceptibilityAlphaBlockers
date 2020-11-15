@@ -214,6 +214,11 @@ table_to_print <- table_to_print %>% mutate(
   comparatorIntensiveService = intensiveServiceTable$comparatorOutcomes,
   .before=mdrr
 )
+
+table_to_print <- bind_rows(
+    table_to_print %>% filter(analysisId == 5), 
+    table_to_print %>% filter(analysisId == 6)
+  ) %>% select(-analysisId)
 ```
 
 % Table begins: population_size_exposure_time_stratified_analysis_table
@@ -225,44 +230,7 @@ table_to_print <- table_to_print %>% mutate(
     \hiderowcolors
     \toprule
     & \multicolumn{2}{c}{Patients} & \multicolumn{2}{c}{Time (years)} & \multicolumn{2}{c}{Diagnosis} & \multicolumn{2}{c}{Hospital} & \multicolumn{2}{c}{Intensive} \\
-    \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11} 
-    Stratified analysis
-    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C}
-    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C}
-    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C} 
-    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C} 
-    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C} 
-    & MDRR \\
-    \midrule \showrowcolors
-```{r, echo=FALSE, results="asis"}
-
-print(xtable(
-        table_to_print %>% filter(analysisId == 5) %>% select(-analysisId), 
-        format = "latex"
-      ),
-      include.rownames = FALSE,
-      include.colnames = FALSE,
-      hline.after = NULL,
-      only.contents = TRUE,
-      sanitize.text.function = identity)
-```
-  \bottomrule
-  \end{tabular}
-  }
-\end{table}   
-% Table ends
-
-% Table begins: population_size_exposure_time_matched_analysis_table
-\begin{table}[H]
- \caption{Population size, total exposure time and COVID-19 diagnoses for Alpha-1 blocker and 5ARI / PDE5 user target (T) and comparator (C) cohorts.}
-  \rowcolors{2}{gray!6}{white}
-  \centering{
-  \begin{tabular}{rrrrrrrrrrrr}
-    \hiderowcolors
-    \toprule
-    & \multicolumn{2}{c}{Patients} & \multicolumn{2}{c}{Time (years)} & \multicolumn{2}{c}{Diagnosis} & \multicolumn{2}{c}{Hospital} & \multicolumn{2}{c}{Intensive} \\
     \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11}
-    Matched analysis
     & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C}
     & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C}
     & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C} 
@@ -273,13 +241,18 @@ print(xtable(
 ```{r, echo=FALSE, results="asis"}
 
 print(xtable(
-        table_to_print %>% filter(analysisId == 6) %>% select(-analysisId), 
+        table_to_print, 
         format = "latex"
       ),
       include.rownames = FALSE,
       include.colnames = FALSE,
       hline.after = NULL,
       only.contents = TRUE,
+      add.to.row = list(
+        pos = as.list(c(0, length(databaseIds))),
+        command = c("\\multicolumn{11}{l}{Stratified analysis} \\\\",
+                    "\\multicolumn{11}{l}{Matched analysis} \\\\") 
+      ),
       sanitize.text.function = identity)
 ```
   \bottomrule
@@ -287,3 +260,4 @@ print(xtable(
   }
 \end{table}   
 % Table ends
+
