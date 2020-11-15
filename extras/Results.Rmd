@@ -221,7 +221,7 @@ table_to_print <- bind_rows(
   ) %>% select(-analysisId)
 ```
 
-% Table begins: population_size_exposure_time_stratified_analysis_table
+% Table begins: population_size_exposure_time_table
 
 \makeatletter
 \@ifundefined{c@rownum}{%
@@ -240,7 +240,7 @@ table_to_print <- bind_rows(
     \hiderowcolors
     \toprule
     & & \multicolumn{2}{c}{Patients} & \multicolumn{2}{c}{Time (years)} & \multicolumn{2}{c}{Diagnosis} & \multicolumn{2}{c}{Hospital} & \multicolumn{2}{c}{Intensive} \\
-    \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11}
+    \cmidrule(lr){3-4} \cmidrule(lr){5-6} \cmidrule(lr){7-8} \cmidrule(lr){9-10} \cmidrule(lr){11-12}
     &
     & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C}
     & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C}
