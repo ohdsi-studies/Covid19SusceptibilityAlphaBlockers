@@ -248,19 +248,6 @@ print(xtable(table_to_print, format = "latex"),
       include.colnames = FALSE,
       hline.after = NULL,
       only.contents = TRUE,
-      add.to.row = list(
-        pos = as.list(c(0) * 3),
-        command = c(
-          "                       \\multicolumn{9}{l}{Alpha-1 blocker vs 5ARI / PDE5} \\\\"
-          # "                        & \\multicolumn{8}{l}{+ Combination} \\\\",
-          # "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{ACE vs CCB/THZ} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
-          # "                        & \\multicolumn{8}{l}{+ Combination} \\\\",
-          # "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{ARB vs CCB/THZ} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
-          # "                        & \\multicolumn{8}{l}{+ Combination} \\\\",
-          # "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{ACE vs ARB} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
-          # "                        & \\multicolumn{8}{l}{+ Combination} \\\\"
-          )
-      ),
       sanitize.text.function = identity)
 ```
   \bottomrule
