@@ -152,13 +152,6 @@ tables <- lapply(
 names(tables) <- databaseIds
 table <- bind_rows(tables) %>% arrange(order, databaseOrder) %>% 
   mutate(targetId = "", comparatorId = "") %>% select(-order, -databaseOrder)
-
-addAnalysisInfo <- function (analysisId) {
-  info <- rep("(matched)", length(analysisId))
-  info[analysisId == 5] <- "(stratified)"
-  return(info)
-}
-table <- table %>% mutate(databaseId = paste(databaseId, addAnalysisInfo(analysisId)))
 ```
 
 Total number of target and comparator subjects.
@@ -177,8 +170,6 @@ nComparatorSubjects <- sapply(
 )
 
 print(sprintf("Target: %d, Comparator: %d", sum(nTargetSubjects), sum(nComparatorSubjects)))
-
-table <- table %>% select(-analysisId)
 ```
 
 ```{r, echo=FALSE, warning=FALSE}
@@ -224,7 +215,8 @@ table_to_print <- table_to_print %>% mutate(
   .before=mdrr
 )
 ```
-% Table begins: population_size_exposure_time_covid_diagnosis_table
+
+% Table begins: population_size_exposure_time_stratified_analysis_table
 \begin{table}[H]
  \caption{Population size, total exposure time and COVID-19 diagnoses for Alpha-1 blocker and 5ARI / PDE5 user target (T) and comparator (C) cohorts.}
   \rowcolors{2}{gray!6}{white}
@@ -243,11 +235,59 @@ table_to_print <- table_to_print %>% mutate(
     & MDRR \\
     \midrule \showrowcolors
 ```{r, echo=FALSE, results="asis"}
-print(xtable(table_to_print, format = "latex"),
+
+print(xtable(
+        table_to_print %>% filter(analysisId == 5) %>% select(-analysisId), 
+        format = "latex"
+      ),
       include.rownames = FALSE,
       include.colnames = FALSE,
       hline.after = NULL,
       only.contents = TRUE,
+      add.to.row = list(
+        pos = as.list(c(0) * 3),
+        command = c("                       \\multicolumn{9}{l}{Stratified analysis} \\\\")
+      ),
+      sanitize.text.function = identity)
+```
+  \bottomrule
+  \end{tabular}
+  }
+\end{table}   
+% Table ends
+
+% Table begins: population_size_exposure_time_matched_analysis_table
+\begin{table}[H]
+ \caption{Population size, total exposure time and COVID-19 diagnoses for Alpha-1 blocker and 5ARI / PDE5 user target (T) and comparator (C) cohorts.}
+  \rowcolors{2}{gray!6}{white}
+  \centering{
+  \begin{tabular}{p{-2em}p{-2em}rrrrrrrrrrrr}
+    \hiderowcolors
+    \toprule
+    &  &  & \multicolumn{2}{c}{Patients} & \multicolumn{2}{c}{Time (years)} & \multicolumn{2}{c}{Diagnosis} & \multicolumn{2}{c}{Hospital} & \multicolumn{2}{c}{Intensive} \\
+    \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11} \cmidrule(lr){12-13}
+    &  &
+    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C}
+    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C}
+    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C} 
+    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C} 
+    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C} 
+    & MDRR \\
+    \midrule \showrowcolors
+```{r, echo=FALSE, results="asis"}
+
+print(xtable(
+        table_to_print %>% filter(analysisId == 6) %>% select(-analysisId), 
+        format = "latex"
+      ),
+      include.rownames = FALSE,
+      include.colnames = FALSE,
+      hline.after = NULL,
+      only.contents = TRUE,
+      add.to.row = list(
+        pos = as.list(c(0) * 3),
+        command = c("                       \\multicolumn{9}{l}{Matched analysis} \\\\")
+      ),
       sanitize.text.function = identity)
 ```
   \bottomrule
