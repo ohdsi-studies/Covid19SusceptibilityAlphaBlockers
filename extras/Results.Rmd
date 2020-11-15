@@ -236,10 +236,10 @@ table_to_print <- bind_rows(
  \caption{Population size, total exposure time and COVID-19 diagnoses for Alpha-1 blocker and 5ARI / PDE5 user target (T) and comparator (C) cohorts.}
   \rowcolors{2}{gray!6}{white}
   \centering{
-  \begin{tabular}{p{.5em}rrrrrrrrrrrr}
+  \begin{tabular}{p{.5em}rrrrrrrrrrrc}
     \hiderowcolors
     \toprule
-    & & \multicolumn{2}{c}{Patients} & \multicolumn{2}{c}{Time (years)} & \multicolumn{2}{c}{Diagnosis} & \multicolumn{2}{c}{Hospital} & \multicolumn{2}{c}{Intensive} \\
+    & & \multicolumn{2}{c}{Patients} & \multicolumn{2}{c}{Time (years)} & \multicolumn{2}{c}{Diagnosis} & \multicolumn{2}{c}{Hospital} & \multicolumn{2}{c}{Intensive} & \multirow{2}{*}{\shortstack{MDRR\\(Diagnosis)}} \\
     \cmidrule(lr){3-4} \cmidrule(lr){5-6} \cmidrule(lr){7-8} \cmidrule(lr){9-10} \cmidrule(lr){11-12}
     &
     & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C}
@@ -247,7 +247,7 @@ table_to_print <- bind_rows(
     & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C} 
     & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C} 
     & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C} 
-    & MDRR \\
+    & \\
     \midrule \showrowcolors
 ```{r, echo=FALSE, results="asis"}
 
