@@ -226,6 +226,7 @@ table_to_print <- table_to_print %>% mutate(
     \toprule
     & \multicolumn{2}{c}{Patients} & \multicolumn{2}{c}{Time (years)} & \multicolumn{2}{c}{Diagnosis} & \multicolumn{2}{c}{Hospital} & \multicolumn{2}{c}{Intensive} \\
     \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11} 
+    Stratified analysis
     & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C}
     & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C}
     & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C} 
@@ -243,11 +244,6 @@ print(xtable(
       include.colnames = FALSE,
       hline.after = NULL,
       only.contents = TRUE,
-      add.to.row = list(
-        pos = as.list(c(0) * 3),
-        command = c("                       \\multicolumn{7}{l}{Stratified analysis} \\\\") 
-        # c(paste0(c("Stratified analysis", rep("&", 10), "\\\\"), collapse = " "))
-      ),
       sanitize.text.function = identity)
 ```
   \bottomrule
@@ -266,6 +262,7 @@ print(xtable(
     \toprule
     & \multicolumn{2}{c}{Patients} & \multicolumn{2}{c}{Time (years)} & \multicolumn{2}{c}{Diagnosis} & \multicolumn{2}{c}{Hospital} & \multicolumn{2}{c}{Intensive} \\
     \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11}
+    Matched analysis
     & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C}
     & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C}
     & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C} 
@@ -283,10 +280,6 @@ print(xtable(
       include.colnames = FALSE,
       hline.after = NULL,
       only.contents = TRUE,
-      add.to.row = list(
-        pos = as.list(c(0) * 3),
-        command = c("                       \\multicolumn{7}{l}{Matched analysis} \\\\")
-      ),
       sanitize.text.function = identity)
 ```
   \bottomrule
