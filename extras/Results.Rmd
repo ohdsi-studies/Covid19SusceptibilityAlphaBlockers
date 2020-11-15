@@ -203,7 +203,7 @@ intensiveServiceTable <- bind_rows(intensiveServiceTables) %>% arrange(order, da
   mutate(targetId = "", comparatorId = "") %>% select(-order, -databaseOrder)
 
 # Add columns
-table_to_print <- table
+table_to_print <- table %>% select(-targetId, -comparatorId)
 table_to_print <- table_to_print %>% mutate(
   targetHospitalization = hospitalizationTable$targetOutcomes, 
   comparatorHospitalization = hospitalizationTable$comparatorOutcomes,
@@ -221,12 +221,11 @@ table_to_print <- table_to_print %>% mutate(
  \caption{Population size, total exposure time and COVID-19 diagnoses for Alpha-1 blocker and 5ARI / PDE5 user target (T) and comparator (C) cohorts.}
   \rowcolors{2}{gray!6}{white}
   \centering{
-  \begin{tabular}{p{-2em}p{-2em}rrrrrrrrrrrr}
+  \begin{tabular}{rrrrrrrrrrrr}
     \hiderowcolors
     \toprule
-    &  &  & \multicolumn{2}{c}{Patients} & \multicolumn{2}{c}{Time (years)} & \multicolumn{2}{c}{Diagnosis} & \multicolumn{2}{c}{Hospital} & \multicolumn{2}{c}{Intensive} \\
-    \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11} \cmidrule(lr){12-13}
-    &  &
+    & \multicolumn{2}{c}{Patients} & \multicolumn{2}{c}{Time (years)} & \multicolumn{2}{c}{Diagnosis} & \multicolumn{2}{c}{Hospital} & \multicolumn{2}{c}{Intensive} \\
+    \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11} 
     & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C}
     & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C}
     & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C} 
@@ -246,7 +245,8 @@ print(xtable(
       only.contents = TRUE,
       add.to.row = list(
         pos = as.list(c(0) * 3),
-        command = c("                       \\multicolumn{9}{l}{Stratified analysis} \\\\")
+        command = c("                       \\multicolumn{7}{l}{Stratified analysis} \\\\") 
+        # c(paste0(c("Stratified analysis", rep("&", 10), "\\\\"), collapse = " "))
       ),
       sanitize.text.function = identity)
 ```
@@ -261,12 +261,11 @@ print(xtable(
  \caption{Population size, total exposure time and COVID-19 diagnoses for Alpha-1 blocker and 5ARI / PDE5 user target (T) and comparator (C) cohorts.}
   \rowcolors{2}{gray!6}{white}
   \centering{
-  \begin{tabular}{p{-2em}p{-2em}rrrrrrrrrrrr}
+  \begin{tabular}{rrrrrrrrrrrr}
     \hiderowcolors
     \toprule
-    &  &  & \multicolumn{2}{c}{Patients} & \multicolumn{2}{c}{Time (years)} & \multicolumn{2}{c}{Diagnosis} & \multicolumn{2}{c}{Hospital} & \multicolumn{2}{c}{Intensive} \\
-    \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11} \cmidrule(lr){12-13}
-    &  &
+    & \multicolumn{2}{c}{Patients} & \multicolumn{2}{c}{Time (years)} & \multicolumn{2}{c}{Diagnosis} & \multicolumn{2}{c}{Hospital} & \multicolumn{2}{c}{Intensive} \\
+    \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11}
     & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C}
     & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C}
     & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C} 
@@ -286,7 +285,7 @@ print(xtable(
       only.contents = TRUE,
       add.to.row = list(
         pos = as.list(c(0) * 3),
-        command = c("                       \\multicolumn{9}{l}{Matched analysis} \\\\")
+        command = c("                       \\multicolumn{7}{l}{Matched analysis} \\\\")
       ),
       sanitize.text.function = identity)
 ```
