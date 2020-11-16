@@ -744,9 +744,10 @@ table6 <- table %>% filter(analysisId == 6) %>% select(-analysisId) %>%
   select(-calibratedCi95Lb, -calibratedCi95Ub) %>%
   rename(matchCalRr = calibratedRr, matchCalCi = calibratedCi, matchCalP = calibratedP, matchImbalanced = imbalanced)
 wideTable <- inner_join(table5, table6, by = c("databaseId", "targetName", "comparatorName", "outcomeId"))
+wideTable$databaseId <- databaseIdLabels[wideTable$databaseId]
 ```
 
-% Table begins: relative_risk_covid_diagnosis_table
+% Table begins: relative_risk_table
 \begin{table}[H]
  \caption{Relative risk of COVID-19 diagnosis for Alpha-1 blocker and 5ARI / PDE5 prevalent-users. We report calibrated hazard ratios (HRs) and their 95\% confidence intervals (CIs) across data sources.}
   \rowcolors{2}{gray!6}{white}
@@ -761,28 +762,28 @@ wideTable <- inner_join(table5, table6, by = c("databaseId", "targetName", "comp
 
 numDb <- length(unique(wideTable$databaseId))
 
-wideTable$databaseId <- databaseIdLabels[wideTable$databaseId]
-print(xtable(wideTable %>% filter(outcomeId == covidDiagnosisId) %>% 
-               #mutate(calibratedRr = ifself(is.na(calibratedRr), "--", calibratedRr)) %>%
-               select(-outcomeId, -stratImbalanced, -matchCalRr, -matchCalCi, -matchCalP, -matchImbalanced) %>%
-               mutate(targetName = "", comparatorName = ""), 
-             format = "latex"),
+
+table_to_print <- bind_rows(
+  wideTable %>% filter(outcomeId == covidDiagnosisId),
+  wideTable %>% filter(outcomeId == hospitalizationId),
+  wideTable %>% filter(outcomeId == intensiveServiceId)
+)
+table_to_print <- table_to_print %>% 
+  select(-outcomeId, -stratImbalanced, -matchCalRr, -matchCalCi, -matchCalP, -matchImbalanced) %>%
+  mutate(targetName = "", comparatorName = "")
+
+print(xtable(table_to_print, format = "latex"),
       include.rownames = FALSE,
       include.colnames = FALSE,
       hline.after = NULL,
       only.contents = TRUE,
- add.to.row = list(
-        pos = as.list(c(0) * numDb),
+      add.to.row = list(
+        pos = as.list(c(0, 1, 2) * length(databaseIds)),
         command = c(
-          "                       \\multicolumn{6}{l}{Alpha-1 blocker vs 5ARI / PDE5} \\\\"
-          # "                        & \\multicolumn{5}{l}{+ Combination} \\\\",
-          # "\\rowcolor{white} \\\\ \\multicolumn{6}{l}{ACE vs CCB/THZ} \\\\ & \\multicolumn{5}{l}{Monotherapy}  \\\\",
-          # "                        & \\multicolumn{5}{l}{+ Combination} \\\\",
-          # "\\rowcolor{white} \\\\ \\multicolumn{6}{l}{ARB vs CCB/THZ} \\\\ & \\multicolumn{5}{l}{Monotherapy}  \\\\",
-          # "                        & \\multicolumn{5}{l}{+ Combination} \\\\",
-          # "\\rowcolor{white} \\\\ \\multicolumn{6}{l}{ACE vs ARB} \\\\ & \\multicolumn{5}{l}{Monotherapy}  \\\\",
-          # "                        & \\multicolumn{5}{l}{+ Combination} \\\\"          
-          )
+          "\\multicolumn{6}{l}{Diagnosis} \\\\",
+          "\\multicolumn{5}{l}{+ Hospitalization} & \\rule{0pt}{12pt} \\\\",
+          "\\multicolumn{5}{l}{+ Intensive services} & \\rule{0pt}{12pt} \\\\"
+        )
       ),      
       sanitize.text.function = identity)
 ```
@@ -792,21 +793,21 @@ print(xtable(wideTable %>% filter(outcomeId == covidDiagnosisId) %>%
 \end{table}
 % Table ends
 
-% Table begins: relative_risk_covid_diagnosis_stratified_and_matched_analysis_table
+% Table begins: relative_risk_stratified_and_matched_analysis_table
+
 \definecolor{light-gray}{gray}{0.50}
 \begin{table}[H]
  \caption{Relative risk of COVID-19 diagnosis for Alpha-1 blocker and 5ARI / PDE5 prevalent-users. We report calibrated hazard ratios (HRs) and their 95\% confidence intervals (CIs) across data sources. Grayed out entries do not pass study diagnostics.}
-  \rowcolors{2}{gray!6}{white}
+  \rowcolors{2}{white}{gray!6}
   \centering{
   \begin{tabular}{p{-2em}p{-2em}lrrrc@{}rrr}
     \hiderowcolors
     \toprule
-    & & & \multicolumn{7}{c}{Diagnosis} \\
     & & & \multicolumn{3}{c}{PS-stratified} & &  \multicolumn{3}{c}{PS-matched} \\
      \cmidrule(lr){4-6} \cmidrule(lr){8-10}
      & 
     & & \multicolumn{1}{c}{HR} & \multicolumn{1}{c}{95\% CI} & \multicolumn{1}{c}{$p$} &
-      & \multicolumn{1}{c}{HR} & \multicolumn{1}{c}{95\% CI} & \multicolumn{1}{c}{$p$} \\
+      & \multicolumn{1}{c}{HR} & \multicolumn{1}{c}{95\% CI} & \multicolumn{1}{c}{$p$} \\ 
     \midrule \showrowcolors
 ```{r, echo=FALSE, results="asis"}
 
@@ -857,123 +858,29 @@ annotatedWideTable <- annotatedWideTable %>% mutate(gap = "") %>%
          gap, 
          matchCalRr, matchCalCi, matchCalP, matchImbalanced)
 
-print(xtable(annotatedWideTable %>% filter(outcomeId == covidDiagnosisId) %>% 
-               select(-outcomeId, -stratImbalanced, -matchImbalanced) %>%
-               mutate(targetName = "", comparatorName = ""), 
-             format = "latex"),
+
+table_to_print <- bind_rows(
+  annotatedWideTable %>% filter(outcomeId == covidDiagnosisId),
+  annotatedWideTable %>% filter(outcomeId == hospitalizationId),
+  annotatedWideTable %>% filter(outcomeId == intensiveServiceId)
+)
+
+table_to_print <- table_to_print %>% 
+  select(-outcomeId, -stratImbalanced, -matchImbalanced) %>%
+  mutate(targetName = "", comparatorName = "")
+
+print(xtable(table_to_print, format = "latex"),
       include.rownames = FALSE,
       include.colnames = FALSE,
       hline.after = NULL,
       only.contents = TRUE,
- add.to.row = list(
-        pos = as.list(c(0) * numDb),
+      add.to.row = list(
+        pos = as.list(c(0, 1, 2) * (length(databaseIds) + 1)),
         command = c(
-          "                       \\multicolumn{10}{l}{Alpha-1 blocker vs 5ARI / PDE5} \\\\"
-          # "                        & \\multicolumn{9}{l}{+ Combination} \\\\",
-          # "\\rowcolor{white} \\\\ \\multicolumn{10}{l}{ACE vs CCB/THZ} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
-          # "                        & \\multicolumn{9}{l}{+ Combination} \\\\",
-          # "\\rowcolor{white} \\\\ \\multicolumn{10}{l}{ARB vs CCB/THZ} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
-          # "                        & \\multicolumn{9}{l}{+ Combination} \\\\",
-          # "\\rowcolor{white} \\\\ \\multicolumn{10}{l}{ACE vs ARB} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
-          # "                        & \\multicolumn{9}{l}{+ Combination} \\\\"          
-          )
-      ),      
-      sanitize.text.function = identity)
-```
-  \bottomrule
-  \end{tabular}
-  }
-\end{table}
-% Table ends
-
-\clearpage
-
-% Table begins: relative_risk_covid_hospitalization_stratified_and_matched_analysis_table
-\definecolor{light-gray}{gray}{0.50}
-\begin{table}[H]
- \caption{Relative risk of COVID-19 hospitalization for Alpha-1 blocker and 5ARI / PDE5 prevalent-users. We report calibrated hazard ratios (HRs) and their 95\% confidence intervals (CIs) across data sources. Grayed out entries do not pass study diagnostics.}
-  \rowcolors{2}{gray!6}{white}
-  \centering{
-  \begin{tabular}{p{-2em}p{-2em}lrrrc@{}rrr}
-    \hiderowcolors
-    \toprule
-    & & & \multicolumn{7}{c}{Hospitalization} \\
-    & & & \multicolumn{3}{c}{PS-stratified} & &  \multicolumn{3}{c}{PS-matched} \\
-     \cmidrule(lr){4-6} \cmidrule(lr){8-10}
-     & 
-    & & \multicolumn{1}{c}{HR} & \multicolumn{1}{c}{95\% CI} & \multicolumn{1}{c}{$p$} &
-      & \multicolumn{1}{c}{HR} & \multicolumn{1}{c}{95\% CI} & \multicolumn{1}{c}{$p$} \\
-    \midrule \showrowcolors
-```{r, echo=FALSE, results="asis"}
-print(xtable(annotatedWideTable %>% filter(outcomeId == hospitalizationId) %>% 
-               select(-outcomeId, -stratImbalanced, -matchImbalanced) %>%
-               mutate(targetName = "", comparatorName = ""), 
-             format = "latex"),
-      include.rownames = FALSE,
-      include.colnames = FALSE,
-      hline.after = NULL,
-      only.contents = TRUE,
- add.to.row = list(
-        pos = as.list(c(0) * numDb),
-        command = c(
-          "                       \\multicolumn{10}{l}{Alpha-1 blocker vs 5ARI / PDE5} \\\\"
-          # "                        & \\multicolumn{9}{l}{+ Combination} \\\\",
-          # "\\rowcolor{white} \\\\ \\multicolumn{10}{l}{ACE vs CCB/THZ} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
-          # "                        & \\multicolumn{9}{l}{+ Combination} \\\\",
-          # "\\rowcolor{white} \\\\ \\multicolumn{10}{l}{ARB vs CCB/THZ} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
-          # "                        & \\multicolumn{9}{l}{+ Combination} \\\\",
-          # "\\rowcolor{white} \\\\ \\multicolumn{10}{l}{ACE vs ARB} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
-          # "                        & \\multicolumn{9}{l}{+ Combination} \\\\"          
-          )
-      ),      
-      sanitize.text.function = identity)
-```
-  \bottomrule
-  \end{tabular}
-  }
-\end{table}
-% Table ends
-
-\clearpage
-
-% Table begins: relative_risk_covid_intensive_services_stratified_and_matched_analysis_table
-\definecolor{light-gray}{gray}{0.50}
-\begin{table}[H]
- \caption{Relative risk of COVID-19 hospitalization requiring intensive services for Alpha-1 blocker and 5ARI / PDE5 prevalent-users. We report calibrated hazard ratios (HRs) and their 95\% confidence intervals (CIs) across data sources. Grayed out entries do not pass study diagnostics.}
-  \rowcolors{2}{gray!6}{white}
-  \centering{
-  \begin{tabular}{p{-2em}p{-2em}lrrrc@{}rrr}
-    \hiderowcolors
-    \toprule
-    & & & \multicolumn{7}{c}{Intensive services} \\
-    & & & \multicolumn{3}{c}{PS-stratified} & &  \multicolumn{3}{c}{PS-matched} \\
-     \cmidrule(lr){4-6} \cmidrule(lr){8-10}
-     & 
-    & & \multicolumn{1}{c}{HR} & \multicolumn{1}{c}{95\% CI} & \multicolumn{1}{c}{$p$} &
-      & \multicolumn{1}{c}{HR} & \multicolumn{1}{c}{95\% CI} & \multicolumn{1}{c}{$p$} \\
-    \midrule \showrowcolors
-```{r, echo=FALSE, results="asis"}
-print(xtable(annotatedWideTable %>% filter(outcomeId == intensiveServiceId) %>% 
-               select(-outcomeId, -stratImbalanced, -matchImbalanced) %>%
-               mutate(targetName = "", comparatorName = ""), 
-             format = "latex"),
-      NA.string="NA",
-      include.rownames = FALSE,
-      include.colnames = FALSE,
-      hline.after = NULL,
-      only.contents = TRUE,
- add.to.row = list(
-        pos = as.list(c(0) * numDb),
-        command = c(
-          "                       \\multicolumn{10}{l}{Alpha-1 blocker vs 5ARI / PDE5} \\\\"
-          # "                        & \\multicolumn{9}{l}{+ Combination} \\\\",
-          # "\\rowcolor{white} \\\\ \\multicolumn{10}{l}{ACE vs CCB/THZ} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
-          # "                        & \\multicolumn{9}{l}{+ Combination} \\\\",
-          # "\\rowcolor{white} \\\\ \\multicolumn{10}{l}{ARB vs CCB/THZ} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
-          # "                        & \\multicolumn{9}{l}{+ Combination} \\\\",
-          # "\\rowcolor{white} \\\\ \\multicolumn{10}{l}{ACE vs ARB} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
-          # "                        & \\multicolumn{9}{l}{+ Combination} \\\\"          
-          )
+          "\\multicolumn{6}{l}{Diagnosis} \\\\",
+          "\\multicolumn{5}{l}{+ Hospitalization} & \\rule{0pt}{12pt} \\\\",
+          "\\multicolumn{5}{l}{+ Intensive services} & \\rule{0pt}{12pt} \\\\"
+        )
       ),      
       sanitize.text.function = identity)
 ```
