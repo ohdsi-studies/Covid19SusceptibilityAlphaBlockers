@@ -1040,7 +1040,7 @@ plot(0,0, type = "n",
 
 textCex <- 1.0
 
-cohortNames <- c("Alpha-1 blocker vs 5ARI / PDE5")
+cohortNames <- c()
 cohortPositions <- (c(1:length(cohortNames)) - 1) * (2 * dbs + 4) + 1
 text(x = 0, y = ymax - cohortPositions, labels = cohortNames, pos = 4, cex = textCex)
 # 
@@ -1050,25 +1050,26 @@ text(x = 0, y = ymax - cohortPositions, labels = cohortNames, pos = 4, cex = tex
 
 text(x = 0.5, y = ymax - tab$row, labels = databaseIdLabels[tab$databaseId], pos = 4, cex = textCex)
 
-start <- 3.5
-width <- 2
-spacer <- 2.4
+start <- 4
+width <- 2.8
+spacer <- 3.3 # 2.4
 tick <- 0.1
 
-scaleMin <- 1/4  # -1
-scaleMax <- 4    # +1
+scaleMin <- 1/8  # -1
+scaleMax <- 8    # +1
 
-points(x = 4, y = ymax - 0.5, pch = 21, bg = "black")
-text(x = 4.025, y = ymax - 0.5, labels = "PS-stratified", 
-     pos = 4, cex = textCex, adj = 0.5)
+y_adjust <- 1.
+points(x = 4, y = ymax - y_adjust, pch = 21, bg = "black")
+text(x = 4.025, y = ymax - y_adjust, labels = "PS-stratified", 
+     pos = 4, cex = textCex, adj = y_adjust)
 
-points(x = 6, y = ymax - 0.5, pch = 21, bg = "white")
-text(x = 6.025, y = ymax - 0.5, labels = "PS-matched", 
-     pos = 4, cex = textCex, adj = 0.5)
+points(x = 6, y = ymax - y_adjust, pch = 21, bg = "white")
+text(x = 6.025, y = ymax - y_adjust, labels = "PS-matched", 
+     pos = 4, cex = textCex, adj = y_adjust)
 
-points(x = 8, y = ymax - 0.5, pch = 22, bg = poorBalance, col = poorBalance)
-text(x = 8.025, y = ymax - 0.5, labels = "Fails study diagnostics", 
-     pos = 4, cex = textCex, adj = 0.5)
+points(x = 8, y = ymax - y_adjust, pch = 22, bg = poorBalance, col = poorBalance)
+text(x = 8.025, y = ymax - y_adjust, labels = "Fails study diagnostics", 
+     pos = 4, cex = textCex, adj = y_adjust)
 
 scale <- function(x) {
   log(x) / (log(scaleMax) - log(scaleMin)) * width
@@ -1091,7 +1092,7 @@ clip_rm <- function(x) {
 library(wesanderson)
 
 outcomeIds <- c(covidDiagnosisId, hospitalizationId, intensiveServiceId)
-outcomeNames <- c("Diagnosis", "+ Hospital", "+ Intensive services")
+outcomeNames <- c("Diagnosis", "+ Hospital  ", "+ Intensive services ")
 outcomeColors <- c(wes_palette("Moonrise3")[5],
                    wes_palette("Moonrise2")[2],
                    wes_palette("Moonrise2")[3],
@@ -1188,8 +1189,8 @@ for (i in 1:length(outcomeIds)) {
            x1 = offset + width / 2,
            y0 = bt, y1 = bt)
 
-  marks <- scale(c(1/4, 1/2, 1, 2, 4))
-  labels <- c("1/4", "1/2", "1", "2", "4")
+  marks <- scale(c(1/8, 1/4, 1/2, 1, 2, 4, 8))
+  labels <- c("1/8", "1/4", "1/2", "1", "2", "4", "8")
 
   segments(x0 = offset + marks,
            x1 = offset + marks,
@@ -1197,12 +1198,12 @@ for (i in 1:length(outcomeIds)) {
            y1 = bt - 0.2)
 
   text(x = offset + marks,
-       y = bt - 0.1,
+       y = bt - 0.15,
        labels = labels,
        pos = 1, cex = textCex)
 
   text(x = offset,
-       y = bt - 2,
+       y = bt - 1.25,
        labels = outcomeNames[i],
        cex = 1.)
 }
