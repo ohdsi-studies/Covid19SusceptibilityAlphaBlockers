@@ -882,6 +882,7 @@ print(xtable(table_to_print, format = "latex"),
           "\\multicolumn{5}{l}{+ Intensive services} & \\rule{0pt}{12pt} \\\\"
         )
       ),      
+      NA.string = "NA",
       sanitize.text.function = identity)
 ```
   \bottomrule
