@@ -905,13 +905,13 @@ poorBalance <- "grey70"
 table5 <- table %>% 
   left_join(design, by = "databaseId") %>% 
   filter(analysisId == 5) %>% 
-  mutate(point = 21, size = 0.6) %>%
+  mutate(point = 21, size = .9) %>% # Maybe, these plot parameters shouldn't be a part of the table? 
   mutate(color = ifelse(imbalanced > 0, poorBalance, "black")) %>%
   mutate(balanceColor = ifelse(imbalanced > 0, poorBalance, "black"))
 table6 <- table %>% 
   left_join(design, by = "databaseId") %>% 
   filter(analysisId == 6) %>% 
-  mutate(point = 21,size = 0.6) %>%
+  mutate(point = 21, size = .9) %>%
   mutate(color = ifelse(imbalanced > 0, "white", "white")) %>%
   mutate(balanceColor = ifelse(imbalanced > 0, poorBalance, "black"))
 
@@ -1013,6 +1013,9 @@ balancePointColor <- wes_palette("Moonrise2")[4]
 outcomeColors <- adjustcolor(outcomeColors, alpha.f = 0.2)
 designColors <- adjustcolor(designColors, alpha.f = 0.2)
 
+interval_lwd <- 1.3
+interval_bar_lwd <- 1.3
+
 for (i in 1:length(outcomeIds)) {
 
   offset <- start + (i - 1) * spacer
@@ -1036,19 +1039,22 @@ for (i in 1:length(outcomeIds)) {
   segments(x0 = offset + clip_min(scale(tab$calibratedCi95Lb)),
            x1 = offset + clip_max(scale(tab$calibratedCi95Ub)),
            y0 = ymax - tab$row + delta5, y1 = ymax - tab$row + delta5,
-           col = tab$balanceColor)
+           col = tab$balanceColor,
+           lwd = interval_lwd)
 
   segments(x0 = offset + clip_rm(scale(tab$calibratedCi95Lb)),
            x1 = offset + clip_rm(scale(tab$calibratedCi95Lb)),
            y0 = ymax - tab$row + tick + delta5,
            y1 = ymax - tab$row - tick + delta5,
-           col = tab$balanceColor)
+           col = tab$balanceColor,
+           lwd = interval_bar_lwd)
 
   segments(x0 = offset + clip_rm(scale(tab$calibratedCi95Ub)),
            x1 = offset + clip_rm(scale(tab$calibratedCi95Ub)),
            y0 = ymax - tab$row + tick + delta5,
            y1 = ymax - tab$row - tick + delta5,
-           col = tab$balanceColor)
+           col = tab$balanceColor,
+           lwd = interval_bar_lwd)
 
   points(x = offset + clip_rm(scale(tab$calibratedRr)),
          y = ymax - tab$row + delta5,
@@ -1067,19 +1073,22 @@ for (i in 1:length(outcomeIds)) {
     segments(x0 = offset + clip_min(scale(tab$calibratedCi95Lb)),
              x1 = offset + clip_max(scale(tab$calibratedCi95Ub)),
              y0 = ymax - tab$row + delta6, y1 = ymax - tab$row + delta6,
-             col = tab$balanceColor)
+             col = tab$balanceColor,
+             lwd = interval_lwd)
 
     segments(x0 = offset + clip_rm(scale(tab$calibratedCi95Lb)),
              x1 = offset + clip_rm(scale(tab$calibratedCi95Lb)),
              y0 = ymax - tab$row + tick + delta6,
              y1 = ymax - tab$row - tick + delta6,
-             col = tab$balanceColor)
+             col = tab$balanceColor,
+             lwd = interval_bar_lwd)
 
     segments(x0 = offset + clip_rm(scale(tab$calibratedCi95Ub)),
              x1 = offset + clip_rm(scale(tab$calibratedCi95Ub)),
              y0 = ymax - tab$row + tick + delta6,
              y1 = ymax - tab$row - tick + delta6,
-             col = tab$balanceColor)
+             col = tab$balanceColor,
+             lwd = interval_bar_lwd)
 
     points(x = offset + clip_rm(scale(tab$calibratedRr)),
            y = ymax - tab$row + delta6,
