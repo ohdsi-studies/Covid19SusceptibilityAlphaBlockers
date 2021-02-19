@@ -1000,7 +1000,7 @@ clip_rm <- function(x) {
 library(wesanderson)
 
 outcomeIds <- c(covidDiagnosisId, hospitalizationId, intensiveServiceId)
-outcomeNames <- c("Diagnosis", "+ Hospital  ", "+ Intensive services ")
+outcomeNames <- c("Diagnosis", "+ Hospitalization", "+ Intensive services ")
 outcomeColors <- c(wes_palette("Moonrise3")[5],
                    wes_palette("Moonrise2")[2],
                    wes_palette("Moonrise2")[3],
@@ -1123,7 +1123,7 @@ invisible(dev.off())
 
 \begin{figure}[H]
   \caption{Relative risk of COVID-19-related outcomes for Alpha-1 blocker and 5ARI / PDE5 prevalent-users.  
-    Outcomes are COVID-19 diagnosis, COVID-19 hospitalization (+ Hospital), COVID-19 hospitalization requiring intensive services (+ Intensive services). 
+    Outcomes are COVID-19 diagnosis, COVID-19 hospitalization (+ Hospitalization), COVID-19 hospitalization requiring intensive services (+ Intensive services). 
     We plot calibrated hazard ratios (circles) and their 95% confidence intervals (wiskers),
     labeled by propensity score (PS) adjustment method (black/white), across data sources.  Grayed out entries do not pass study diagnostics.}
     \vspace*{-0.25in}
