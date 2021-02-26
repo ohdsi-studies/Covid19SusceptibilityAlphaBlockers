@@ -1,0 +1,1503 @@
+---
+params:
+    save: NULL #"first.Rda"
+    load: "first.Rda"
+    completeReload: false
+# bibliography: CohortDefinition.bib
+# csl: nature-publishing-group-vancouver.csl
+output:
+  pdf_document:
+    keep_tex: true
+    md_extensions: +raw_attribute
+    latex_engine: xelatex
+mainfont: Arial    
+fontsize: 11pt
+geometry: margin=1in
+classoptions: doublespace
+longtable: true
+header-includes:
+  - \usepackage[numbers,sort&compress]{natbib}
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage{array}
+  - \usepackage{multirow}
+  - \usepackage[table]{xcolor}
+  - \usepackage{wrapfig}
+  - \usepackage{float}
+  - \usepackage{colortbl}
+  - \usepackage{pdflscape}
+  - \usepackage{tabu}
+  - \usepackage{threeparttable}
+  - \usepackage{threeparttablex}
+  - \usepackage[normalem]{ulem}
+  - \usepackage{makecell}
+  - \usepackage{caption}
+  - \usepackage{rotating}
+  - \usepackage{multirow}
+  - \usepackage{mwe,tikz}
+  - \usepackage[percent]{overpic}
+  - \usepackage{enumitem}
+  - \usepackage{mas_fun}
+  - \usepackage{hyperref}
+---
+
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+options(kableExtra.latex.load_packages = FALSE)
+library(kableExtra)
+knitr::knit_hooks$set(document = function(x) {sub('\\usepackage[]{color}', '\\usepackage[table]{xcolor}', x, fixed = TRUE)})
+library(dplyr)
+library(tidyr)
+library(xtable)
+library(gridExtra)
+library(cowplot)
+
+readRdsCamelCase <- function(file) {
+  result <- readRDS(file)
+  colnames(result) <- SqlRender::snakeCaseToCamelCase(colnames(result))
+  return(result)
+}
+```
+
+\centerline{{\Huge Supplementary Material}}
+\vspace{1.0em}
+\centerline{\Large for}
+\vspace{1.0em}
+\centerline{\huge Renin-angiotensin system blockers and}
+\centerline{\huge susceptibility to COVID-19}
+\vspace{1.0em}
+\centerline{\Large by}
+\vspace{1.0em}
+\centerline{\Large Daniel R. Morales, Mitchell M. Conover, Seng Chan You, et al.}
+<!-- \centerline{\Large Seng Chan You, RuiJen Chen, Nicole Pratt, Christian G. Reich,} -->
+<!-- \centerline{\Large Jon Duke, David Madigan, George Hripcsak and Patrick B.Ryan} -->
+
+\tableofcontents
+
+\captionsetup[table]{name=Supplementary Table}
+\captionsetup[figure]{name=Supplementary Figure}
+\captionsetup{labelfont=bf}
+
+\renewcommand\theContinuedFloat{\alph{ContinuedFloat}}
+
+```{r, echo=FALSE}
+cohorts <- read.csv(file = system.file("settings", "CohortsToCreate.csv", package = "Covid19SusceptibilityAlphaBlockers")) %>% select(cohortId, shinyName)
+
+aceMonoId <- cohorts %>% filter(shinyName == "ACE mono") %>% select(cohortId) %>% pull()
+arbMonoId <- cohorts %>% filter(shinyName == "ARB mono") %>% select(cohortId) %>% pull()
+aceArbMonoId <- cohorts %>% filter(shinyName == "ACE/ARB mono") %>% select(cohortId) %>% pull()
+ccbThzMonoId <- cohorts %>% filter(shinyName == "CCB/THZ mono") %>% select(cohortId) %>% pull()
+
+aceComboId <- cohorts %>% filter(shinyName == "ACE +combo") %>% select(cohortId) %>% pull()
+arbComboId <- cohorts %>% filter(shinyName == "ARB +combo") %>% select(cohortId) %>% pull()
+aceArbComboId <- cohorts %>% filter(shinyName == "ACE/ARB +combo") %>% select(cohortId) %>% pull()
+ccbThzComboId <- cohorts %>% filter(shinyName == "CCB/THZ +combo") %>% select(cohortId) %>% pull()
+
+ccbMonoId <- cohorts %>% filter(shinyName == "CCB mono") %>% select(cohortId) %>% pull()
+thzMonoId <- cohorts %>% filter(shinyName == "THZ mono") %>% select(cohortId) %>% pull()
+ccbComboId <- cohorts %>% filter(shinyName == "CCB +combo") %>% select(cohortId) %>% pull()
+thzComboId <- cohorts %>% filter(shinyName == "THZ +combo") %>% select(cohortId) %>% pull()
+
+covidNarrowId <- cohorts %>% filter(shinyName == "COVID-19 diagnosis") %>% select(cohortId) %>% pull()
+covidBroadId <- cohorts %>% filter(shinyName == "COVID-19 hospitalization") %>% select(cohortId) %>% pull()
+
+pnaId <- cohorts %>% filter(shinyName == "Pneumonia") %>% select(cohortId) %>% pull()
+adverseId <- cohorts %>% filter(shinyName == "PAAS event") %>% select(cohortId) %>% pull()
+
+prettyNames <- data.frame(
+  cohortId = c(aceMonoId, arbMonoId, aceArbMonoId, ccbMonoId, thzMonoId, ccbThzMonoId,
+               aceComboId, arbComboId, aceArbComboId, ccbComboId, thzComboId, ccbThzComboId),
+  cohortName = c("ACE", "ARB", "ACE/ARB", "CCB", "THZ", "CCB/THZ",
+                 "ACE+", "ARB+", "ACE/ARB+", "CCB+", "THZ+", "CCB/THZ+"))
+
+primaryAnalysisId <- 5 # Full stratified PS
+```
+
+
+\clearpage
+
+# Sample sizes, total follow-up times and events
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
+sidiapDir <- "/Users/msuchard/Dropbox/Projects/Covid19Icarius/SIDIAP"
+cuimcDir <- "/Users/msuchard/Dropbox/Projects/Covid19Icarius/CUIMC"
+vaDir <- "/Users/msuchard/Dropbox/Projects/Covid19Icarius/VA-OMOP"
+
+studyFolder <- "/Users/msuchard/Dropbox/Projects/Covid19Icarius"
+
+# dataFolder <- file.path(sidiapDir, "shinyData")
+# databaseId <- "SIDIAP"
+
+makeSampleSizeTable <- function(databaseId, 
+                                dataFolder,
+                                databaseOrder = 1,
+                                thisOutcomeId) {
+  cmResults <- readRDS(file = file.path(dataFolder, paste0("cohort_method_result_", databaseId, ".rds")))
+  colnames(cmResults) <- SqlRender::snakeCaseToCamelCase(colnames(cmResults))
+  alpha <- 0.05
+  power <- 0.8
+  z1MinAlpha <- qnorm(1 - alpha/2)
+  zBeta <- -qnorm(1 - power)
+  pA <- cmResults$targetSubjects/(cmResults$targetSubjects + cmResults$comparatorSubjects)
+  pB <- 1 - pA
+  totalEvents <- abs(cmResults$targetOutcomes) + (cmResults$comparatorOutcomes)
+  cmResults$mdrr <- exp(sqrt((zBeta + z1MinAlpha)^2/(totalEvents * pA * pB)))
+  cmResults$targetYears <- cmResults$targetDays/365.25
+  cmResults$comparatorYears <- cmResults$comparatorDays/365.25
+  
+  cmResults <- cmResults %>% filter(analysisId == primaryAnalysisId, outcomeId == thisOutcomeId)
+  
+  table <- rbind(
+    cmResults %>% filter(targetId == aceArbMonoId, comparatorId == ccbThzMonoId) %>% mutate(targetId = "ACE/ARB (m)", comparatorId = "CCB/THZ (m)", order = 1),
+    cmResults %>% filter(targetId == aceArbComboId, comparatorId == ccbThzComboId) %>% mutate(targetId = "ACE/ARB (c)", comparatorId = "CCB/THZ (c)", order = 2),
+    
+    cmResults %>% filter(targetId == aceArbMonoId, comparatorId == ccbMonoId) %>% mutate(targetId = "ACE/ARB (m)", comparatorId = "CCB (m)", order = 3),
+    cmResults %>% filter(targetId == aceArbComboId, comparatorId == ccbComboId) %>% mutate(targetId = "ACE/ARB (c)", comparatorId = "CCB (c)", order = 4),    
+    
+    cmResults %>% filter(targetId == aceArbMonoId, comparatorId == thzMonoId) %>% mutate(targetId = "ACE/ARB (m)", comparatorId = "THZ (m)", order = 5),
+    cmResults %>% filter(targetId == aceArbComboId, comparatorId == thzComboId) %>% mutate(targetId = "ACE/ARB (c)", comparatorId = "THZ (c)", order = 6),    
+    
+    cmResults %>% filter(targetId == aceMonoId, comparatorId == arbMonoId) %>% mutate(targetId = "ACE (m)", comparatorId = "ARB (m)", order = 7),
+    cmResults %>% filter(targetId == aceComboId, comparatorId == arbComboId) %>% mutate(targetId = "ACE (c)", comparatorId = "ARB (c)", order = 8),
+    
+    cmResults %>% filter(targetId == aceMonoId, comparatorId == ccbThzMonoId) %>% mutate(targetId = "ACE (m)", comparatorId = "CCB/THZ (m)", order = 9),
+    cmResults %>% filter(targetId == aceComboId, comparatorId == ccbThzComboId) %>% mutate(targetId = "ACE (c)", comparatorId = "CCB/THZ (c)", order = 10),
+    
+    cmResults %>% filter(targetId == aceMonoId, comparatorId == ccbMonoId) %>% mutate(targetId = "ACE (m)", comparatorId = "CCB (m)", order = 11),
+    cmResults %>% filter(targetId == aceComboId, comparatorId == ccbComboId) %>% mutate(targetId = "ACE (c)", comparatorId = "CCB (c)", order = 12),
+    
+    cmResults %>% filter(targetId == aceMonoId, comparatorId == thzMonoId) %>% mutate(targetId = "ACE (m)", comparatorId = "THZ (m)", order = 13),
+    cmResults %>% filter(targetId == aceComboId, comparatorId == thzComboId) %>% mutate(targetId = "ACE (c)", comparatorId = "THZ (c)", order = 14),
+
+    cmResults %>% filter(targetId == arbMonoId, comparatorId == ccbThzMonoId) %>% mutate(targetId = "ARB (m)", comparatorId = "CCB/THZ (m)", order = 15),
+    cmResults %>% filter(targetId == arbComboId, comparatorId == ccbThzComboId) %>% mutate(targetId = "ARB (c)", comparatorId = "CCB/THZ (c)", order = 16),
+    
+    cmResults %>% filter(targetId == arbMonoId, comparatorId == ccbMonoId) %>% mutate(targetId = "ARB (m)", comparatorId = "CCB (m)", order = 17),
+    cmResults %>% filter(targetId == arbComboId, comparatorId == ccbComboId) %>% mutate(targetId = "ARB (c)", comparatorId = "CCB (c)", order = 18),
+    
+    cmResults %>% filter(targetId == arbMonoId, comparatorId == thzMonoId) %>% mutate(targetId = "ARB (m)", comparatorId = "THZ (m)", order = 19),
+    cmResults %>% filter(targetId == arbComboId, comparatorId == thzComboId) %>% mutate(targetId = "ARB (c)", comparatorId = "THZ (c)", order = 20)
+    
+  ) %>% mutate (databaseId = databaseId, databaseOrder = databaseOrder) %>% 
+    select(targetId, comparatorId, databaseId, targetSubjects, comparatorSubjects, targetYears, comparatorYears, targetOutcomes, comparatorOutcomes, mdrr, order, databaseOrder)
+  
+  table$targetSubjects <- formatC(table$targetSubjects, big.mark = ",", format = "d")
+  table$comparatorSubjects <- formatC(table$comparatorSubjects, big.mark = ",", format = "d")
+  table$targetYears <- formatC(table$targetYears, big.mark = ",", format = "d")
+  table$comparatorYears <- formatC(table$comparatorYears, big.mark = ",", format = "d")
+  table$targetOutcomes <- formatC(table$targetOutcomes, big.mark = ",", format = "d")
+  table$comparatorOutcomes <- formatC(table$comparatorOutcomes, big.mark = ",", format = "d")
+  # table$targetIr <- sprintf("%.2f", table$targetIr)
+  # table$comparatorIr <- sprintf("%.2f", table$comparatorIr)
+  table$mdrr <- sprintf("%.2f", table$mdrr)
+  table$targetSubjects <- gsub("^-", "<", table$targetSubjects)
+  table$comparatorSubjects <- gsub("^-", "<", table$comparatorSubjects)
+  table$targetOutcomes <- gsub("^-", "<", table$targetOutcomes)
+  table$comparatorOutcomes <- gsub("^-", "<", table$comparatorOutcomes)
+  # table$targetIr <- gsub("^-", "<", table$targetIr)
+  # table$comparatorIr <- gsub("^-", "<", table$comparatorIr)
+  return(table)
+}
+
+# tableSidiap <- makeSampleSizeTable(databaseId = "SIDIAP", dataFolder = file.path(sidiapDir, "shinyData"), databaseOrder = 1, thisOutcomeId = covidNarrowId)
+# tableCuimc <- makeSampleSizeTable(databaseId = "CUIMC", dataFolder = file.path(cuimcDir, "shinyData"), databaseOrder = 2)
+
+tableNarrow <- rbind(
+  makeSampleSizeTable(databaseId = "SIDIAP", dataFolder = file.path(sidiapDir, "shinyData"), 
+                      databaseOrder = 1, thisOutcomeId = covidNarrowId),
+  makeSampleSizeTable(databaseId = "VA-OMOP", dataFolder = file.path(vaDir, "shinyData"), 
+                      databaseOrder = 2, thisOutcomeId = covidNarrowId),  
+  makeSampleSizeTable(databaseId = "CUIMC", dataFolder = file.path(cuimcDir, "shinyData"), 
+                      databaseOrder = 3, thisOutcomeId = covidNarrowId)
+  ) %>% arrange(order, databaseOrder) %>% 
+  mutate(targetId = "", comparatorId = "") %>% select(-order, -databaseOrder)
+
+tableBroad <- rbind(
+  makeSampleSizeTable(databaseId = "SIDIAP", dataFolder = file.path(sidiapDir, "shinyData"), 
+                      databaseOrder = 1, thisOutcomeId = covidBroadId),
+  makeSampleSizeTable(databaseId = "VA-OMOP", dataFolder = file.path(vaDir, "shinyData"), 
+                      databaseOrder = 2, thisOutcomeId = covidBroadId),  
+  makeSampleSizeTable(databaseId = "CUIMC", dataFolder = file.path(cuimcDir, "shinyData"), 
+                      databaseOrder = 3, thisOutcomeId = covidBroadId)
+  ) %>% arrange(order, databaseOrder) %>% 
+  mutate(targetId = "", comparatorId = "") %>% select(-order, -databaseOrder)
+
+tablePna <- rbind(
+  makeSampleSizeTable(databaseId = "SIDIAP", dataFolder = file.path(sidiapDir, "shinyData"), 
+                      databaseOrder = 1, thisOutcomeId = pnaId),
+  makeSampleSizeTable(databaseId = "VA-OMOP", dataFolder = file.path(vaDir, "shinyData"), 
+                      databaseOrder = 2, thisOutcomeId = pnaId),  
+  makeSampleSizeTable(databaseId = "CUIMC", dataFolder = file.path(cuimcDir, "shinyData"), 
+                      databaseOrder = 3, thisOutcomeId = pnaId)
+  ) %>% arrange(order, databaseOrder) %>% 
+  mutate(targetId = "", comparatorId = "") %>% select(-order, -databaseOrder)
+
+tableAdverse <- rbind(
+  makeSampleSizeTable(databaseId = "SIDIAP", dataFolder = file.path(sidiapDir, "shinyData"), 
+                      databaseOrder = 1, thisOutcomeId = adverseId),
+  makeSampleSizeTable(databaseId = "VA-OMOP", dataFolder = file.path(vaDir, "shinyData"), 
+                      databaseOrder = 2, thisOutcomeId = adverseId),  
+  makeSampleSizeTable(databaseId = "CUIMC", dataFolder = file.path(cuimcDir, "shinyData"), 
+                      databaseOrder = 3, thisOutcomeId = adverseId)
+  ) %>% arrange(order, databaseOrder) %>% 
+  mutate(targetId = "", comparatorId = "") %>% select(-order, -databaseOrder)
+```
+
+## COVID-19 diagnoses
+
+\rowcolors{2}{gray!6}{white}
+\begin{longtable}{p{-2em}p{-2em}rrrrrrrr}
+ \caption{Population size, total exposure time and COVID-19 diagnoses (events) for ACEI, ARB and CCB/THZ monotherapy and in-combination user target (T) and comparator (C) cohorts.}
+  \\
+    \hiderowcolors
+    \toprule
+    &  &  & \multicolumn{2}{c}{Patients} & \multicolumn{2}{c}{Time (years)} & \multicolumn{2}{c}{Events} \\
+    \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9}
+    &  &
+    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C}
+    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C}
+    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C} 
+    & MDRR \\
+    \midrule 
+\endfirsthead
+    (Continued) &  &  & \multicolumn{2}{c}{Patients} & \multicolumn{2}{c}{Time (years)} & \multicolumn{2}{c}{Events} \\
+    \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9}
+    &  &
+    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C}
+    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C}
+    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C} 
+    & MDRR \\
+\midrule
+\endhead
+    \showrowcolors
+```{r, echo=FALSE, results="asis"}
+print(xtable(tableNarrow, format = "latex"),
+      include.rownames = FALSE,
+      include.colnames = FALSE,
+      hline.after = NULL,
+      only.contents = TRUE,
+      add.to.row = list(
+        pos = as.list(c(0:19) * 3),
+        command = c(
+          "                       \\multicolumn{9}{l}{\\textbf{ACE/ARB vs CCB/THZ}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\",
+          
+          "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{\\textbf{ACE/ARB vs CCB}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\",     
+          
+          "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{\\textbf{ACE/ARB vs THZ}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\",            
+          
+          "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{\\textbf{ACE vs ARB}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\",
+          
+          "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{\\textbf{ACE vs CCB/THZ}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\",
+          
+          "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{\\textbf{ACE vs CCB}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\",
+          
+          "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{\\textbf{ACE vs THZ}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\",          
+          
+          "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{\\textbf{ARB vs CCB/THZ}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\",
+          
+          "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{\\textbf{ARB vs CCB}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\",
+          
+                    "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{\\textbf{ARB vs THZ}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\"
+          )
+      ),
+      sanitize.text.function = identity)
+```
+  \bottomrule
+\end{longtable}  
+
+\clearpage
+
+## COVID-19 hospitalizations
+
+\rowcolors{2}{gray!6}{white}
+\begin{longtable}{p{-2em}p{-2em}rrrrrrrr}
+ \caption{Population size, total exposure time and COVID-19 hospitalizations (events) for ACEI, ARB and CCB/THZ monotherapy and in-combination user target (T) and comparator (C) cohorts.}
+  \\
+    \hiderowcolors
+    \toprule
+    &  &  & \multicolumn{2}{c}{Patients} & \multicolumn{2}{c}{Time (years)} & \multicolumn{2}{c}{Events} \\
+    \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9}
+    &  &
+    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C}
+    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C}
+    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C} 
+    & MDRR \\
+    \midrule 
+\endfirsthead
+    (Continued) &  &  & \multicolumn{2}{c}{Patients} & \multicolumn{2}{c}{Time (years)} & \multicolumn{2}{c}{Events} \\
+    \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9}
+    &  &
+    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C}
+    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C}
+    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C} 
+    & MDRR \\
+\midrule
+\endhead
+    \showrowcolors
+```{r, echo=FALSE, results="asis"}
+print(xtable(tableBroad, format = "latex"),
+      include.rownames = FALSE,
+      include.colnames = FALSE,
+      hline.after = NULL,
+      only.contents = TRUE,
+      add.to.row = list(
+        pos = as.list(c(0:19) * 3),
+        command = c(
+          "                       \\multicolumn{9}{l}{\\textbf{ACE/ARB vs CCB/THZ}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\",
+          
+          "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{\\textbf{ACE/ARB vs CCB}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\",     
+          
+          "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{\\textbf{ACE/ARB vs THZ}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\",            
+          
+          "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{\\textbf{ACE vs ARB}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\",
+          
+          "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{\\textbf{ACE vs CCB/THZ}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\",
+          
+          "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{\\textbf{ACE vs CCB}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\",
+          
+          "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{\\textbf{ACE vs THZ}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\",          
+          
+          "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{\\textbf{ARB vs CCB/THZ}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\",
+          
+          "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{\\textbf{ARB vs CCB}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\",
+          
+                    "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{\\textbf{ARB vs THZ}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\"
+          )
+      ),
+      sanitize.text.function = identity)
+```
+  \bottomrule
+\end{longtable}  
+
+\clearpage
+
+## Pneumonia
+
+\rowcolors{2}{gray!6}{white}
+\begin{longtable}{p{-2em}p{-2em}rrrrrrrr}
+ \caption{Population size, total exposure time and pneumonia (events) for ACEI, ARB and CCB/THZ monotherapy and in-combination user target (T) and comparator (C) cohorts.}
+  \\
+    \hiderowcolors
+    \toprule
+    &  &  & \multicolumn{2}{c}{Patients} & \multicolumn{2}{c}{Time (years)} & \multicolumn{2}{c}{Events} \\
+    \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9}
+    &  &
+    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C}
+    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C}
+    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C} 
+    & MDRR \\
+    \midrule 
+\endfirsthead
+    (Continued) &  &  & \multicolumn{2}{c}{Patients} & \multicolumn{2}{c}{Time (years)} & \multicolumn{2}{c}{Events} \\
+    \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9}
+    &  &
+    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C}
+    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C}
+    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C} 
+    & MDRR \\
+\midrule
+\endhead
+    \showrowcolors
+```{r, echo=FALSE, results="asis"}
+print(xtable(tableAdverse, format = "latex"),
+      include.rownames = FALSE,
+      include.colnames = FALSE,
+      hline.after = NULL,
+      only.contents = TRUE,
+      add.to.row = list(
+        pos = as.list(c(0:19) * 3),
+        command = c(
+          "                       \\multicolumn{9}{l}{\\textbf{ACE/ARB vs CCB/THZ}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\",
+          
+          "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{\\textbf{ACE/ARB vs CCB}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\",     
+          
+          "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{\\textbf{ACE/ARB vs THZ}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\",            
+          
+          "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{\\textbf{ACE vs ARB}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\",
+          
+          "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{\\textbf{ACE vs CCB/THZ}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\",
+          
+          "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{\\textbf{ACE vs CCB}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\",
+          
+          "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{\\textbf{ACE vs THZ}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\",          
+          
+          "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{\\textbf{ARB vs CCB/THZ}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\",
+          
+          "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{\\textbf{ARB vs CCB}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\",
+          
+                    "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{\\textbf{ARB vs THZ}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\"
+          )
+      ),
+      sanitize.text.function = identity)
+```
+  \bottomrule
+\end{longtable}   
+
+\clearpage
+
+## Pneumonia, acute respiratory distress syndrome, acute kidney injury or sepsis (PAAS)
+
+\rowcolors{2}{gray!6}{white}
+\begin{longtable}{p{-2em}p{-2em}rrrrrrrr}
+ \caption{Population size, total exposure time and PAAS (events) for ACEI, ARB and CCB/THZ monotherapy and in-combination user target (T) and comparator (C) cohorts.}
+  \\
+    \hiderowcolors
+    \toprule
+    &  &  & \multicolumn{2}{c}{Patients} & \multicolumn{2}{c}{Time (years)} & \multicolumn{2}{c}{Events} \\
+    \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9}
+    &  &
+    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C}
+    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C}
+    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C} 
+    & MDRR \\
+    \midrule 
+\endfirsthead
+    (Continued) &  &  & \multicolumn{2}{c}{Patients} & \multicolumn{2}{c}{Time (years)} & \multicolumn{2}{c}{Events} \\
+    \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9}
+    &  &
+    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C}
+    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C}
+    & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{C} 
+    & MDRR \\
+\midrule
+\endhead
+    \showrowcolors
+```{r, echo=FALSE, results="asis"}
+print(xtable(tablePna, format = "latex"),
+      include.rownames = FALSE,
+      include.colnames = FALSE,
+      hline.after = NULL,
+      only.contents = TRUE,
+      add.to.row = list(
+        pos = as.list(c(0:19) * 3),
+        command = c(
+          "                       \\multicolumn{9}{l}{\\textbf{ACE/ARB vs CCB/THZ}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\",
+          
+          "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{\\textbf{ACE/ARB vs CCB}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\",     
+          
+          "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{\\textbf{ACE/ARB vs THZ}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\",            
+          
+          "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{\\textbf{ACE vs ARB}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\",
+          
+          "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{\\textbf{ACE vs CCB/THZ}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\",
+          
+          "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{\\textbf{ACE vs CCB}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\",
+          
+          "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{\\textbf{ACE vs THZ}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\",          
+          
+          "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{\\textbf{ARB vs CCB/THZ}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\",
+          
+          "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{\\textbf{ARB vs CCB}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\",
+          
+                    "\\rowcolor{white} \\\\ \\multicolumn{9}{l}{\\textbf{ARB vs THZ}} \\\\ & \\multicolumn{9}{l}{Monotherapy}  \\\\",
+          "                        & \\multicolumn{8}{l}{+ Combination} \\\\"
+          )
+      ),
+      sanitize.text.function = identity)
+```
+  \bottomrule
+\end{longtable}   
+
+\clearpage
+
+# Baseline patient characteristics
+
+```{r, echo=FALSE}
+source(system.file("shiny", "EvidenceExplorer", "PlotsAndTables.R",
+                   package = "Covid19SusceptibilityAlphaBlockers"))
+# source(system.file("shiny", "EvidenceExplorer", "DataPulls.R",
+#                    package = "Covid19SusceptibilityAlphaBlockers"))
+```
+
+```{r, echo=FALSE, results="asis", cache=FALSE, warning=FALSE}
+
+getCovariateBalance <- function(connection,
+                                targetId,
+                                comparatorId,
+                                databaseId,
+                                analysisId,
+                                covariate,
+                                dataFolder,
+                                outcomeId = NULL) {
+  file <- sprintf("covariate_balance_t%s_c%s_%s.rds", targetId, comparatorId, databaseId)
+  balance <- readRDS(file.path(dataFolder, file))
+  colnames(balance) <- SqlRender::snakeCaseToCamelCase(colnames(balance))
+  balance <- balance[balance$analysisId == analysisId & balance$outcomeId == outcomeId, ]
+  balance <- merge(balance, covariate[covariate$databaseId == databaseId & covariate$analysisId == analysisId, 
+                                      c("covariateId", "covariateAnalysisId", "covariateName")])
+  balance <- balance[ c("covariateId",
+                        "covariateName",
+                        "covariateAnalysisId", 
+                        "targetMeanBefore", 
+                        "comparatorMeanBefore", 
+                        "stdDiffBefore", 
+                        "targetMeanAfter", 
+                        "comparatorMeanAfter",
+                        "stdDiffAfter")]
+  colnames(balance) <- c("covariateId",
+                         "covariateName",
+                         "analysisId",
+                         "beforeMatchingMeanTreated",
+                         "beforeMatchingMeanComparator",
+                         "beforeMatchingStdDiff",
+                         "afterMatchingMeanTreated",
+                         "afterMatchingMeanComparator",
+                         "afterMatchingStdDiff")
+  balance$absBeforeMatchingStdDiff <- abs(balance$beforeMatchingStdDiff)
+  balance$absAfterMatchingStdDiff <- abs(balance$afterMatchingStdDiff)
+  return(balance)
+}
+
+
+makeCharacteristicsTable <- function(databaseId,
+                                     targetId,
+                                     comparatorId,
+                                     dataFolder,
+                                     outcomeId = covidNarrowId) {
+
+covariate <- readRDS(file.path(dataFolder, paste0("covariate_", databaseId, ".rds")))
+colnames(covariate) <- SqlRender::snakeCaseToCamelCase(colnames(covariate))
+
+balance <- getCovariateBalance(NULL, targetId, comparatorId, databaseId = databaseId, analysisId = primaryAnalysisId, outcomeId = outcomeId, 
+                               covariate = covariate, dataFolder = dataFolder)
+
+
+
+#out <- lapply(balances_strat, function(tmp) {
+
+  scale <- 0.55
+  header <- readr::read_file("Table1TopSup.tex")
+  # targetName <- (firstLineClasses %>% filter(cohortId == tmp$targetId))$shortName
+  # comparatorName <- (firstLineClasses %>% filter(cohortId == tmp$comparatorId))$shortName
+
+  # if (!(targetName == "THZ" && comparatorName == "ACEi")) {
+
+  targetName <- cohorts %>% filter(cohortId == targetId) %>% select(shinyName) %>% pull
+  comparatorName <- cohorts %>% filter(cohortId == comparatorId) %>% select(shinyName) %>% pull
+  title <- sub(pattern = "Patient demographics",
+               replacement = paste0("Baseline patient characteristcs for ", targetName," (T) and ", comparatorName, " (C) prevalent-users in the ", databaseId, " data source"),
+               x = header)
+
+  title <- sub("0.5\\\\textwidth", paste0(scale, "\\\\textwidth"), x = title)
+  title <- sub("-0.5em", "+0.5em", x = title)
+
+  # title <- sub("% Extra row",
+  #              paste0("& \\\\multicolumn{3}{c}{$N$ = XXX} & \\\\multicolumn{3}{c}{$N$ = XXX} \\\\\\\\"),
+  #              x = title)
+  cat(title)
+
+  table <- prepareTable1(balance,pathToCsv = system.file("shiny", "EvidenceExplorer", "Table1Specs.csv", 
+                                      package = "Covid19SusceptibilityAlphaBlockers"))
+  table <- table[3:nrow(table),]
+
+  print(xtable(table, format = "latex", align = c("l","l","r","r","r","r","r","r")),
+        include.rownames = FALSE,
+        include.colnames = FALSE,
+        hline.after = NULL,
+        only.contents = TRUE,
+        add.to.row = list(pos = list(nrow(table)), command = c("\\bottomrule")),
+        sanitize.text.function = identity)
+
+  footer <- readr::read_file("Table1BottomSup.tex")
+  cat(footer)
+}
+```
+
+
+```{r, echo=FALSE, results="asis", warning=FALSE}
+
+makeAll <- function(db, dbDir) {
+  makeCharacteristicsTable(aceArbMonoId, ccbThzMonoId,   databaseId = db, dataFolder = file.path(dbDir, "shinyData"))
+  makeCharacteristicsTable(aceArbComboId, ccbThzComboId, databaseId = db, dataFolder = file.path(dbDir, "shinyData"))
+  
+  makeCharacteristicsTable(aceArbMonoId, ccbMonoId,   databaseId = db, dataFolder = file.path(dbDir, "shinyData"))
+  makeCharacteristicsTable(aceArbComboId, ccbComboId, databaseId = db, dataFolder = file.path(dbDir, "shinyData"))
+  
+  makeCharacteristicsTable(aceArbMonoId, thzMonoId,   databaseId = db, dataFolder = file.path(dbDir, "shinyData"))
+  makeCharacteristicsTable(aceArbComboId, thzComboId, databaseId = db, dataFolder = file.path(dbDir, "shinyData"))
+  
+  makeCharacteristicsTable(aceMonoId, arbMonoId,   databaseId = db, dataFolder = file.path(dbDir, "shinyData"))
+  makeCharacteristicsTable(aceComboId, arbComboId, databaseId = db, dataFolder = file.path(dbDir, "shinyData"))
+  
+  makeCharacteristicsTable(aceMonoId, ccbThzMonoId, databaseId = db, dataFolder = file.path(dbDir, "shinyData"))
+  makeCharacteristicsTable(aceComboId, ccbThzComboId, databaseId = db, dataFolder = file.path(dbDir, "shinyData"))
+  
+  makeCharacteristicsTable(aceMonoId, ccbMonoId,   databaseId = db, dataFolder = file.path(dbDir, "shinyData"))
+  makeCharacteristicsTable(aceComboId, ccbComboId, databaseId = db, dataFolder = file.path(dbDir, "shinyData"))
+  
+  makeCharacteristicsTable(aceMonoId, thzMonoId,   databaseId = db, dataFolder = file.path(dbDir, "shinyData"))
+  makeCharacteristicsTable(aceComboId, thzComboId, databaseId = db, dataFolder = file.path(dbDir, "shinyData"))
+  
+  makeCharacteristicsTable(arbMonoId, ccbThzMonoId, databaseId = db, dataFolder = file.path(dbDir, "shinyData"))
+  makeCharacteristicsTable(arbComboId, ccbThzComboId, databaseId = db, dataFolder = file.path(dbDir, "shinyData"))
+  
+  makeCharacteristicsTable(arbMonoId, ccbMonoId,   databaseId = db, dataFolder = file.path(dbDir, "shinyData"))
+  makeCharacteristicsTable(arbComboId, ccbComboId, databaseId = db, dataFolder = file.path(dbDir, "shinyData"))
+  
+  makeCharacteristicsTable(arbMonoId, thzMonoId,   databaseId = db, dataFolder = file.path(dbDir, "shinyData"))
+  makeCharacteristicsTable(arbComboId, thzComboId, databaseId = db, dataFolder = file.path(dbDir, "shinyData"))
+}
+```
+
+## SIDIAP
+
+```{r, echo=FALSE, results="asis", warning=FALSE, cache=TRUE}
+makeAll("SIDIAP", sidiapDir)
+```
+
+## VA-OMOP
+
+```{r, echo=FALSE, results="asis", warning=FALSE, cache=TRUE}
+makeAll("VA-OMOP", vaDir)
+```
+
+## CUIMC
+
+```{r, echo=FALSE, results="asis", warning=FALSE, cache=TRUE}
+makeAll("CUIMC", cuimcDir)
+```
+
+```{r, echo=FALSE}
+
+tcs <- list(
+  list(aceArbMonoId, ccbThzMonoId),
+  list(aceArbComboId, ccbThzComboId),
+  
+  list(aceArbMonoId, ccbMonoId),
+  list(aceArbComboId, ccbComboId),
+  
+  list(aceArbMonoId, thzMonoId),
+  list(aceArbComboId, thzComboId),
+  
+  list(aceMonoId, arbMonoId),
+  list(aceComboId, arbComboId),
+  
+  list(aceMonoId, ccbThzMonoId),
+  list(aceComboId, ccbThzComboId),
+  
+  list(aceMonoId, ccbMonoId),
+  list(aceComboId, ccbComboId),
+  
+  list(aceMonoId, thzMonoId),
+  list(aceComboId, thzComboId),
+  
+  list(arbMonoId, ccbThzMonoId),
+  list(arbComboId, ccbThzComboId),
+  
+  list(arbMonoId, ccbMonoId),
+  list(arbComboId, ccbComboId),
+  
+  list(arbMonoId, thzMonoId),
+  list(arbComboId, thzComboId)
+)
+tcs <- lapply(tcs, function(x) { names(x) <- c("targetId", "comparatorId"); return(x) })
+```
+
+# Cohort balance and systematic error diagnostics
+
+```{r, echo=FALSE}
+plotScatter <- function(controlResults) {
+  size <- 2
+  labelY <- 1.5
+  d <- rbind(data.frame(yGroup = "Uncalibrated",
+                        logRr = controlResults$logRr,
+                        seLogRr = controlResults$seLogRr,
+                        ci95Lb = controlResults$ci95Lb,
+                        ci95Ub = controlResults$ci95Ub,
+                        trueRr = controlResults$effectSize),
+             data.frame(yGroup = "Calibrated",
+                        logRr = controlResults$calibratedLogRr,
+                        seLogRr = controlResults$calibratedSeLogRr,
+                        ci95Lb = controlResults$calibratedCi95Lb,
+                        ci95Ub = controlResults$calibratedCi95Ub,
+                        trueRr = controlResults$effectSize))
+  d <- d[!is.na(d$logRr), ]
+  d <- d[!is.na(d$ci95Lb), ]
+  d <- d[!is.na(d$ci95Ub), ]
+  if (nrow(d) == 0) {
+    return(NULL)
+  }
+  d$Group <- as.factor(d$trueRr)
+  d$Significant <- d$ci95Lb > d$trueRr | d$ci95Ub < d$trueRr
+  temp1 <- aggregate(Significant ~ Group + yGroup, data = d, length)
+  temp2 <- aggregate(Significant ~ Group + yGroup, data = d, mean)
+  temp1$nLabel <- paste0(formatC(temp1$Significant, big.mark = ","), " estimates")
+  temp1$Significant <- NULL
+
+  temp2$meanLabel <- paste0(formatC(100 * (1 - temp2$Significant), digits = 1, format = "f"),
+                            "% of CIs include ",
+                            temp2$Group)
+  temp2$Significant <- NULL
+  dd <- merge(temp1, temp2)
+  dd$tes <- as.numeric(as.character(dd$Group))
+
+  breaks <- c(0.1, 0.25, 0.5, 1, 2, 4, 6, 8, 10)
+  theme <- ggplot2::element_text(colour = "#000000", size = 12)
+  themeRA <- ggplot2::element_text(colour = "#000000", size = 12, hjust = 1)
+  themeLA <- ggplot2::element_text(colour = "#000000", size = 12, hjust = 0)
+
+  d$Group <- paste("True hazard ratio =", d$Group)
+  dd$Group <- paste("True hazard ratio =", dd$Group)
+  alpha <- 1 - min(0.95 * (nrow(d)/nrow(dd)/50000)^0.1, 0.95)
+  plot <- ggplot2::ggplot(d, ggplot2::aes(x = logRr, y = seLogRr), environment = environment()) +
+          ggplot2::geom_vline(xintercept = log(breaks), colour = "#AAAAAA", lty = 1, size = 0.5) +
+          ggplot2::geom_abline(ggplot2::aes(intercept = (-log(tes))/qnorm(0.025), slope = 1/qnorm(0.025)),
+                               colour = rgb(0.8, 0, 0),
+                               linetype = "dashed",
+                               size = 1,
+                               alpha = 0.5,
+                               data = dd) +
+          ggplot2::geom_abline(ggplot2::aes(intercept = (-log(tes))/qnorm(0.975), slope = 1/qnorm(0.975)),
+                               colour = rgb(0.8, 0, 0),
+                               linetype = "dashed",
+                               size = 1,
+                               alpha = 0.5,
+                               data = dd) +
+          ggplot2::geom_point(size = size,
+                              color = rgb(0, 0, 0, alpha = 0.05),
+                              alpha = alpha,
+                              shape = 16) +
+          ggplot2::geom_hline(yintercept = 0) +
+          ggplot2::geom_label(x = log(0.15),
+                              y = 1.9,
+                              alpha = 1,
+                              hjust = "left",
+                              ggplot2::aes(label = nLabel),
+                              size = 3,
+                              data = dd) +
+          ggplot2::geom_label(x = log(0.15),
+                              y = labelY,
+                              alpha = 1,
+                              hjust = "left",
+                              ggplot2::aes(label = meanLabel),
+                              size = 3,
+                              data = dd) +
+          ggplot2::scale_x_continuous("Hazard ratio",
+                                      limits = log(c(0.1, 10)),
+                                      breaks = log(breaks),
+                                      labels = breaks) +
+          ggplot2::scale_y_continuous("Standard Error", limits = c(0, 2)) +
+          ggplot2::facet_grid(yGroup ~ Group) +
+          ggplot2::theme(panel.grid.minor = ggplot2::element_blank(),
+                         panel.background = ggplot2::element_blank(),
+                         panel.grid.major = ggplot2::element_blank(),
+                         axis.ticks = ggplot2::element_blank(),
+                         axis.text.y = themeRA,
+                         axis.text.x = theme,
+                         axis.title = theme,
+                         legend.key = ggplot2::element_blank(),
+                         strip.text.x = theme,
+                         strip.text.y = theme,
+                         strip.background = ggplot2::element_blank(),
+                         legend.position = "none")
+
+  return(plot)
+}
+
+getAllControls <- function() {
+  pathToCsv <- system.file("settings", "NegativeControls.csv", package = "Covid19SusceptibilityAlphaBlockers")
+  allControls <- read.csv(pathToCsv)
+  allControls$oldOutcomeId <- allControls$outcomeId
+  allControls$targetEffectSize <- rep(1, nrow(allControls))
+  return(allControls)
+}
+
+getControlResults <- function(tId, cId, aId, dId, negativeControlOutcomeIds, results) {
+  results <- results %>% filter(targetId == tId, comparatorId == cId, 
+                                analysisId == aId, databaseId == dId, 
+                                outcomeId %in% negativeControlOutcomeIds) %>%
+    mutate(effectSize = 1)
+  return(results)
+}
+
+negativeControlOutcomeIds <- unique(getAllControls()$outcomeId)
+```
+
+
+```{r, echo=FALSE}
+plotCovariateBalanceScatterPlot <- function(balance, beforeLabel = "Before stratification", afterLabel = "After stratification") {
+  limits <- c(min(c(balance$absBeforeMatchingStdDiff, balance$absAfterMatchingStdDiff),
+                  na.rm = TRUE),
+              max(c(balance$absBeforeMatchingStdDiff, balance$absAfterMatchingStdDiff),
+                  na.rm = TRUE))
+  theme <- ggplot2::element_text(colour = "#000000", size = 12)
+  plot <- ggplot2::ggplot(balance, ggplot2::aes(x = absBeforeMatchingStdDiff, y = absAfterMatchingStdDiff)) +
+    ggplot2::geom_point(color = rgb(0, 0, 0.8, alpha = 0.3), shape = 16, size = 2) +
+    ggplot2::geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
+    ggplot2::geom_hline(yintercept = 0) +
+    ggplot2::geom_vline(xintercept = 0) +
+    ggplot2::scale_x_continuous(beforeLabel, limits = limits) +
+    ggplot2::scale_y_continuous(afterLabel, limits = limits) +
+    ggplot2::theme(text = theme)
+  
+  return(plot)
+}
+
+getPs <- function(dataFolder, targetIds, comparatorIds, analysisId, databaseId) {
+  file <- sprintf("preference_score_dist_t%s_c%s_%s.rds", targetIds, comparatorIds, databaseId)
+  ps <- readRDS(file.path(dataFolder, file))
+  colnames(ps) <- SqlRender::snakeCaseToCamelCase(colnames(ps))
+  ps <- ps[ps$analysisId == analysisId, ]
+  return(ps)
+}
+
+plotPs <- function(ps, targetName, comparatorName) {
+  ps <- rbind(data.frame(x = ps$preferenceScore, y = ps$targetDensity, group = targetName),
+              data.frame(x = ps$preferenceScore, y = ps$comparatorDensity, group = comparatorName))
+  ps$group <- factor(ps$group, levels = c(as.character(targetName), as.character(comparatorName)))
+  theme <- ggplot2::element_text(colour = "#000000", size = 12, margin = ggplot2::margin(0, 0.5, 0, 0.1, "cm"))
+  plot <- ggplot2::ggplot(ps,
+                          ggplot2::aes(x = x, y = y, color = group, group = group, fill = group)) +
+          ggplot2::geom_density(stat = "identity") +
+          ggplot2::scale_fill_manual(values = c(rgb(0.8, 0, 0, alpha = 0.5),
+                                                rgb(0, 0, 0.8, alpha = 0.5))) +
+          ggplot2::scale_color_manual(values = c(rgb(0.8, 0, 0, alpha = 0.5),
+                                                 rgb(0, 0, 0.8, alpha = 0.5))) +
+          ggplot2::scale_x_continuous("Preference score", limits = c(0, 1)) +
+          ggplot2::scale_y_continuous("Density") +
+          ggplot2::theme(legend.title = ggplot2::element_blank(),
+                         panel.grid.major = ggplot2::element_blank(),
+                         panel.grid.minor = ggplot2::element_blank(),
+                         legend.position = "top",
+                         legend.text = theme,
+                         axis.text = theme,
+                         axis.title = theme)
+  return(plot)
+}
+
+makeSideBySideBalancePlots <- function(databaseId, covariate, cmResults,
+                                       targetId, comparatorId,
+                                       thisOutcomeId,
+                                       studyFolder) {
+
+  balanceStrat <- getCovariateBalance(NULL, targetId, comparatorId, 
+                                      databaseId = databaseId, analysisId = primaryAnalysisId,
+                                      outcomeId = thisOutcomeId,
+                                      covariate = covariate, 
+                                      dataFolder = file.path(studyFolder, 
+                                                             databaseId, "shinyData"))
+  
+  plotStrat <- plotCovariateBalanceScatterPlot(balanceStrat,
+                                               beforeLabel = "Before stratification", 
+                                               afterLabel = "After stratification")
+  
+  balanceMatch <- getCovariateBalance(NULL, targetId, comparatorId, 
+                                      databaseId = databaseId, analysisId = 6,
+                                      outcomeId = thisOutcomeId,
+                                      covariate = covariate, 
+                                      dataFolder = file.path(studyFolder, 
+                                                             databaseId, "shinyData"))
+  
+  plotMatch <- plotCovariateBalanceScatterPlot(balanceMatch,
+                                               beforeLabel = "Before matching", 
+                                               afterLabel = "After matching")
+  
+  psStrat <- getPs(file.path(studyFolder, databaseId, "shinyData"), targetId, comparatorId, primaryAnalysisId, databaseId)
+  
+  targetName <- cohorts %>% filter(cohortId == targetId) %>% select(shinyName) %>% pull()
+  comparatorName <- cohorts %>% filter(cohortId == comparatorId) %>% select(shinyName) %>% pull()
+
+  psStrat <- plotPs(psStrat, targetName, comparatorName)  
+  
+  # psMatch <- getPs(file.path(studyFolder, databaseId, "shinyData"), targetId, comparatorId, 6, databaseId)
+  # 
+  # psMatch <- plotPs(psMatch, 
+  #                   cohorts %>% filter(cohortId == targetId) %>% select(shinyName) %>% pull(),
+  #                   cohorts %>% filter(cohortId == comparatorId) %>% select(shinyName) %>% pull())   
+  
+controlsStrat <- getControlResults(targetId, comparatorId, 5, databaseId, negativeControlOutcomeIds,
+                                   cmResults)
+
+controlsMatch <- getControlResults(targetId, comparatorId, 6, databaseId, negativeControlOutcomeIds,
+                                   cmResults)
+
+errorStrat <- plotScatter(controlsStrat)
+errorMatch <- plotScatter(controlsMatch)
+  
+  return(list(plotStrat = plotStrat, plotMatch  = plotMatch,
+              psStrat = psStrat, 
+              # psMatch = psMatch,
+              balanceStrat = balanceStrat, balanceMatch = balanceMatch,
+              errorStrat = errorStrat, errorMatch = errorMatch,
+              targetId = targetId, comparatorId = comparatorId, 
+              targetName = targetName, comparatorName = comparatorName,
+              outcomeId = thisOutcomeId,
+              databaseId = databaseId))
+}
+
+saveSideBySidePlots <- function(plot) {
+  file <- sprintf("sideBySide_%d_%d_%d_%s.pdf", plot$targetId, plot$comparatorId, plot$outcomeId, 
+                  plot$databaseId)
+  invisible(save_plot(file,
+            plot_grid(
+              plot$psStrat, plot$plotStrat, plot$plotMatch, NULL, plot$errorStrat, plot$errorMatch, 
+              ncol = 3, rel_heights = c(1, 1)),
+            #base_asp = 0.5, 
+            #ncol = 5,
+            base_height = 8))
+  return(list(file = file, targetName = plot$targetName,
+              comparatorName = plot$comparatorName,
+              databaseName = plot$databaseId))
+}
+
+makeExtremeBalanceTable <- function(balance,
+                                    targetName, comparatorName, databaseId, designName,
+                                    length) {
+  originalNrow <- nrow(balance)
+  
+  balance <- balance %>% 
+    arrange(-absAfterMatchingStdDiff) %>% head(length) %>%
+    select(-covariateId, -analysisId, -absBeforeMatchingStdDiff, -absAfterMatchingStdDiff) %>%
+    mutate(beforeMatchingMeanTreated = sprintf("%2.1f", beforeMatchingMeanTreated * 100),
+           beforeMatchingMeanComparator = sprintf("%2.1f", beforeMatchingMeanComparator * 100),
+           afterMatchingMeanTreated = sprintf("%2.1f", afterMatchingMeanTreated * 100),
+           afterMatchingMeanComparator = sprintf("%2.1f", afterMatchingMeanComparator * 100))
+  
+  header <- readr::read_file("TableBalanceTop.tex")
+  header <- gsub(pattern = "CHARACTERISTIC", 
+                 paste0("Characteristic (total count = ", originalNrow, ")"),
+                 header)
+  header <- gsub(pattern = "DESIGN", designName, header)
+  header <- gsub(pattern = "DATASOURCE", databaseId, header)
+  header <- gsub(pattern = "TARGET", targetName, header)
+  header <- gsub(pattern = "COMPARATOR", comparatorName, header)
+  
+  cat(header)
+  print(xtable(balance, format = "latex"),
+        include.rownames = FALSE,
+        include.colnames = FALSE,
+        hline.after = NULL,
+        only.contents = TRUE)
+  footer <- readr::read_file("TableBalanceBottom.tex")
+  cat(footer)
+}
+```
+
+## SIDIAP
+
+```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, cache=TRUE}
+
+sidiapCovariate <- readRDS(file.path(studyFolder, "SIDIAP", "shinyData", paste0("covariate_", "SIDIAP", ".rds")))
+colnames(sidiapCovariate) <- SqlRender::snakeCaseToCamelCase(colnames(sidiapCovariate))
+
+sidiapResults <- readRDS(file.path(studyFolder, "SIDIAP", "shinyData", paste0("cohort_method_result_", "SIDIAP", ".rds")))
+colnames(sidiapResults) <- SqlRender::snakeCaseToCamelCase(colnames(sidiapResults))
+
+devNull <- lapply(tcs, function(tc) {
+  balance <- makeSideBySideBalancePlots("SIDIAP", sidiapCovariate, sidiapResults,
+                               tc$targetId, tc$comparatorId, covidNarrowId,
+                               studyFolder)
+  
+  invisible(info <- saveSideBySidePlots(balance))
+  
+  figure <- readr::read_file("BalanceFig.tex")
+  figure <- sub(pattern = "TARGET", replacement = info$targetName, x = figure)
+  figure <- sub(pattern = "COMPARATOR", replacement = info$comparatorName, x = figure)
+  figure <- sub(pattern = "DATASOURCE", replacement = info$databaseName, x = figure)
+  figure <- sub(pattern = "FILENAME", replacement = info$file, x = figure)
+  cat(figure)
+  
+  makeExtremeBalanceTable(balance$balanceStrat, balance$targetName, balance$comparatorName, 
+                          "SIDIAP", "stratification", length = 10)
+  
+  makeExtremeBalanceTable(balance$balanceMatch, balance$targetName, balance$comparatorName, 
+                          "SIDIAP", "matching", length = 10)
+  
+  cat("\\clearpage")
+  
+})
+```
+
+
+\clearpage
+
+## VA-OMOP
+
+```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, cache=TRUE}
+
+vaCovariate <- readRDS(file.path(studyFolder, "VA-OMOP", "shinyData", paste0("covariate_", "VA-OMOP", ".rds")))
+colnames(vaCovariate) <- SqlRender::snakeCaseToCamelCase(colnames(vaCovariate))
+
+vaResults <- readRDS(file.path(studyFolder, "VA-OMOP", "shinyData", paste0("cohort_method_result_", "VA-OMOP", ".rds")))
+colnames(vaResults) <- SqlRender::snakeCaseToCamelCase(colnames(vaResults))
+
+devNull <- lapply(tcs, function(tc) {
+  balance <- makeSideBySideBalancePlots("VA-OMOP", vaCovariate, vaResults,
+                               tc$targetId, tc$comparatorId, covidNarrowId,
+                               studyFolder)
+  
+  invisible(info <- saveSideBySidePlots(balance))
+  
+  figure <- readr::read_file("BalanceFig.tex")
+  figure <- sub(pattern = "TARGET", replacement = info$targetName, x = figure)
+  figure <- sub(pattern = "COMPARATOR", replacement = info$comparatorName, x = figure)
+  figure <- sub(pattern = "DATASOURCE", replacement = info$databaseName, x = figure)
+  figure <- sub(pattern = "FILENAME", replacement = info$file, x = figure)
+  cat(figure)
+  
+  makeExtremeBalanceTable(balance$balanceStrat, balance$targetName, balance$comparatorName, 
+                          "VA-OMOP", "stratification", length = 10)
+  
+  makeExtremeBalanceTable(balance$balanceMatch, balance$targetName, balance$comparatorName, 
+                          "VA-OMOP", "matching", length = 10)
+  
+  cat("\\clearpage")  
+})
+```
+
+\clearpage
+
+## CUIMC
+
+```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, cache=TRUE}
+
+cuimcCovariate <- readRDS(file.path(studyFolder, "CUIMC", "shinyData", paste0("covariate_", "CUIMC", ".rds")))
+colnames(cuimcCovariate) <- SqlRender::snakeCaseToCamelCase(colnames(cuimcCovariate))
+
+cuimcResults <- readRDS(file.path(studyFolder, "CUIMC", "shinyData", paste0("cohort_method_result_", "CUIMC", ".rds")))
+colnames(cuimcResults) <- SqlRender::snakeCaseToCamelCase(colnames(cuimcResults))
+
+devNull <- lapply(tcs, function(tc) {
+  balance <- makeSideBySideBalancePlots("CUIMC", cuimcCovariate, cuimcResults,
+                               tc$targetId, tc$comparatorId, covidNarrowId,
+                               studyFolder)
+  
+  invisible(info <- saveSideBySidePlots(balance))
+  
+  figure <- readr::read_file("BalanceFig.tex")
+  figure <- sub(pattern = "TARGET", replacement = info$targetName, x = figure)
+  figure <- sub(pattern = "COMPARATOR", replacement = info$comparatorName, x = figure)
+  figure <- sub(pattern = "DATASOURCE", replacement = info$databaseName, x = figure)
+  figure <- sub(pattern = "FILENAME", replacement = info$file, x = figure)
+  cat(figure)
+  
+  makeExtremeBalanceTable(balance$balanceStrat, balance$targetName, balance$comparatorName, 
+                          "CUIMC", "stratification", length = 10)
+  
+  makeExtremeBalanceTable(balance$balanceMatch, balance$targetName, balance$comparatorName, 
+                          "CUIMC", "matching", length = 10)
+  
+  cat("\\clearpage")  
+})
+```
+
+\clearpage
+
+# Effect estimates
+
+```{r, echo=FALSE, cache=TRUE}
+sidiapCovariate <- readRdsCamelCase(file.path(sidiapDir, "shinyData", "covariate_SIDIAP.rds"))
+cuimcCovariate <- readRdsCamelCase(file.path(cuimcDir, "shinyData", "covariate_CUIMC.rds"))
+vaCovariate <- readRdsCamelCase(file.path(vaDir, "shinyData", "covariate_VA-OMOP.rds"))
+
+getBalanceDiagnostic <- function(targetId, comparatorId, databaseId, analysisId, outcomeId, covariate, dataFolder) {
+  balance <- getCovariateBalance(NULL, 
+                                 targetId, comparatorId, 
+                                 databaseId = databaseId, analysisId = analysisId, 
+                                 outcomeId = outcomeId, 
+                                 covariate = covariate, dataFolder = dataFolder)
+  data.frame(databaseId = databaseId, analysisId = analysisId,
+             targetId = targetId, comparatorId = comparatorId,
+             imbalanced = sum(balance$absAfterMatchingStdDiff > 0.1, na.rm = TRUE))
+}
+
+imbalance <- 
+  rbind(
+    # SIDIAP 
+    do.call(
+      "rbind",
+      lapply(tcs, function(tc) {
+        getBalanceDiagnostic(tc$targetId, tc$comparatorId, "SIDIAP", 5, covidNarrowId, sidiapCovariate,
+                             file.path(sidiapDir, "shinyData"))
+      })),
+    do.call(
+      "rbind",
+      lapply(tcs, function(tc) {
+        getBalanceDiagnostic(tc$targetId, tc$comparatorId, "SIDIAP", 6, covidNarrowId, sidiapCovariate,
+                             file.path(sidiapDir, "shinyData"))
+      })),
+    # VA
+    do.call(
+      "rbind",
+      lapply(tcs, function(tc) {
+        getBalanceDiagnostic(tc$targetId, tc$comparatorId, "VA-OMOP", 5, covidNarrowId, vaCovariate,
+                             file.path(vaDir, "shinyData"))
+      })),
+    do.call(
+      "rbind",
+      lapply(tcs, function(tc) {
+        getBalanceDiagnostic(tc$targetId, tc$comparatorId, "VA-OMOP", 6, covidNarrowId, vaCovariate,
+                             file.path(vaDir, "shinyData"))
+      })),    
+    # CUIMC
+    do.call(
+      "rbind",
+      lapply(tcs, function(tc) {
+        getBalanceDiagnostic(tc$targetId, tc$comparatorId, "CUIMC", 5, covidNarrowId, cuimcCovariate,
+                             file.path(cuimcDir, "shinyData"))
+      })),
+    do.call(
+      "rbind",
+      lapply(tcs, function(tc) {
+        getBalanceDiagnostic(tc$targetId, tc$comparatorId, "CUIMC", 6, covidNarrowId, cuimcCovariate,
+                             file.path(cuimcDir, "shinyData"))
+      }))    
+  ) %>% 
+  left_join(prettyNames, by = c("targetId" = "cohortId")) %>% rename(targetName = cohortName) %>%
+  left_join(prettyNames, by = c("comparatorId" = "cohortId")) %>% rename(comparatorName = cohortName) %>%
+  select(-targetId, -comparatorId) %>%
+  select(targetName, comparatorName, everything())  
+
+  # Add meta-analysis
+  # meta <- table %>% filter(databaseId == "Meta-analysis-main", outcomeId == covidNarrowId) %>% 
+  #   mutate(imbalanced = i2 > 0.40) %>%
+  #   select(targetName, comparatorName, databaseId, analysisId, imbalanced)
+  # imbalance <- rbind(imbalance, meta) # Comment out to remove meta-analysis
+```
+
+```{r setupOutcomeTables, echo=FALSE}
+
+makeEffectTable <- function(outcomeName, designName, databaseName, table,
+                            texTop = "SupTabEffectTop.tex",
+                            texBottom = "SupTabEffectBottom.tex",
+                            imbalance = NULL) {
+  
+  table <- table %>% mutate(p = ifelse(p < 0.01, 
+                                       "< 0.01", sprintf("%1.2f", p)),
+                            calibratedP = ifelse(calibratedP < 0.01, 
+                                                 "< 0.01", sprintf("%1.2f", calibratedP)))
+  
+  if (!is.null(imbalance)) {
+    table <- table %>% inner_join(imbalance, by = c("targetName", "comparatorName", "analysisId"))
+    
+    toString <- function(x) {
+      ifelse(sapply(x, is.numeric),
+             ifelse(x > 10,
+                    sprintf("%2.1f", x),
+                    sprintf("%1.2f", x)),
+             x)
+    }
+    
+    annotate <- function(x) {
+      str <- toString(x)
+      ifelse(table$imbalanced > 0,
+             paste0("{\\color{light-gray}", str, "}"),
+             str)
+    } 
+    
+    table <- table %>% mutate(rr = annotate(rr),
+                              ci = annotate(ci),
+                              p = annotate(p),
+                              calibratedRr = annotate(calibratedRr),
+                              calibratedCi = annotate(calibratedCi),
+                              calibratedP = annotate(calibratedP)) %>% select(-databaseId, -imbalanced)
+  }
+  
+  header <- readr::read_file(texTop)
+  header <- sub(pattern = "OUTCOME", replacement = outcomeName, x = header)
+  header <- sub(pattern = "DESIGN", replacement = designName, x = header)
+  header <- sub(pattern = "DATASOURCE", replacement = databaseName, x = header)
+  cat(header)
+  print(xtable(table %>% select(-outcomeId, -analysisId), 
+               format = "latex"),
+        include.rownames = FALSE,
+        include.colnames = FALSE,
+        hline.after = NULL,
+        only.contents = TRUE,
+        sanitize.text.function = identity)
+  footer <- readr::read_file(texBottom)
+  cat(footer)
+}
+```
+
+## PS Stratification
+
+```{r, echo=FALSE}
+databaseId <- "SIDIAP"
+
+outcomesOfInterest <- Covid19SusceptibilityAlphaBlockers:::getOutcomesOfInterest()
+cmResults <- readRDS(file.path(studyFolder, databaseId, "shinyData", sprintf("cohort_method_result_%s.rds", databaseId)))
+colnames(cmResults) <- SqlRender::snakeCaseToCamelCase(colnames(cmResults))
+cmResults <- cmResults %>% select(-i2) %>% na.omit()
+
+sidiapTable <- do.call(
+  "rbind",
+  lapply(tcs, function(tc) {
+    cmResults %>% filter(targetId == tc$targetId, comparatorId == tc$comparatorId) %>%
+      left_join(prettyNames, by = c("targetId" = "cohortId")) %>% rename(targetName = cohortName) %>%
+      left_join(prettyNames, by = c("comparatorId" = "cohortId")) %>% rename(comparatorName = cohortName) %>%
+      mutate(ci = sprintf("(%1.2f - %1.2f)", ci95Lb, ci95Ub),
+             calibratedCi = sprintf("(%1.2f - %1.2f)", calibratedCi95Lb, calibratedCi95Ub)) %>%
+      select(targetName, comparatorName, outcomeId, analysisId,
+             rr, ci, p, 
+             calibratedRr, calibratedCi, calibratedP)
+  }))
+
+databaseId <- "VA-OMOP"
+
+outcomesOfInterest <- Covid19SusceptibilityAlphaBlockers:::getOutcomesOfInterest()
+cmResults <- readRDS(file.path(studyFolder, databaseId, "shinyData", sprintf("cohort_method_result_%s.rds", databaseId)))
+colnames(cmResults) <- SqlRender::snakeCaseToCamelCase(colnames(cmResults))
+cmResults <- cmResults %>% select(-i2) %>% na.omit()
+
+vaTable <- do.call(
+  "rbind",
+  lapply(tcs, function(tc) {
+    cmResults %>% filter(targetId == tc$targetId, comparatorId == tc$comparatorId) %>%
+      left_join(prettyNames, by = c("targetId" = "cohortId")) %>% rename(targetName = cohortName) %>%
+      left_join(prettyNames, by = c("comparatorId" = "cohortId")) %>% rename(comparatorName = cohortName) %>%
+      mutate(ci = sprintf("(%1.2f - %1.2f)", ci95Lb, ci95Ub),
+             calibratedCi = sprintf("(%1.2f - %1.2f)", calibratedCi95Lb, calibratedCi95Ub)) %>%
+      select(targetName, comparatorName, outcomeId, analysisId,
+             rr, ci, p, 
+             calibratedRr, calibratedCi, calibratedP)
+  }))
+
+databaseId <- "CUIMC"
+
+outcomesOfInterest <- Covid19SusceptibilityAlphaBlockers:::getOutcomesOfInterest()
+cmResults <- readRDS(file.path(studyFolder, databaseId, "shinyData", sprintf("cohort_method_result_%s.rds", databaseId))) 
+colnames(cmResults) <- SqlRender::snakeCaseToCamelCase(colnames(cmResults))
+cmResults <- cmResults %>% select(-i2) %>% na.omit()
+
+cuimcTable <- do.call(
+  "rbind",
+  lapply(tcs, function(tc) {
+    cmResults %>% filter(targetId == tc$targetId, comparatorId == tc$comparatorId) %>%
+      left_join(prettyNames, by = c("targetId" = "cohortId")) %>% rename(targetName = cohortName) %>%
+      left_join(prettyNames, by = c("comparatorId" = "cohortId")) %>% rename(comparatorName = cohortName) %>%
+      mutate(ci = sprintf("(%1.2f - %1.2f)", ci95Lb, ci95Ub),
+             calibratedCi = sprintf("(%1.2f - %1.2f)", calibratedCi95Lb, calibratedCi95Ub)) %>%
+      select(targetName, comparatorName, outcomeId, analysisId,
+             rr, ci, p, 
+             calibratedRr, calibratedCi, calibratedP)
+  }))
+
+databaseId <- "Meta-analysis"
+
+outcomesOfInterest <- Covid19SusceptibilityAlphaBlockers:::getOutcomesOfInterest()
+cmResults <- readRDS(file.path(studyFolder, databaseId, "shinyData", sprintf("cohort_method_result_%s.rds", databaseId))) 
+colnames(cmResults) <- SqlRender::snakeCaseToCamelCase(colnames(cmResults))
+cmResults <- cmResults %>% na.omit()
+
+maTable <- do.call(
+  "rbind",
+  lapply(tcs, function(tc) {
+    cmResults %>% filter(targetId == tc$targetId, comparatorId == tc$comparatorId) %>%
+      left_join(prettyNames, by = c("targetId" = "cohortId")) %>% rename(targetName = cohortName) %>%
+      left_join(prettyNames, by = c("comparatorId" = "cohortId")) %>% rename(comparatorName = cohortName) %>%
+      mutate(ci = sprintf("(%1.2f - %1.2f)", ci95Lb, ci95Ub),
+             calibratedCi = sprintf("(%1.2f - %1.2f)", calibratedCi95Lb, calibratedCi95Ub)) %>%
+      select(targetName, comparatorName, outcomeId, analysisId,
+             rr, ci, p, 
+             calibratedRr, calibratedCi, calibratedP, i2) %>% mutate(i2 = sprintf("%1.2f", i2))
+  }))
+```
+
+### SIDIAP
+
+\definecolor{light-gray}{gray}{0.50}
+
+```{r, echo=FALSE, results="asis"}
+makeEffectTable("COVID-19 diagnosis", "stratified", "SIDIAP", 
+                sidiapTable %>% filter(outcomeId == covidNarrowId, analysisId == primaryAnalysisId), imbalance = imbalance %>% filter(databaseId == "SIDIAP"))
+  
+makeEffectTable("COVID-19 hospitalization", "stratifed", "SIDIAP", 
+                sidiapTable %>% filter(outcomeId == covidBroadId, analysisId == primaryAnalysisId), imbalance = imbalance %>% filter(databaseId == "SIDIAP"))
+
+makeEffectTable("pneumonia", "stratifed", "SIDIAP", 
+                sidiapTable %>% filter(outcomeId == pnaId, analysisId == primaryAnalysisId), imbalance = imbalance %>% filter(databaseId == "SIDIAP"))
+
+makeEffectTable("PAAS", "stratifed", "SIDIAP", 
+                sidiapTable %>% filter(outcomeId == adverseId, analysisId == primaryAnalysisId), imbalance = imbalance %>% filter(databaseId == "SIDIAP"))
+```
+
+\clearpage
+
+### VA-OMOP
+
+```{r, echo=FALSE, results="asis"}
+makeEffectTable("COVID-19 diagnosis", "stratified", "VA-OMOP", 
+                vaTable %>% filter(outcomeId == covidNarrowId, analysisId == primaryAnalysisId), imbalance = imbalance %>% filter(databaseId == "VA-OMOP"))
+  
+makeEffectTable("COVID-19 hospitalization", "stratifed", "VA-OMOP", 
+                vaTable %>% filter(outcomeId == covidBroadId, analysisId == primaryAnalysisId), imbalance = imbalance %>% filter(databaseId == "VA-OMOP"))
+
+makeEffectTable("pneumonia", "stratifed", "VA-OMOP", 
+                vaTable %>% filter(outcomeId == pnaId, analysisId == primaryAnalysisId), imbalance = imbalance %>% filter(databaseId == "VA-OMOP"))
+
+makeEffectTable("PAAS", "stratifed", "VA-OMOP", 
+                vaTable %>% filter(outcomeId == adverseId, analysisId == primaryAnalysisId), imbalance = imbalance %>% filter(databaseId == "VA-OMOP"))
+```
+
+\clearpage
+
+### CUIMC
+
+```{r, echo=FALSE, results="asis"}
+makeEffectTable("COVID-19 diagnosis", "stratified", "CUIMC", 
+                cuimcTable %>% filter(outcomeId == covidNarrowId, analysisId == primaryAnalysisId), imbalance = imbalance %>% filter(databaseId == "CUIMC"))
+  
+makeEffectTable("COVID-19 hospitalization", "stratifed", "CUIMC", 
+                cuimcTable %>% filter(outcomeId == covidBroadId, analysisId == primaryAnalysisId), imbalance = imbalance %>% filter(databaseId == "CUIMC"))
+
+makeEffectTable("pneumonia", "stratifed", "CUIMC", 
+                cuimcTable %>% filter(outcomeId == pnaId, analysisId == primaryAnalysisId), imbalance = imbalance %>% filter(databaseId == "CUIMC"))
+
+makeEffectTable("PAAS", "stratifed", "CUIMC", 
+                cuimcTable %>% filter(outcomeId == adverseId, analysisId == primaryAnalysisId), imbalance = imbalance %>% filter(databaseId == "CUIMC"))
+```
+
+\clearpage
+
+### Meta-analysis
+
+These meta-analytic estimates are based on all data source estimates, not just those that pass diagnostics
+
+```{r, echo=FALSE, results="asis"}
+makeEffectTable("COVID-19 diagnosis", "stratified", "Meta-analysis", 
+                maTable %>% filter(outcomeId == covidNarrowId, analysisId == primaryAnalysisId),
+                texTop = "SupTabEffectMaTop.tex")
+  
+makeEffectTable("COVID-19 hospitalization", "stratifed", "Meta-analysis", 
+                maTable %>% filter(outcomeId == covidBroadId, analysisId == primaryAnalysisId),
+                texTop = "SupTabEffectMaTop.tex")
+
+makeEffectTable("pneumonia", "stratifed", "Meta-analysis", 
+                maTable %>% filter(outcomeId == pnaId, analysisId == primaryAnalysisId),
+                texTop = "SupTabEffectMaTop.tex")
+
+makeEffectTable("PAAS", "stratifed", "Meta-analysis", 
+                maTable %>% filter(outcomeId == adverseId, analysisId == primaryAnalysisId),
+                texTop = "SupTabEffectMaTop.tex")
+```
+
+## PS Matching
+
+### SIDIAP
+
+```{r, echo=FALSE, results="asis"}
+makeEffectTable("COVID-19 diagnosis", "matched", "SIDIAP", 
+                sidiapTable %>% filter(outcomeId == covidNarrowId, analysisId == 6), imbalance = imbalance %>% filter(databaseId == "SIDIAP"))
+  
+makeEffectTable("COVID-19 hospitalization", "matched", "SIDIAP", 
+                sidiapTable %>% filter(outcomeId == covidBroadId, analysisId == 6), imbalance = imbalance %>% filter(databaseId == "SIDIAP"))
+
+makeEffectTable("pneumonia", "matched", "SIDIAP", 
+                sidiapTable %>% filter(outcomeId == pnaId, analysisId == 6), imbalance = imbalance %>% filter(databaseId == "SIDIAP"))
+
+makeEffectTable("PAAS", "matched", "SIDIAP", 
+                sidiapTable %>% filter(outcomeId == adverseId, analysisId == 6), imbalance = imbalance %>% filter(databaseId == "SIDIAP"))
+```
+
+\clearpage
+
+### VA-OMOP
+
+```{r, echo=FALSE, results="asis"}
+makeEffectTable("COVID-19 diagnosis", "matched", "VA-OMOP", 
+                vaTable %>% filter(outcomeId == covidNarrowId, analysisId == 6), imbalance = imbalance %>% filter(databaseId == "VA-OMOP"))
+  
+makeEffectTable("COVID-19 hospitalization", "matched", "VA-OMOP", 
+                vaTable %>% filter(outcomeId == covidBroadId, analysisId == 6), imbalance = imbalance %>% filter(databaseId == "VA-OMOP"))
+
+makeEffectTable("pneumonia", "matched", "VA-OMOP", 
+                vaTable %>% filter(outcomeId == pnaId, analysisId == 6), imbalance = imbalance %>% filter(databaseId == "VA-OMOP"))
+
+makeEffectTable("PAAS", "matched", "VA-OMOP", 
+                vaTable %>% filter(outcomeId == adverseId, analysisId == 6), imbalance = imbalance %>% filter(databaseId == "VA-OMOP"))
+```
+
+\clearpage
+
+### CUIMC
+
+```{r, echo=FALSE, results="asis"}
+makeEffectTable("COVID-19 diagnosis", "matched", "CUIMC", 
+                cuimcTable %>% filter(outcomeId == covidNarrowId, analysisId == 6), imbalance = imbalance %>% filter(databaseId == "CUIMC"))
+  
+makeEffectTable("COVID-19 hospitalization", "matched", "CUIMC", 
+                cuimcTable %>% filter(outcomeId == covidBroadId, analysisId == 6), imbalance = imbalance %>% filter(databaseId == "CUIMC"))
+
+makeEffectTable("pneumonia", "matched", "CUIMC", 
+                cuimcTable %>% filter(outcomeId == pnaId, analysisId == 6), imbalance = imbalance %>% filter(databaseId == "CUIMC"))
+
+makeEffectTable("PAAS", "matched", "CUIMC", 
+                cuimcTable %>% filter(outcomeId == adverseId, analysisId == 6), imbalance = imbalance %>% filter(databaseId == "CUIMC"))
+```
+
+\clearpage
+
+### Meta-analysis
+
+These meta-analytic estimates are based on all data source estimates, not just those that pass diagnostics
+
+```{r, echo=FALSE, results="asis"}
+makeEffectTable("COVID-19 diagnosis", "matched", "Meta-analysis", 
+                maTable %>% filter(outcomeId == covidNarrowId, analysisId == 6),
+                texTop = "SupTabEffectMaTop.tex")
+  
+makeEffectTable("COVID-19 hospitalization", "matched", "Meta-analysis", 
+                maTable %>% filter(outcomeId == covidBroadId, analysisId == 6),
+                texTop = "SupTabEffectMaTop.tex")
+
+makeEffectTable("pneumonia", "matched", "Meta-analysis", 
+                maTable %>% filter(outcomeId == pnaId, analysisId == 6),
+                texTop = "SupTabEffectMaTop.tex")
+
+makeEffectTable("PAAS", "matched", "Meta-analysis", 
+                maTable %>% filter(outcomeId == adverseId, analysisId == 6),
+                texTop = "SupTabEffectMaTop.tex")
+```
+
+<!-- # Cohort specifications -->
+
+<!-- ## Antihypertensives -->
+
+<!-- ## COVID-19 diagnosis -->
+
+<!-- ## COVID-19 hospitalization -->
+
+<!-- ## Pneumonia -->
+
+<!-- ## PAAS -->
