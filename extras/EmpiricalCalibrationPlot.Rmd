@@ -86,7 +86,7 @@ prettyNames <- data.frame(
   cohortName = c("Alpha-1 blocker", "5ARI / PDE5"))
 
 analysisIdToKeep <- c(5, 6)
-primaryAnalysisId <- 5 # Full stratified PS
+primaryAnalysisId <- 6 # Full matched PS
 ```
 
 
@@ -94,101 +94,82 @@ primaryAnalysisId <- 5 # Full stratified PS
 # Cohort balance and systematic error diagnostics
 
 ```{r, echo=FALSE}
-plotControlOutcomeEstimates <- function(controlResults) {
-  size <- 2
-  labelY <- 1.5
-  d <- rbind(data.frame(yGroup = "Uncalibrated",
-                        logRr = controlResults$logRr,
-                        seLogRr = controlResults$seLogRr,
-                        ci95Lb = controlResults$ci95Lb,
-                        ci95Ub = controlResults$ci95Ub,
-                        trueRr = controlResults$effectSize),
-             data.frame(yGroup = "Calibrated",
-                        logRr = controlResults$calibratedLogRr,
-                        seLogRr = controlResults$calibratedSeLogRr,
-                        ci95Lb = controlResults$calibratedCi95Lb,
-                        ci95Ub = controlResults$calibratedCi95Ub,
-                        trueRr = controlResults$effectSize))
+plotEstimateVsError <- function(controlResults, calibrated) {
+  
+  if (calibrated) {
+    d <- data.frame(logRr = controlResults$calibratedLogRr,
+                    seLogRr = controlResults$calibratedSeLogRr,
+                    ci95Lb = controlResults$calibratedCi95Lb,
+                    ci95Ub = controlResults$calibratedCi95Ub,
+                    trueRr = controlResults$effectSize)
+    xLabel <- "Hazard ratio (after calibration)"
+  } else {
+    d <- data.frame(logRr = controlResults$logRr,
+                    seLogRr = controlResults$seLogRr,
+                    ci95Lb = controlResults$ci95Lb,
+                    ci95Ub = controlResults$ci95Ub,
+                    trueRr = controlResults$effectSize)
+    xLabel <- "Hazard ratio (before calibration)"
+  }
   d <- d[!is.na(d$logRr), ]
   d <- d[!is.na(d$ci95Lb), ]
   d <- d[!is.na(d$ci95Ub), ]
   if (nrow(d) == 0) {
     return(NULL)
   }
-  d$Group <- as.factor(d$trueRr)
-  d$Significant <- d$ci95Lb > d$trueRr | d$ci95Ub < d$trueRr
-  temp1 <- aggregate(Significant ~ Group + yGroup, data = d, length)
-  temp2 <- aggregate(Significant ~ Group + yGroup, data = d, mean)
-  temp1$nLabel <- paste0(formatC(temp1$Significant, big.mark = ","), " estimates")
-  temp1$Significant <- NULL
-
-  temp2$meanLabel <- paste0(formatC(100 * (1 - temp2$Significant), digits = 1, format = "f"),
-                            "% of CIs include ",
-                            temp2$Group)
-  temp2$Significant <- NULL
-  dd <- merge(temp1, temp2)
-  dd$tes <- as.numeric(as.character(dd$Group))
-
+  d$Significant <- d$ci95Lb > 1 | d$ci95Ub < 1
+  
+  oneRow <- data.frame(nLabel = paste0(formatC(nrow(d), big.mark = ","), " estimates"),
+                       meanLabel = paste0(formatC(100 *
+                                                    mean(!d$Significant, na.rm = TRUE), digits = 1, format = "f"), "% of CIs includes 1"))
+  
   breaks <- c(0.1, 0.25, 0.5, 1, 2, 4, 6, 8, 10)
   theme <- ggplot2::element_text(colour = "#000000", size = 12)
   themeRA <- ggplot2::element_text(colour = "#000000", size = 12, hjust = 1)
   themeLA <- ggplot2::element_text(colour = "#000000", size = 12, hjust = 0)
-
-  d$Group <- paste("True hazard ratio =", d$Group)
-  dd$Group <- paste("True hazard ratio =", dd$Group)
-  alpha <- 1 - min(0.95 * (nrow(d)/nrow(dd)/50000)^0.1, 0.95)
-  plot <- ggplot2::ggplot(d, ggplot2::aes(x = logRr, y = seLogRr), environment = environment()) +
-          ggplot2::geom_vline(xintercept = log(breaks), colour = "#AAAAAA", lty = 1, size = 0.5) +
-          ggplot2::geom_abline(ggplot2::aes(intercept = (-log(tes))/qnorm(0.025), slope = 1/qnorm(0.025)),
-                               colour = rgb(0.8, 0, 0),
-                               linetype = "dashed",
-                               size = 1,
-                               alpha = 0.5,
-                               data = dd) +
-          ggplot2::geom_abline(ggplot2::aes(intercept = (-log(tes))/qnorm(0.975), slope = 1/qnorm(0.975)),
-                               colour = rgb(0.8, 0, 0),
-                               linetype = "dashed",
-                               size = 1,
-                               alpha = 0.5,
-                               data = dd) +
-          ggplot2::geom_point(size = size,
-                              color = rgb(0, 0, 0, alpha = 0.05),
-                              alpha = alpha,
-                              shape = 16) +
-          ggplot2::geom_hline(yintercept = 0) +
-          ggplot2::geom_label(x = log(0.15),
-                              y = 1.9,
-                              alpha = 1,
-                              hjust = "left",
-                              ggplot2::aes(label = nLabel),
-                              size = 3,
-                              data = dd) +
-          ggplot2::geom_label(x = log(0.15),
-                              y = labelY,
-                              alpha = 1,
-                              hjust = "left",
-                              ggplot2::aes(label = meanLabel),
-                              size = 3,
-                              data = dd) +
-          ggplot2::scale_x_continuous("Hazard ratio",
-                                      limits = log(c(0.1, 10)),
-                                      breaks = log(breaks),
-                                      labels = breaks) +
-          ggplot2::scale_y_continuous("Standard Error", limits = c(0, 2)) +
-          ggplot2::facet_grid(yGroup ~ Group) +
-          ggplot2::theme(panel.grid.minor = ggplot2::element_blank(),
-                         panel.background = ggplot2::element_blank(),
-                         panel.grid.major = ggplot2::element_blank(),
-                         axis.ticks = ggplot2::element_blank(),
-                         axis.text.y = themeRA,
-                         axis.text.x = theme,
-                         axis.title = theme,
-                         legend.key = ggplot2::element_blank(),
-                         strip.text.x = theme,
-                         strip.text.y = theme,
-                         strip.background = ggplot2::element_blank(),
-                         legend.position = "none")
-
+  
+  alpha <- 1 - min(0.95 * (nrow(d)/50000)^0.1, 0.95)
+  plot <- ggplot2::ggplot(d, ggplot2::aes(x = logRr, y = seLogRr)) +
+    ggplot2::geom_vline(xintercept = log(breaks), colour = "#AAAAAA", lty = 1, size = 0.5) +
+    ggplot2::geom_abline(ggplot2::aes(intercept = 0, slope = 1/qnorm(0.025)),
+                         colour = rgb(0.8, 0, 0),
+                         linetype = "dashed",
+                         size = 1,
+                         alpha = 0.5) +
+    ggplot2::geom_abline(ggplot2::aes(intercept = 0, slope = 1/qnorm(0.975)),
+                         colour = rgb(0.8, 0, 0),
+                         linetype = "dashed",
+                         size = 1,
+                         alpha = 0.5) +
+    ggplot2::geom_point(size = 2, color = rgb(0, 0, 0, alpha = 0.05), alpha = alpha, shape = 16) +
+    ggplot2::geom_hline(yintercept = 0) +
+    ggplot2::geom_label(x = log(0.11),
+                        y = 1,
+                        alpha = 1,
+                        hjust = "left",
+                        ggplot2::aes(label = nLabel),
+                        size = 5,
+                        data = oneRow) +
+    ggplot2::geom_label(x = log(0.11),
+                        y = 0.935,
+                        alpha = 1,
+                        hjust = "left",
+                        ggplot2::aes(label = meanLabel),
+                        size = 5,
+                        data = oneRow) +
+    ggplot2::scale_x_continuous(xLabel, limits = log(c(0.1,10)), breaks = log(breaks), labels = breaks) +
+    ggplot2::scale_y_continuous("Standard Error", limits = c(0, 1)) +
+    ggplot2::theme(panel.grid.minor = ggplot2::element_blank(),
+                   panel.background = ggplot2::element_blank(),
+                   panel.grid.major = ggplot2::element_blank(),
+                   axis.ticks = ggplot2::element_blank(),
+                   axis.text.y = themeRA,
+                   axis.text.x = theme,
+                   axis.title = theme,
+                   legend.key = ggplot2::element_blank(),
+                   strip.text.x = theme,
+                   strip.background = ggplot2::element_blank(),
+                   legend.position = "none")
   return(plot)
 }
 
@@ -214,43 +195,21 @@ negativeControlOutcomeIds <- unique(getAllControls()$outcomeId)
 
 ```{r, echo=FALSE}
 
-makeSideBySideBalancePlots <- function(databaseId, covariate, cmResults,
-                                       targetId, comparatorId,
-                                       thisOutcomeId,
-                                       studyFolder) {
+plotControlOutcomeEstimates <- function(databaseId, covariate, cmResults, analysisId,
+                                       targetId, comparatorId, thisOutcomeId, 
+                                       studyFolder, calibrated) {
   
   targetName <- cohorts %>% filter(cohortId == targetId) %>% select(shinyName) %>% pull()
   comparatorName <- cohorts %>% filter(cohortId == comparatorId) %>% select(shinyName) %>% pull()
-
-controlsStrat <- getControlResults(targetId, comparatorId, 5, databaseId, negativeControlOutcomeIds,
-                                   cmResults)
-
-controlsMatch <- getControlResults(targetId, comparatorId, 6, databaseId, negativeControlOutcomeIds,
-                                   cmResults)
-
-errorStrat <- plotScatter(controlsStrat)
-errorMatch <- plotScatter(controlsMatch)
-  
-  return(list(errorStrat = errorStrat, errorMatch = errorMatch,
+  controlResults <- getControlResults(
+    targetId, comparatorId, analysisId, databaseId, negativeControlOutcomeIds, cmResults
+  )
+  estVsErr <- plotEstimateVsError(controlResults, calibrated)
+  return(list(estVsErr = estVsErr,
               targetId = targetId, comparatorId = comparatorId, 
               targetName = targetName, comparatorName = comparatorName,
               outcomeId = thisOutcomeId,
               databaseId = databaseId))
-}
-
-saveSideBySidePlots <- function(plot) {
-  file <- sprintf("sideBySide_%d_%d_%d_%s.pdf", plot$targetId, plot$comparatorId, plot$outcomeId, 
-                  plot$databaseId)
-  invisible(save_plot(file,
-            plot_grid(
-              plot$psStrat, plot$plotStrat, plot$plotMatch, NULL, plot$errorStrat, plot$errorMatch, 
-              ncol = 3, rel_heights = c(1, 1)),
-            #base_asp = 0.5, 
-            #ncol = 5,
-            base_height = 8))
-  return(list(file = file, targetName = plot$targetName,
-              comparatorName = plot$comparatorName,
-              databaseName = plot$databaseId))
 }
 ```
 
@@ -264,10 +223,10 @@ colnames(sidiapCovariate) <- SqlRender::snakeCaseToCamelCase(colnames(sidiapCova
 sidiapResults <- readRDS(file.path(studyFolder, "SIDIAP", "shinyData", paste0("cohort_method_result_", "SIDIAP", ".rds")))
 colnames(sidiapResults) <- SqlRender::snakeCaseToCamelCase(colnames(sidiapResults))
 
-balance <- makeSideBySideBalancePlots(
-  "SIDIAP", sidiapCovariate, sidiapResults, 
-  alphaBlockerId, fiveAlphaId, covidDiagnosisId, studyFolder
+controlResults <- getControlResults(
+  alphaBlockerId, fiveAlphaId, primaryAnalysisId, "SIDIAP", negativeControlOutcomeIds, sidiapResults
 )
+plotEstimateVsError(controlResults, calibrated = TRUE)
 ```
 
 
@@ -283,9 +242,8 @@ colnames(vaCovariate) <- SqlRender::snakeCaseToCamelCase(colnames(vaCovariate))
 vaResults <- readRDS(file.path(studyFolder, "VA-OMOP", "shinyData", paste0("cohort_method_result_", "VA-OMOP", ".rds")))
 colnames(vaResults) <- SqlRender::snakeCaseToCamelCase(colnames(vaResults))
 
-balance <- makeSideBySideBalancePlots(
-  "VA-OMOP", vaCovariate, vaResults,
-  alphaBlockerId, fiveAlphaId, covidDiagnosisId, studyFolder
+controlResults <- getControlResults(
+  alphaBlockerId, fiveAlphaId, primaryAnalysisId, "VA-OMOP", negativeControlOutcomeIds, vaResults
 )
-balance$errorStrat
+plotEstimateVsError(controlResults, calibrated = TRUE)
 ```
