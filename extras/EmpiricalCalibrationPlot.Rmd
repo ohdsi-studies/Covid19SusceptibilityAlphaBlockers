@@ -94,7 +94,7 @@ primaryAnalysisId <- 5 # Full stratified PS
 # Cohort balance and systematic error diagnostics
 
 ```{r, echo=FALSE}
-plotScatter <- function(controlResults) {
+plotControlOutcomeEstimates <- function(controlResults) {
   size <- 2
   labelY <- 1.5
   d <- rbind(data.frame(yGroup = "Uncalibrated",
