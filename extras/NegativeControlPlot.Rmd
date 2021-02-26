@@ -43,6 +43,8 @@ header-includes:
 
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
+# Load packages and set options
+
 options(kableExtra.latex.load_packages = FALSE)
 library(kableExtra)
 knitr::knit_hooks$set(document = function(x) {sub('\\usepackage[]{color}', '\\usepackage[table]{xcolor}', x, fixed = TRUE)})
@@ -59,74 +61,35 @@ readRdsCamelCase <- function(file) {
 }
 ```
 
-\centerline{{\Huge Supplementary Material}}
-\vspace{1.0em}
-\centerline{\Large for}
-\vspace{1.0em}
-\centerline{\huge Renin-angiotensin system blockers and}
-\centerline{\huge susceptibility to COVID-19}
-\vspace{1.0em}
-\centerline{\Large by}
-\vspace{1.0em}
-\centerline{\Large Daniel R. Morales, Mitchell M. Conover, Seng Chan You, et al.}
-<!-- \centerline{\Large Seng Chan You, RuiJen Chen, Nicole Pratt, Christian G. Reich,} -->
-<!-- \centerline{\Large Jon Duke, David Madigan, George Hripcsak and Patrick B.Ryan} -->
-
-\tableofcontents
-
-\captionsetup[table]{name=Supplementary Table}
-\captionsetup[figure]{name=Supplementary Figure}
-\captionsetup{labelfont=bf}
-
-\renewcommand\theContinuedFloat{\alph{ContinuedFloat}}
+```{r, echo=FALSE}
+# Set appropriate paths
+studyFolder <- path.expand("~/Dropbox/Documents_Academic/Covid19AlphaBlocker")
+databaseIds <- c("SIDIAP", "VA-OMOP", "CUIMC", "IQVIA_OpenClaims", "Optum_DOD", "Optum_EHR_COVID")
+databaseIdLabels <- c("SIDIAP", "VA", "CUIMC", "OpenClaims", "Optum DOD", "Optum EHR", "Meta-analysis")
+names(databaseIdLabels) <- c(databaseIds, "Meta-analysis")
+dataDirs <- sapply(databaseIds, function (databaseId) file.path(studyFolder, databaseId))
+```
 
 ```{r, echo=FALSE}
+# Extract and set appropriate IDs.
 cohorts <- read.csv(file = system.file("settings", "CohortsToCreate.csv", package = "Covid19SusceptibilityAlphaBlockers")) %>% select(cohortId, shinyName)
 
-aceMonoId <- cohorts %>% filter(shinyName == "ACE mono") %>% select(cohortId) %>% pull()
-arbMonoId <- cohorts %>% filter(shinyName == "ARB mono") %>% select(cohortId) %>% pull()
-aceArbMonoId <- cohorts %>% filter(shinyName == "ACE/ARB mono") %>% select(cohortId) %>% pull()
-ccbThzMonoId <- cohorts %>% filter(shinyName == "CCB/THZ mono") %>% select(cohortId) %>% pull()
+alphaBlockerId <- cohorts %>% filter(shinyName == "Alpha-1 blocker") %>% select(cohortId) %>% pull()
+fiveAlphaId <- cohorts %>% filter(shinyName == "5ARI / PDE5") %>% select(cohortId) %>% pull()
 
-aceComboId <- cohorts %>% filter(shinyName == "ACE +combo") %>% select(cohortId) %>% pull()
-arbComboId <- cohorts %>% filter(shinyName == "ARB +combo") %>% select(cohortId) %>% pull()
-aceArbComboId <- cohorts %>% filter(shinyName == "ACE/ARB +combo") %>% select(cohortId) %>% pull()
-ccbThzComboId <- cohorts %>% filter(shinyName == "CCB/THZ +combo") %>% select(cohortId) %>% pull()
-
-ccbMonoId <- cohorts %>% filter(shinyName == "CCB mono") %>% select(cohortId) %>% pull()
-thzMonoId <- cohorts %>% filter(shinyName == "THZ mono") %>% select(cohortId) %>% pull()
-ccbComboId <- cohorts %>% filter(shinyName == "CCB +combo") %>% select(cohortId) %>% pull()
-thzComboId <- cohorts %>% filter(shinyName == "THZ +combo") %>% select(cohortId) %>% pull()
-
-covidNarrowId <- cohorts %>% filter(shinyName == "COVID-19 diagnosis") %>% select(cohortId) %>% pull()
-covidBroadId <- cohorts %>% filter(shinyName == "COVID-19 hospitalization") %>% select(cohortId) %>% pull()
-
-pnaId <- cohorts %>% filter(shinyName == "Pneumonia") %>% select(cohortId) %>% pull()
-adverseId <- cohorts %>% filter(shinyName == "PAAS event") %>% select(cohortId) %>% pull()
+covidDiagnosisId <- cohorts %>% filter(shinyName == "Diagnosis") %>% select(cohortId) %>% pull()
+hospitalizationId <- cohorts %>% filter(shinyName == "Hospitalization") %>% select(cohortId) %>% pull()
+intensiveServiceId <- cohorts %>% filter(shinyName == "Intensive services") %>% select(cohortId) %>% pull()
 
 prettyNames <- data.frame(
-  cohortId = c(aceMonoId, arbMonoId, aceArbMonoId, ccbMonoId, thzMonoId, ccbThzMonoId,
-               aceComboId, arbComboId, aceArbComboId, ccbComboId, thzComboId, ccbThzComboId),
-  cohortName = c("ACE", "ARB", "ACE/ARB", "CCB", "THZ", "CCB/THZ",
-                 "ACE+", "ARB+", "ACE/ARB+", "CCB+", "THZ+", "CCB/THZ+"))
+  cohortId = c(alphaBlockerId, fiveAlphaId),
+  cohortName = c("Alpha-1 blocker", "5ARI / PDE5"))
 
+analysisIdToKeep <- c(5, 6)
 primaryAnalysisId <- 5 # Full stratified PS
 ```
 
 
-\clearpage
-
-# Sample sizes, total follow-up times and events
-
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
-
-sidiapDir <- "/Users/msuchard/Dropbox/Projects/Covid19Icarius/SIDIAP"
-cuimcDir <- "/Users/msuchard/Dropbox/Projects/Covid19Icarius/CUIMC"
-vaDir <- "/Users/msuchard/Dropbox/Projects/Covid19Icarius/VA-OMOP"
-
-studyFolder <- "/Users/msuchard/Dropbox/Projects/Covid19Icarius"
-
-```
 
 # Cohort balance and systematic error diagnostics
 
@@ -250,96 +213,15 @@ negativeControlOutcomeIds <- unique(getAllControls()$outcomeId)
 
 
 ```{r, echo=FALSE}
-plotCovariateBalanceScatterPlot <- function(balance, beforeLabel = "Before stratification", afterLabel = "After stratification") {
-  limits <- c(min(c(balance$absBeforeMatchingStdDiff, balance$absAfterMatchingStdDiff),
-                  na.rm = TRUE),
-              max(c(balance$absBeforeMatchingStdDiff, balance$absAfterMatchingStdDiff),
-                  na.rm = TRUE))
-  theme <- ggplot2::element_text(colour = "#000000", size = 12)
-  plot <- ggplot2::ggplot(balance, ggplot2::aes(x = absBeforeMatchingStdDiff, y = absAfterMatchingStdDiff)) +
-    ggplot2::geom_point(color = rgb(0, 0, 0.8, alpha = 0.3), shape = 16, size = 2) +
-    ggplot2::geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
-    ggplot2::geom_hline(yintercept = 0) +
-    ggplot2::geom_vline(xintercept = 0) +
-    ggplot2::scale_x_continuous(beforeLabel, limits = limits) +
-    ggplot2::scale_y_continuous(afterLabel, limits = limits) +
-    ggplot2::theme(text = theme)
-  
-  return(plot)
-}
-
-getPs <- function(dataFolder, targetIds, comparatorIds, analysisId, databaseId) {
-  file <- sprintf("preference_score_dist_t%s_c%s_%s.rds", targetIds, comparatorIds, databaseId)
-  ps <- readRDS(file.path(dataFolder, file))
-  colnames(ps) <- SqlRender::snakeCaseToCamelCase(colnames(ps))
-  ps <- ps[ps$analysisId == analysisId, ]
-  return(ps)
-}
-
-plotPs <- function(ps, targetName, comparatorName) {
-  ps <- rbind(data.frame(x = ps$preferenceScore, y = ps$targetDensity, group = targetName),
-              data.frame(x = ps$preferenceScore, y = ps$comparatorDensity, group = comparatorName))
-  ps$group <- factor(ps$group, levels = c(as.character(targetName), as.character(comparatorName)))
-  theme <- ggplot2::element_text(colour = "#000000", size = 12, margin = ggplot2::margin(0, 0.5, 0, 0.1, "cm"))
-  plot <- ggplot2::ggplot(ps,
-                          ggplot2::aes(x = x, y = y, color = group, group = group, fill = group)) +
-          ggplot2::geom_density(stat = "identity") +
-          ggplot2::scale_fill_manual(values = c(rgb(0.8, 0, 0, alpha = 0.5),
-                                                rgb(0, 0, 0.8, alpha = 0.5))) +
-          ggplot2::scale_color_manual(values = c(rgb(0.8, 0, 0, alpha = 0.5),
-                                                 rgb(0, 0, 0.8, alpha = 0.5))) +
-          ggplot2::scale_x_continuous("Preference score", limits = c(0, 1)) +
-          ggplot2::scale_y_continuous("Density") +
-          ggplot2::theme(legend.title = ggplot2::element_blank(),
-                         panel.grid.major = ggplot2::element_blank(),
-                         panel.grid.minor = ggplot2::element_blank(),
-                         legend.position = "top",
-                         legend.text = theme,
-                         axis.text = theme,
-                         axis.title = theme)
-  return(plot)
-}
 
 makeSideBySideBalancePlots <- function(databaseId, covariate, cmResults,
                                        targetId, comparatorId,
                                        thisOutcomeId,
                                        studyFolder) {
-
-  balanceStrat <- getCovariateBalance(NULL, targetId, comparatorId, 
-                                      databaseId = databaseId, analysisId = primaryAnalysisId,
-                                      outcomeId = thisOutcomeId,
-                                      covariate = covariate, 
-                                      dataFolder = file.path(studyFolder, 
-                                                             databaseId, "shinyData"))
-  
-  plotStrat <- plotCovariateBalanceScatterPlot(balanceStrat,
-                                               beforeLabel = "Before stratification", 
-                                               afterLabel = "After stratification")
-  
-  balanceMatch <- getCovariateBalance(NULL, targetId, comparatorId, 
-                                      databaseId = databaseId, analysisId = 6,
-                                      outcomeId = thisOutcomeId,
-                                      covariate = covariate, 
-                                      dataFolder = file.path(studyFolder, 
-                                                             databaseId, "shinyData"))
-  
-  plotMatch <- plotCovariateBalanceScatterPlot(balanceMatch,
-                                               beforeLabel = "Before matching", 
-                                               afterLabel = "After matching")
-  
-  psStrat <- getPs(file.path(studyFolder, databaseId, "shinyData"), targetId, comparatorId, primaryAnalysisId, databaseId)
   
   targetName <- cohorts %>% filter(cohortId == targetId) %>% select(shinyName) %>% pull()
   comparatorName <- cohorts %>% filter(cohortId == comparatorId) %>% select(shinyName) %>% pull()
 
-  psStrat <- plotPs(psStrat, targetName, comparatorName)  
-  
-  # psMatch <- getPs(file.path(studyFolder, databaseId, "shinyData"), targetId, comparatorId, 6, databaseId)
-  # 
-  # psMatch <- plotPs(psMatch, 
-  #                   cohorts %>% filter(cohortId == targetId) %>% select(shinyName) %>% pull(),
-  #                   cohorts %>% filter(cohortId == comparatorId) %>% select(shinyName) %>% pull())   
-  
 controlsStrat <- getControlResults(targetId, comparatorId, 5, databaseId, negativeControlOutcomeIds,
                                    cmResults)
 
@@ -349,11 +231,7 @@ controlsMatch <- getControlResults(targetId, comparatorId, 6, databaseId, negati
 errorStrat <- plotScatter(controlsStrat)
 errorMatch <- plotScatter(controlsMatch)
   
-  return(list(plotStrat = plotStrat, plotMatch  = plotMatch,
-              psStrat = psStrat, 
-              # psMatch = psMatch,
-              balanceStrat = balanceStrat, balanceMatch = balanceMatch,
-              errorStrat = errorStrat, errorMatch = errorMatch,
+  return(list(errorStrat = errorStrat, errorMatch = errorMatch,
               targetId = targetId, comparatorId = comparatorId, 
               targetName = targetName, comparatorName = comparatorName,
               outcomeId = thisOutcomeId,
@@ -374,38 +252,6 @@ saveSideBySidePlots <- function(plot) {
               comparatorName = plot$comparatorName,
               databaseName = plot$databaseId))
 }
-
-makeExtremeBalanceTable <- function(balance,
-                                    targetName, comparatorName, databaseId, designName,
-                                    length) {
-  originalNrow <- nrow(balance)
-  
-  balance <- balance %>% 
-    arrange(-absAfterMatchingStdDiff) %>% head(length) %>%
-    select(-covariateId, -analysisId, -absBeforeMatchingStdDiff, -absAfterMatchingStdDiff) %>%
-    mutate(beforeMatchingMeanTreated = sprintf("%2.1f", beforeMatchingMeanTreated * 100),
-           beforeMatchingMeanComparator = sprintf("%2.1f", beforeMatchingMeanComparator * 100),
-           afterMatchingMeanTreated = sprintf("%2.1f", afterMatchingMeanTreated * 100),
-           afterMatchingMeanComparator = sprintf("%2.1f", afterMatchingMeanComparator * 100))
-  
-  header <- readr::read_file("TableBalanceTop.tex")
-  header <- gsub(pattern = "CHARACTERISTIC", 
-                 paste0("Characteristic (total count = ", originalNrow, ")"),
-                 header)
-  header <- gsub(pattern = "DESIGN", designName, header)
-  header <- gsub(pattern = "DATASOURCE", databaseId, header)
-  header <- gsub(pattern = "TARGET", targetName, header)
-  header <- gsub(pattern = "COMPARATOR", comparatorName, header)
-  
-  cat(header)
-  print(xtable(balance, format = "latex"),
-        include.rownames = FALSE,
-        include.colnames = FALSE,
-        hline.after = NULL,
-        only.contents = TRUE)
-  footer <- readr::read_file("TableBalanceBottom.tex")
-  cat(footer)
-}
 ```
 
 ## SIDIAP
@@ -418,29 +264,10 @@ colnames(sidiapCovariate) <- SqlRender::snakeCaseToCamelCase(colnames(sidiapCova
 sidiapResults <- readRDS(file.path(studyFolder, "SIDIAP", "shinyData", paste0("cohort_method_result_", "SIDIAP", ".rds")))
 colnames(sidiapResults) <- SqlRender::snakeCaseToCamelCase(colnames(sidiapResults))
 
-devNull <- lapply(tcs, function(tc) {
-  balance <- makeSideBySideBalancePlots("SIDIAP", sidiapCovariate, sidiapResults,
-                               tc$targetId, tc$comparatorId, covidNarrowId,
-                               studyFolder)
-  
-  invisible(info <- saveSideBySidePlots(balance))
-  
-  figure <- readr::read_file("BalanceFig.tex")
-  figure <- sub(pattern = "TARGET", replacement = info$targetName, x = figure)
-  figure <- sub(pattern = "COMPARATOR", replacement = info$comparatorName, x = figure)
-  figure <- sub(pattern = "DATASOURCE", replacement = info$databaseName, x = figure)
-  figure <- sub(pattern = "FILENAME", replacement = info$file, x = figure)
-  cat(figure)
-  
-  makeExtremeBalanceTable(balance$balanceStrat, balance$targetName, balance$comparatorName, 
-                          "SIDIAP", "stratification", length = 10)
-  
-  makeExtremeBalanceTable(balance$balanceMatch, balance$targetName, balance$comparatorName, 
-                          "SIDIAP", "matching", length = 10)
-  
-  cat("\\clearpage")
-  
-})
+balance <- makeSideBySideBalancePlots(
+  "SIDIAP", sidiapCovariate, sidiapResults, 
+  alphaBlockerId, fiveAlphaId, covidDiagnosisId, studyFolder
+)
 ```
 
 
@@ -456,62 +283,9 @@ colnames(vaCovariate) <- SqlRender::snakeCaseToCamelCase(colnames(vaCovariate))
 vaResults <- readRDS(file.path(studyFolder, "VA-OMOP", "shinyData", paste0("cohort_method_result_", "VA-OMOP", ".rds")))
 colnames(vaResults) <- SqlRender::snakeCaseToCamelCase(colnames(vaResults))
 
-devNull <- lapply(tcs, function(tc) {
-  balance <- makeSideBySideBalancePlots("VA-OMOP", vaCovariate, vaResults,
-                               tc$targetId, tc$comparatorId, covidNarrowId,
-                               studyFolder)
-  
-  invisible(info <- saveSideBySidePlots(balance))
-  
-  figure <- readr::read_file("BalanceFig.tex")
-  figure <- sub(pattern = "TARGET", replacement = info$targetName, x = figure)
-  figure <- sub(pattern = "COMPARATOR", replacement = info$comparatorName, x = figure)
-  figure <- sub(pattern = "DATASOURCE", replacement = info$databaseName, x = figure)
-  figure <- sub(pattern = "FILENAME", replacement = info$file, x = figure)
-  cat(figure)
-  
-  makeExtremeBalanceTable(balance$balanceStrat, balance$targetName, balance$comparatorName, 
-                          "VA-OMOP", "stratification", length = 10)
-  
-  makeExtremeBalanceTable(balance$balanceMatch, balance$targetName, balance$comparatorName, 
-                          "VA-OMOP", "matching", length = 10)
-  
-  cat("\\clearpage")  
-})
-```
-
-\clearpage
-
-## CUIMC
-
-```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, cache=TRUE}
-
-cuimcCovariate <- readRDS(file.path(studyFolder, "CUIMC", "shinyData", paste0("covariate_", "CUIMC", ".rds")))
-colnames(cuimcCovariate) <- SqlRender::snakeCaseToCamelCase(colnames(cuimcCovariate))
-
-cuimcResults <- readRDS(file.path(studyFolder, "CUIMC", "shinyData", paste0("cohort_method_result_", "CUIMC", ".rds")))
-colnames(cuimcResults) <- SqlRender::snakeCaseToCamelCase(colnames(cuimcResults))
-
-devNull <- lapply(tcs, function(tc) {
-  balance <- makeSideBySideBalancePlots("CUIMC", cuimcCovariate, cuimcResults,
-                               tc$targetId, tc$comparatorId, covidNarrowId,
-                               studyFolder)
-  
-  invisible(info <- saveSideBySidePlots(balance))
-  
-  figure <- readr::read_file("BalanceFig.tex")
-  figure <- sub(pattern = "TARGET", replacement = info$targetName, x = figure)
-  figure <- sub(pattern = "COMPARATOR", replacement = info$comparatorName, x = figure)
-  figure <- sub(pattern = "DATASOURCE", replacement = info$databaseName, x = figure)
-  figure <- sub(pattern = "FILENAME", replacement = info$file, x = figure)
-  cat(figure)
-  
-  makeExtremeBalanceTable(balance$balanceStrat, balance$targetName, balance$comparatorName, 
-                          "CUIMC", "stratification", length = 10)
-  
-  makeExtremeBalanceTable(balance$balanceMatch, balance$targetName, balance$comparatorName, 
-                          "CUIMC", "matching", length = 10)
-  
-  cat("\\clearpage")  
-})
+balance <- makeSideBySideBalancePlots(
+  "VA-OMOP", vaCovariate, vaResults,
+  alphaBlockerId, fiveAlphaId, covidDiagnosisId, studyFolder
+)
+balance$errorStrat
 ```
