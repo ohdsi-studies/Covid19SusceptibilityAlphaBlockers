@@ -123,7 +123,7 @@ plotEstimateVsError <- function(controlResults, calibrated) {
                        meanLabel = paste0(formatC(100 *
                                                     mean(!d$Significant, na.rm = TRUE), digits = 1, format = "f"), "% of CIs includes 1"))
   
-  breaks <- c(0.1, 0.25, 0.5, 1, 2, 4, 6, 8, 10)
+  breaks <- c(0.1, 0.125, 0.25, 0.5, 1, 2, 4, 8, 10)
   theme <- ggplot2::element_text(colour = "#000000", size = 12)
   themeRA <- ggplot2::element_text(colour = "#000000", size = 12, hjust = 1)
   themeLA <- ggplot2::element_text(colour = "#000000", size = 12, hjust = 0)
