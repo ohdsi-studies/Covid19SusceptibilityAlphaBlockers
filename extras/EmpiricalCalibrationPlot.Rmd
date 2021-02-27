@@ -176,6 +176,7 @@ plotEstimateVsError <- function(controlResults, calibrated, xLabel = NULL) {
                    strip.text.x = theme,
                    strip.background = ggplot2::element_blank(),
                    aspect.ratio = 1 / yUpperLim / qnorm(0.975),
+                   plot.margin=grid::unit(c(0,0,0,1), "pt"),
                    legend.position = "none")
   return(plot)
 }
