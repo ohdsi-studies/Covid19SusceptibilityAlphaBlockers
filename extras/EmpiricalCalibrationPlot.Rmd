@@ -248,4 +248,7 @@ controlResults <- getControlResults(
   alphaBlockerId, fiveAlphaId, primaryAnalysisId, "VA-OMOP", negativeControlOutcomeIds, vaResults
 )
 plotEstimateVsError(controlResults, calibrated = TRUE)
+ggplot2::ggsave("negative_control_calibrated_estimates_and_std_errors_for_va.png")
+plotEstimateVsError(controlResults, calibrated = FALSE)
+ggplot2::ggsave("negative_control_uncalibrated_estimates_and_std_errors_for_va.png")
 ```
