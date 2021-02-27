@@ -94,7 +94,7 @@ primaryAnalysisId <- 5 # Full stratified PS
 # Cohort balance and systematic error diagnostics
 
 ```{r, echo=FALSE}
-plotEstimateVsError <- function(controlResults, calibrated, xLabel = NULL) {
+plotEstimateVsError <- function(controlResults, calibrated, xLabel = NULL, coverageTextColor = "black") {
   
   if (calibrated) {
     d <- data.frame(logRr = controlResults$calibratedLogRr,
@@ -161,6 +161,7 @@ plotEstimateVsError <- function(controlResults, calibrated, xLabel = NULL) {
                         alpha = 1,
                         hjust = "left",
                         ggplot2::aes(label = meanLabel),
+                        colour = coverageTextColor,
                         size = 5,
                         data = oneRow) +
     ggplot2::scale_x_continuous(xLabel, limits = log(c(1 / 8, 8)), breaks = log(breaks), labels = breaks) +
@@ -261,7 +262,7 @@ minimalAnalysisId <- 4 # age, gender, month, and year
 controlResults <- getControlResults(
   alphaBlockerId, fiveAlphaId, minimalAnalysisId, "VA-OMOP", negativeControlOutcomeIds, vaResults
 )
-plotEstimateVsError(controlResults, calibrated = FALSE, xLabel = "Hazard ratio")
+plotEstimateVsError(controlResults, calibrated = FALSE, xLabel = "Hazard ratio", coverageTextColor = "#CF1020")
 ggplot2::ggsave("negative_control_uncalibrated_min_strat_estimates_and_std_errors_for_va.png")
 
 ```
