@@ -94,7 +94,7 @@ primaryAnalysisId <- 5 # Full stratified PS
 # Cohort balance and systematic error diagnostics
 
 ```{r, echo=FALSE}
-plotEstimateVsError <- function(controlResults, calibrated) {
+plotEstimateVsError <- function(controlResults, calibrated, xLabel = NULL) {
   
   if (calibrated) {
     d <- data.frame(logRr = controlResults$calibratedLogRr,
@@ -102,14 +102,19 @@ plotEstimateVsError <- function(controlResults, calibrated) {
                     ci95Lb = controlResults$calibratedCi95Lb,
                     ci95Ub = controlResults$calibratedCi95Ub,
                     trueRr = controlResults$effectSize)
-    xLabel <- "Hazard ratio (after calibration)"
+    if (is.null(xLabel)) {
+      xLabel <- "Hazard ratio (after calibration)"
+    }
+    
   } else {
     d <- data.frame(logRr = controlResults$logRr,
                     seLogRr = controlResults$seLogRr,
                     ci95Lb = controlResults$ci95Lb,
                     ci95Ub = controlResults$ci95Ub,
                     trueRr = controlResults$effectSize)
-    xLabel <- "Hazard ratio (before calibration)"
+    if (is.null(xLabel)) {
+      xLabel <- "Hazard ratio (before calibration)"
+    }
   }
   d <- d[!is.na(d$logRr), ]
   d <- d[!is.na(d$ci95Lb), ]
@@ -244,24 +249,18 @@ colnames(vaCovariate) <- SqlRender::snakeCaseToCamelCase(colnames(vaCovariate))
 vaResults <- readRDS(file.path(studyFolder, "VA-OMOP", "shinyData", paste0("cohort_method_result_", "VA-OMOP", ".rds")))
 colnames(vaResults) <- SqlRender::snakeCaseToCamelCase(colnames(vaResults))
 
+
 controlResults <- getControlResults(
   alphaBlockerId, fiveAlphaId, primaryAnalysisId, "VA-OMOP", negativeControlOutcomeIds, vaResults
 )
-
-plotEstimateVsError(controlResults, calibrated = TRUE)
-ggplot2::ggsave("negative_control_calibrated_full_strat_estimates_and_std_errors_for_va.png")
-plotEstimateVsError(controlResults, calibrated = FALSE)
+plotEstimateVsError(controlResults, calibrated = FALSE, xLabel = "Hazard ratio")
 ggplot2::ggsave("negative_control_uncalibrated_full_strat_estimates_and_std_errors_for_va.png")
 
 minimalAnalysisId <- 4 # age, gender, month, and year
-
 controlResults <- getControlResults(
   alphaBlockerId, fiveAlphaId, minimalAnalysisId, "VA-OMOP", negativeControlOutcomeIds, vaResults
 )
-
-plotEstimateVsError(controlResults, calibrated = TRUE)
-ggplot2::ggsave("negative_control_calibrated_min_strat_estimates_and_std_errors_for_va.png")
-plotEstimateVsError(controlResults, calibrated = FALSE)
+plotEstimateVsError(controlResults, calibrated = FALSE, xLabel = "Hazard ratio")
 ggplot2::ggsave("negative_control_uncalibrated_min_strat_estimates_and_std_errors_for_va.png")
 
 ```
