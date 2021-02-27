@@ -123,12 +123,13 @@ plotEstimateVsError <- function(controlResults, calibrated) {
                        meanLabel = paste0(formatC(100 *
                                                     mean(!d$Significant, na.rm = TRUE), digits = 1, format = "f"), "% of CIs includes 1"))
   
-  breaks <- c(0.1, 0.125, 0.25, 0.5, 1, 2, 4, 8, 10)
+  breaks <- c(0.125, 0.25, 0.5, 1, 2, 4, 8)
   theme <- ggplot2::element_text(colour = "#000000", size = 12)
   themeRA <- ggplot2::element_text(colour = "#000000", size = 12, hjust = 1)
   themeLA <- ggplot2::element_text(colour = "#000000", size = 12, hjust = 0)
   
   alpha <- 1 - min(0.95 * (nrow(d)/50000)^0.1, 0.95)
+  yUpperLim <- 1
   plot <- ggplot2::ggplot(d, ggplot2::aes(x = logRr, y = seLogRr)) +
     ggplot2::geom_vline(xintercept = log(breaks), colour = "#AAAAAA", lty = 1, size = 0.5) +
     ggplot2::geom_abline(ggplot2::aes(intercept = 0, slope = 1/qnorm(0.025)),
@@ -144,21 +145,21 @@ plotEstimateVsError <- function(controlResults, calibrated) {
     ggplot2::geom_point(size = 2, color = rgb(0, 0, 0, alpha = 0.05), alpha = alpha, shape = 16) +
     ggplot2::geom_hline(yintercept = 0) +
     ggplot2::geom_label(x = log(0.11),
-                        y = 1,
+                        y = 0.99,
                         alpha = 1,
                         hjust = "left",
                         ggplot2::aes(label = nLabel),
                         size = 5,
                         data = oneRow) +
     ggplot2::geom_label(x = log(0.11),
-                        y = 0.935,
+                        y = 0.9,
                         alpha = 1,
                         hjust = "left",
                         ggplot2::aes(label = meanLabel),
                         size = 5,
                         data = oneRow) +
-    ggplot2::scale_x_continuous(xLabel, limits = log(c(0.1,10)), breaks = log(breaks), labels = breaks) +
-    ggplot2::scale_y_continuous("Standard Error", limits = c(0, 1)) +
+    ggplot2::scale_x_continuous(xLabel, limits = log(c(1 / 8, 8)), breaks = log(breaks), labels = breaks) +
+    ggplot2::scale_y_continuous("Standard Error", limits = c(0, yUpperLim)) +
     ggplot2::theme(panel.grid.minor = ggplot2::element_blank(),
                    panel.background = ggplot2::element_blank(),
                    panel.grid.major = ggplot2::element_blank(),
@@ -169,6 +170,7 @@ plotEstimateVsError <- function(controlResults, calibrated) {
                    legend.key = ggplot2::element_blank(),
                    strip.text.x = theme,
                    strip.background = ggplot2::element_blank(),
+                   aspect.ratio = 1 / yUpperLim / qnorm(0.975),
                    legend.position = "none")
   return(plot)
 }
