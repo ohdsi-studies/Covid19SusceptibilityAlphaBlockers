@@ -425,7 +425,7 @@ plotCovariateBalanceScatterPlot <- function(balance, beforeLabel = "Before strat
   return(plot)
 }
 
-plotKaplanMeier <- function(kaplanMeier, targetName, comparatorName) {
+plotKaplanMeier <- function(kaplanMeier, targetName, comparatorName, kmPlotHeight = 400) {
   data <- rbind(data.frame(time = kaplanMeier$time,
                            s = kaplanMeier$targetSurvival,
                            lower = kaplanMeier$targetSurvivalLb,
@@ -493,7 +493,7 @@ plotKaplanMeier <- function(kaplanMeier, targetName, comparatorName) {
   for (i in 1:length(grobs)) {
     grobs[[i]]$widths[2:5] <- as.list(maxwidth)
   }
-  plot <- gridExtra::grid.arrange(grobs[[1]], grobs[[2]], heights = c(400, 100))
+  plot <- gridExtra::grid.arrange(grobs[[1]], grobs[[2]], heights = c(kmPlotHeight, 100))
   return(plot)
 }
 
