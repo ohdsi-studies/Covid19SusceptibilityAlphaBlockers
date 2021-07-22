@@ -425,7 +425,9 @@ plotCovariateBalanceScatterPlot <- function(balance, beforeLabel = "Before strat
   return(plot)
 }
 
-plotKaplanMeier <- function(kaplanMeier, targetName, comparatorName, kmPlotHeight = 400) {
+plotKaplanMeier <- function(kaplanMeier, targetName, comparatorName, 
+                            addLegend = TRUE, xLabel = "Time in days", yLabel = "Survival probability",
+                            kmPlotHeight = 400, dataTableHeight = 100) {
   data <- rbind(data.frame(time = kaplanMeier$time,
                            s = kaplanMeier$targetSurvival,
                            lower = kaplanMeier$targetSurvivalLb,
@@ -439,8 +441,6 @@ plotKaplanMeier <- function(kaplanMeier, targetName, comparatorName, kmPlotHeigh
 
   xlims <- c(-max(data$time)/40, max(data$time))
   ylims <- c(min(data$lower), 1)
-  xLabel <- "Time in days"
-  yLabel <- "Survival probability"
   xBreaks <- kaplanMeier$time[!is.na(kaplanMeier$targetAtRisk)]
   plot <- ggplot2::ggplot(data, ggplot2::aes(x = time,
                                              y = s,
@@ -456,11 +456,17 @@ plotKaplanMeier <- function(kaplanMeier, targetName, comparatorName, kmPlotHeigh
                                                 rgb(0, 0, 0.8, alpha = 0.3))) +
           ggplot2::scale_x_continuous(xLabel, limits = xlims, breaks = xBreaks) +
           ggplot2::scale_y_continuous(yLabel, limits = ylims) +
-          ggplot2::theme(legend.title = ggplot2::element_blank(),
-                         legend.position = "top",
-                         legend.key.size = ggplot2::unit(1, "lines"),
-                         plot.title = ggplot2::element_text(hjust = 0.5)) +
           ggplot2::theme(axis.title.y = ggplot2::element_text(vjust = -10))
+  
+  if (addLegend) {
+    plot <- plot + 
+      ggplot2::theme(legend.title = ggplot2::element_blank(),
+                     legend.position = "top",
+                     legend.key.size = ggplot2::unit(1, "lines"),
+                     plot.title = ggplot2::element_text(hjust = 0.5))
+  } else {
+    plot <- plot + ggplot2::theme(legend.position = "none")
+  }
 
   targetAtRisk <- kaplanMeier$targetAtRisk[!is.na(kaplanMeier$targetAtRisk)]
   comparatorAtRisk <- kaplanMeier$comparatorAtRisk[!is.na(kaplanMeier$comparatorAtRisk)]
@@ -493,7 +499,7 @@ plotKaplanMeier <- function(kaplanMeier, targetName, comparatorName, kmPlotHeigh
   for (i in 1:length(grobs)) {
     grobs[[i]]$widths[2:5] <- as.list(maxwidth)
   }
-  plot <- gridExtra::grid.arrange(grobs[[1]], grobs[[2]], heights = c(kmPlotHeight, 100))
+  plot <- gridExtra::grid.arrange(grobs[[1]], grobs[[2]], heights = c(kmPlotHeight, dataTableHeight))
   return(plot)
 }
 
