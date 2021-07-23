@@ -478,17 +478,20 @@ plotKaplanMeier <- function(kaplanMeier, targetName, comparatorName,
                                  formatC(targetAtRisk, big.mark = ",", mode = "integer"),
                                  formatC(comparatorAtRisk, big.mark = ",", mode = "integer")))
   labels$y <- factor(labels$y, levels = c(comparatorName, targetName, "Number at risk"))
-  dataTable <- ggplot2::ggplot(labels, ggplot2::aes(x = x, y = y, label = label)) + ggplot2::geom_text(size = 3.5, vjust = 0.5) + ggplot2::scale_x_continuous(xLabel,
-                                                                                                                                                              limits = xlims,
-                                                                                                                                                              breaks = xBreaks) + ggplot2::theme(panel.grid.major = ggplot2::element_blank(),
-                                                                                                                                                                                                                         panel.grid.minor = ggplot2::element_blank(),
-                                                                                                                                                                                                                         legend.position = "none",
-                                                                                                                                                                                                                         panel.border = ggplot2::element_blank(),
-                                                                                                                                                                                                                         panel.background = ggplot2::element_blank(),
-                                                                                                                                                                                                                         axis.text.x = ggplot2::element_text(color = "white"),
-                                                                                                                                                                                                                         axis.title.x = ggplot2::element_text(color = "white"),
-                                                                                                                                                                                                                         axis.title.y = ggplot2::element_blank(),
-                                                                                                                                                                                                                         axis.ticks = ggplot2::element_line(color = "white"))
+  dataTable <- ggplot2::ggplot(labels, ggplot2::aes(x = x, y = y, label = label)) + 
+    ggplot2::geom_text(size = 3.5, vjust = 0.5) + 
+    ggplot2::scale_x_continuous(xLabel, limits = xlims, breaks = xBreaks) + 
+    ggplot2::theme(
+      panel.grid.major = ggplot2::element_blank(),
+      panel.grid.minor = ggplot2::element_blank(),
+      legend.position = "none",
+      panel.border = ggplot2::element_blank(),
+      panel.background = ggplot2::element_blank(),
+      axis.text.x = ggplot2::element_text(color = "white"),
+      axis.title.x = ggplot2::element_text(color = "white"),
+      axis.title.y = ggplot2::element_blank(),
+      axis.ticks = ggplot2::element_line(color = "white")
+    )
   plots <- list(plot, dataTable)
   grobs <- widths <- list()
   for (i in 1:length(plots)) {
