@@ -427,7 +427,8 @@ plotCovariateBalanceScatterPlot <- function(balance, beforeLabel = "Before strat
 
 plotKaplanMeier <- function(kaplanMeier, targetName, comparatorName, 
                             addLegend = TRUE, xLabel = "Time in days", yLabel = "Survival probability",
-                            kmPlotHeight = 400, dataTableHeight = 100) {
+                            textScale = 1, kmPlotHeight = 400, dataTableHeight = 100) {
+  textSize <- ggplot2::theme_get()$text$size
   data <- rbind(data.frame(time = kaplanMeier$time,
                            s = kaplanMeier$targetSurvival,
                            lower = kaplanMeier$targetSurvivalLb,
@@ -456,7 +457,8 @@ plotKaplanMeier <- function(kaplanMeier, targetName, comparatorName,
                                                 rgb(0, 0, 0.8, alpha = 0.3))) +
           ggplot2::scale_x_continuous(xLabel, limits = xlims, breaks = xBreaks) +
           ggplot2::scale_y_continuous(yLabel, limits = ylims) +
-          ggplot2::theme(axis.title.y = ggplot2::element_text(vjust = -10))
+          ggplot2::theme(text = ggplot2::element_text(size = textScale * textSize), 
+                         axis.title.y = ggplot2::element_text(vjust = -10))
   
   if (addLegend) {
     plot <- plot + 
@@ -479,9 +481,10 @@ plotKaplanMeier <- function(kaplanMeier, targetName, comparatorName,
                                  formatC(comparatorAtRisk, big.mark = ",", mode = "integer")))
   labels$y <- factor(labels$y, levels = c(comparatorName, targetName, "Number at risk"))
   dataTable <- ggplot2::ggplot(labels, ggplot2::aes(x = x, y = y, label = label)) + 
-    ggplot2::geom_text(size = 3.5, vjust = 0.5) + 
+    ggplot2::geom_text(size = textScale * 3.5, vjust = 0.5) + 
     ggplot2::scale_x_continuous(xLabel, limits = xlims, breaks = xBreaks) + 
     ggplot2::theme(
+      text = ggplot2::element_text(size = textScale * textSize),
       panel.grid.major = ggplot2::element_blank(),
       panel.grid.minor = ggplot2::element_blank(),
       legend.position = "none",
