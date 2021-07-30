@@ -270,23 +270,23 @@ plotBeforeAndAfterCalibration <- function(
                         alpha = 1,
                         hjust = "left",
                         ggplot2::aes(label = nLabel),
-                        size = 5,
+                        size = 4.5,
                         data = oneRow) +
     ggplot2::geom_label(x = log(0.11),
-                        y = 0.9,
+                        y = 0.895,
                         alpha = 1,
                         hjust = "left",
                         ggplot2::aes(label = uncalibratedMeanLabel),
                         colour = color$uncalibrated,
-                        size = 5,
+                        size = 4.5,
                         data = oneRow) +
     ggplot2::geom_label(x = log(0.11),
-                        y = 0.81,
+                        y = 0.8,
                         alpha = 1,
                         hjust = "left",
                         ggplot2::aes(label = calibratedMeanLabel),
                         colour = color$calibrated,
-                        size = 5,
+                        size = 4.5,
                         data = oneRow) +
     ggplot2::scale_x_continuous(xLabel, limits = log(c(1 / 8, 8)), breaks = log(breaks), labels = breaks) +
     ggplot2::scale_y_continuous("Standard Error", limits = c(0, yUpperLim)) +
@@ -327,9 +327,10 @@ plotCalibrationWrapper <- function(databaseId, analysisId) {
   return(plot)
 }
 
+analysisId <- 1
 unadjustedCalibrationPlotList <- lapply(
   databaseIds[mdrrArgRank],
-  function (databaseId) plotCalibrationWrapper(databaseId, analysisId = 1)
+  function (databaseId) plotCalibrationWrapper(databaseId, analysisId)
 )
 
 labelPlotList <- lapply(
@@ -352,9 +353,27 @@ plotList <- lapply(
   function (i) list(labelPlotList[[i]], unadjustedCalibrationPlotList[[i]])
 )
 plotList <- do.call(c, plotList)
+
+# Insert empty space between the columns
+n_plot <- 2 * length(databaseIds)
+plotList <- c(
+  plotList[1:(n_plot / 2)], 
+  rep(list(NULL), n_plot / 2), 
+  plotList[(n_plot / 2 + 1):n_plot]
+)
+
 plot <- cowplot::plot_grid(
-  plotlist = plotList, ncol = 2, byrow = FALSE,
-  rel_widths = c(1, 1), rel_heights = rep(c(.25, 1), length(databaseIds) / 2)
+  plotlist = plotList, ncol = 3, byrow = FALSE,
+  rel_widths = c(1, .05, 1), rel_heights = rep(c(.075, 1), length(databaseIds) / 2)
+)
+analysisType <- c("unadjusted", "adjusted", "min-stratified", "min-matched", "stratified", "matched")[analysisId]
+cowplot::save_plot(
+  sprintf(
+    "before_and_after_calibration_plot_for_%s_analysis.png", 
+    analysisType
+  ),
+  plot, base_asp = 1, base_height = 2 * length(databaseIds),
+  units = "in", dpi = 300
 )
 ```
 
