@@ -341,23 +341,20 @@ labelPlotList <- lapply(
     nSpaceTail <- floor(nSpace / 2)
     label <- paste0(label, paste0(rep(" ", nSpaceTail), collapse = ""))
     ggplot2::ggplot() + 
-      ggplot2::annotate("text", x = 0, y = 0, size = 5.5, angle = -90, label = label) +
+      ggplot2::annotate("text", x = 0, y = 0, size = 5.5, angle = 0, label = label) +
       ggplot2::theme_void()
   }
 )
 
 # Add database name.
-n_database <- length(databaseIds)
-n_plot_first_col <- as.integer(ceiling(n_database / 2))
-plotList <- c(
-  unadjustedCalibrationPlotList[1:n_plot_first_col], 
-  labelPlotList[1:n_plot_first_col],
-  unadjustedCalibrationPlotList[(n_plot_first_col + 1):n_database], 
-  labelPlotList[(n_plot_first_col + 1):n_database]
+plotList <- lapply(
+  1:length(databaseIds), 
+  function (i) list(labelPlotList[[i]], unadjustedCalibrationPlotList[[i]])
 )
+plotList <- do.call(c, plotList)
 plot <- cowplot::plot_grid(
-  plotlist = plotList, ncol = 4, byrow = FALSE,
-  rel_widths = c(1, 0.1, 1, 0.1), rel_heights = c(1.15, 1, 1)
+  plotlist = plotList, ncol = 2, byrow = FALSE,
+  rel_widths = c(1, 1), rel_heights = rep(c(.25, 1), length(databaseIds) / 2)
 )
 ```
 
