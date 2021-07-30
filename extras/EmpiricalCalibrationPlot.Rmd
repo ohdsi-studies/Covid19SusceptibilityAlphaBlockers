@@ -327,8 +327,8 @@ plotCalibrationWrapper <- function(databaseId, analysisId) {
   return(plot)
 }
 
-analysisId <- 1
-unadjustedCalibrationPlotList <- lapply(
+analysisId <- 5
+calibrationPlotList <- lapply(
   databaseIds[mdrrArgRank],
   function (databaseId) plotCalibrationWrapper(databaseId, analysisId)
 )
@@ -350,7 +350,7 @@ labelPlotList <- lapply(
 # Add database name.
 plotList <- lapply(
   1:length(databaseIds), 
-  function (i) list(labelPlotList[[i]], unadjustedCalibrationPlotList[[i]])
+  function (i) list(labelPlotList[[i]], calibrationPlotList[[i]])
 )
 plotList <- do.call(c, plotList)
 
