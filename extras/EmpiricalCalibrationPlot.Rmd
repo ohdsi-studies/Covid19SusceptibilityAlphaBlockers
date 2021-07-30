@@ -379,8 +379,8 @@ cowplot::save_plot(
 
 ## Before and after plot per larger and smaller databases
 ```{r}
-largerDataIndex <- c(4, 2, 1) # OpenClaims, VA, SIDIAP
-smallerDataIndex <- c(5, 6, 3) # Optum DOD, Optum EHR,  CUIMC
+largerDataIndex <- c(4, 2, 5) # OpenClaims, VA, Optum DOD,
+smallerDataIndex <- c(6, 1, 3) # Optum EHR, SIDIAP, CUIMC
 subsetFlag <- c('larger', 'smaller')[1]
 if (subsetFlag == 'larger') {
   subsetDataIndex <- largerDataIndex
