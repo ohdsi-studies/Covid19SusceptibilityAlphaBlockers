@@ -216,7 +216,7 @@ tableau_color <- list(
 )
 
 plotBeforeAndAfterCalibration <- function(
-    controlResults, xLabel = "Hazard Ratios", 
+    controlResults, xLabel = "Hazard Ratios", textScale = 1,
     color = list(calibrated = tableau_color$blue, uncalibrated = tableau_color$orange)
   ) {
   calibratedData <- data.frame(logRr = controlResults$calibratedLogRr,
@@ -244,9 +244,9 @@ plotBeforeAndAfterCalibration <- function(
   )
   
   breaks <- c(0.125, 0.25, 0.5, 1, 2, 4, 8)
-  theme <- ggplot2::element_text(colour = "#000000", size = 12)
-  themeRA <- ggplot2::element_text(colour = "#000000", size = 12, hjust = 1)
-  themeLA <- ggplot2::element_text(colour = "#000000", size = 12, hjust = 0)
+  theme <- ggplot2::element_text(colour = "#000000", size = textScale * 12)
+  themeRA <- ggplot2::element_text(colour = "#000000", size = textScale * 12, hjust = 1)
+  themeLA <- ggplot2::element_text(colour = "#000000", size = textScale * 12, hjust = 0)
   
   alpha <- 1 - min(0.95 * (nrow(calibratedData)/50000)^0.1, 0.95)
   yUpperLim <- 1
@@ -270,23 +270,23 @@ plotBeforeAndAfterCalibration <- function(
                         alpha = 1,
                         hjust = "left",
                         ggplot2::aes(label = nLabel),
-                        size = 4.5,
+                        size = textScale * 4.75,
                         data = oneRow) +
     ggplot2::geom_label(x = log(0.11),
-                        y = 0.895,
+                        y = 0.99 - textScale * 0.09,
                         alpha = 1,
                         hjust = "left",
                         ggplot2::aes(label = uncalibratedMeanLabel),
                         colour = color$uncalibrated,
-                        size = 4.5,
+                        size = textScale * 4.75,
                         data = oneRow) +
     ggplot2::geom_label(x = log(0.11),
-                        y = 0.8,
+                        y = 0.99 - 2 * textScale * 0.09,
                         alpha = 1,
                         hjust = "left",
                         ggplot2::aes(label = calibratedMeanLabel),
                         colour = color$calibrated,
-                        size = 4.5,
+                        size = textScale * 4.75,
                         data = oneRow) +
     ggplot2::scale_x_continuous(xLabel, limits = log(c(1 / 8, 8)), breaks = log(breaks), labels = breaks) +
     ggplot2::scale_y_continuous("Standard Error", limits = c(0, yUpperLim)) +
@@ -311,7 +311,7 @@ plotBeforeAndAfterCalibration <- function(
 
 ```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, cache=TRUE}
 
-plotCalibrationWrapper <- function(databaseId, analysisId) {
+plotCalibrationWrapper <- function(databaseId, analysisId, textScale = 1) {
   covariate <- readRDS(file.path(
     studyFolder, databaseId, "shinyData", paste0("covariate_", databaseId, ".rds")
   ))
@@ -323,7 +323,7 @@ plotCalibrationWrapper <- function(databaseId, analysisId) {
   controlResults <- getControlResults(
     alphaBlockerId, fiveAlphaId, analysisId, databaseId, negativeControlOutcomeIds, cmResults
   )
-  plot <- plotBeforeAndAfterCalibration(controlResults)
+  plot <- plotBeforeAndAfterCalibration(controlResults, textScale = textScale)
   return(plot)
 }
 
@@ -392,7 +392,7 @@ subsetDatabaseIds <- databaseIds[subsetDataIndex]
 analysisId <- 1
 calibrationPlotList <- lapply(
   subsetDatabaseIds,
-  function (databaseId) plotCalibrationWrapper(databaseId, analysisId)
+  function (databaseId) plotCalibrationWrapper(databaseId, analysisId, textScale = 1.2)
 )
 
 labelPlotList <- lapply(
@@ -404,7 +404,7 @@ labelPlotList <- lapply(
     nSpaceTail <- floor(nSpace / 2)
     label <- paste0(label, paste0(rep(" ", nSpaceTail), collapse = ""))
     ggplot2::ggplot() + 
-      ggplot2::annotate("text", x = 0, y = 0, size = 5.5, angle = -90, label = label) +
+      ggplot2::annotate("text", x = 0, y = 0, size = 6, angle = -90, label = label) +
       ggplot2::theme_void()
   }
 )
@@ -424,7 +424,7 @@ plotList <- do.call(c, plotList)
 
 plot <- cowplot::plot_grid(
   plotlist = plotList, ncol = 2, 
-  rel_widths = c(1, .025), 
+  rel_widths = c(1, .05), 
   rel_heights = c(1, .05, 1, 0.05, 1)
 )
 
@@ -434,7 +434,7 @@ cowplot::save_plot(
     "before_and_after_calibration_plot_for_%s_analysis_on_%s_databases.png", 
     analysisType, subsetFlag
   ),
-  plot, base_asp = .8, base_height = 2 * length(databaseIds),
+  plot, base_asp = .7, base_height = 2 * length(databaseIds),
   units = "in", dpi = 300
 )
 ```
