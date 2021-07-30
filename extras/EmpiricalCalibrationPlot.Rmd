@@ -377,6 +377,68 @@ cowplot::save_plot(
 )
 ```
 
+## Before and after plot per larger and smaller databases
+```{r}
+largerDataIndex <- c(4, 2, 1) # OpenClaims, VA, SIDIAP
+smallerDataIndex <- c(5, 6, 3) # Optum DOD, Optum EHR,  CUIMC
+subsetFlag <- c('larger', 'smaller')[1]
+if (subsetFlag == 'larger') {
+  subsetDataIndex <- largerDataIndex
+} else {
+  subsetDataIndex <- smallerDataIndex
+}
+subsetDatabaseIds <- databaseIds[subsetDataIndex]
+
+analysisId <- 1
+calibrationPlotList <- lapply(
+  subsetDatabaseIds,
+  function (databaseId) plotCalibrationWrapper(databaseId, analysisId)
+)
+
+labelPlotList <- lapply(
+  subsetDatabaseIds,
+  function (databaseId) {
+    label <- databaseIdLabels[[databaseId]]
+    labelCharWidth <- 18
+    nSpace <- labelCharWidth - nchar(label)
+    nSpaceTail <- floor(nSpace / 2)
+    label <- paste0(label, paste0(rep(" ", nSpaceTail), collapse = ""))
+    ggplot2::ggplot() + 
+      ggplot2::annotate("text", x = 0, y = 0, size = 5.5, angle = -90, label = label) +
+      ggplot2::theme_void()
+  }
+)
+
+# Add database name.
+plotList <- lapply(
+  1:length(subsetDatabaseIds), 
+  function (i) {
+    plotWithLabel <- list(calibrationPlotList[[i]], labelPlotList[[i]])
+    if (i != length(subsetDatabaseIds)) {
+      plotWithLabel <- c(plotWithLabel, rep(list(NULL), 2))
+    }
+    return(plotWithLabel)
+  }
+)
+plotList <- do.call(c, plotList)
+
+plot <- cowplot::plot_grid(
+  plotlist = plotList, ncol = 2, 
+  rel_widths = c(1, .025), 
+  rel_heights = c(1, .05, 1, 0.05, 1)
+)
+
+analysisType <- c("unadjusted", "adjusted", "min-stratified", "min-matched", "stratified", "matched")[analysisId]
+cowplot::save_plot(
+  sprintf(
+    "before_and_after_calibration_plot_for_%s_analysis_on_%s_databases.png", 
+    analysisType, subsetFlag
+  ),
+  plot, base_asp = .8, base_height = 2 * length(databaseIds),
+  units = "in", dpi = 300
+)
+```
+
 \clearpage
 
 ## VA-OMOP
