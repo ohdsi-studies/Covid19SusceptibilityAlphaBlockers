@@ -64,6 +64,7 @@ readRdsCamelCase <- function(file) {
 # Set appropriate paths
 studyFolder <- path.expand("~/Dropbox/Documents_Academic/Covid19AlphaBlocker")
 databaseIds <- c("SIDIAP", "VA-OMOP", "CUIMC", "IQVIA_OpenClaims", "Optum_DOD", "Optum_EHR_COVID")
+mdrrArgRank <- c(4, 2, 1, 5, 6, 3) # OpenClaims, VA, SIDIAP, Optum DOD, Optum EHR,  CUIMC
 databaseIdLabels <- c("SIDIAP", "VA", "CUIMC", "OpenClaims", "Optum DOD", "Optum EHR", "Meta-analysis")
 names(databaseIdLabels) <- c(databaseIds, "Meta-analysis")
 dataDirs <- sapply(databaseIds, function (databaseId) file.path(studyFolder, databaseId))
@@ -200,43 +201,165 @@ getControlResults <- function(tId, cId, aId, dId, negativeControlOutcomeIds, res
 negativeControlOutcomeIds <- unique(getAllControls()$outcomeId)
 ```
 
+```{r}
+tableau_color <- list(
+  blue = '#4E79A7',
+  orange = '#F28E2B',
+  red = '#E15759',
+  light_teal = '#76B7B2',
+  green = '#59A14F',
+  yellow = '#EDC948',
+  purple = '#B07AA1',
+  pink = '#FF9DA7',
+  brown = '#9C755F',
+  light_gray = '#BAB0AC'
+)
 
-```{r, echo=FALSE}
-
-plotControlOutcomeEstimates <- function(databaseId, covariate, cmResults, analysisId,
-                                       targetId, comparatorId, thisOutcomeId, 
-                                       studyFolder, calibrated) {
-  
-  targetName <- cohorts %>% filter(cohortId == targetId) %>% select(shinyName) %>% pull()
-  comparatorName <- cohorts %>% filter(cohortId == comparatorId) %>% select(shinyName) %>% pull()
-  controlResults <- getControlResults(
-    targetId, comparatorId, analysisId, databaseId, negativeControlOutcomeIds, cmResults
+plotBeforeAndAfterCalibration <- function(
+    controlResults, xLabel = "Hazard Ratios", 
+    color = list(calibrated = tableau_color$blue, uncalibrated = tableau_color$orange)
+  ) {
+  calibratedData <- data.frame(logRr = controlResults$calibratedLogRr,
+                               seLogRr = controlResults$calibratedSeLogRr,
+                               ci95Lb = controlResults$calibratedCi95Lb,
+                               ci95Ub = controlResults$calibratedCi95Ub,
+                               trueRr = controlResults$effectSize)
+  uncalibratedData <- data.frame(logRr = controlResults$logRr,
+                                 seLogRr = controlResults$seLogRr,
+                                 ci95Lb = controlResults$ci95Lb,
+                                 ci95Ub = controlResults$ci95Ub,
+                                 trueRr = controlResults$effectSize)
+  calibratedData <- calibratedData[!is.na(calibratedData$logRr), ]
+  calibratedData <- calibratedData[!is.na(calibratedData$ci95Lb), ]
+  calibratedData <- calibratedData[!is.na(calibratedData$ci95Ub), ]
+  calibratedData$Significant <- calibratedData$ci95Lb > 1 | calibratedData$ci95Ub < 1
+  uncalibratedData <- uncalibratedData[!is.na(uncalibratedData$logRr), ]
+  uncalibratedData <- uncalibratedData[!is.na(uncalibratedData$ci95Lb), ]
+  uncalibratedData <- uncalibratedData[!is.na(uncalibratedData$ci95Ub), ]
+  uncalibratedData$Significant <- uncalibratedData$ci95Lb > 1 | uncalibratedData$ci95Ub < 1
+  oneRow <- data.frame(
+    nLabel = paste0(formatC(nrow(uncalibratedData), big.mark = ","), " estimates"),
+    uncalibratedMeanLabel = paste0(formatC(100 * mean(!uncalibratedData$Significant, na.rm = TRUE), digits = 1, format = "f"), "% of CIs includes 1"),
+    calibratedMeanLabel = paste0(formatC(100 * mean(!calibratedData$Significant, na.rm = TRUE), digits = 1, format = "f"), "% of CIs includes 1")
   )
-  estVsErr <- plotEstimateVsError(controlResults, calibrated)
-  return(list(estVsErr = estVsErr,
-              targetId = targetId, comparatorId = comparatorId, 
-              targetName = targetName, comparatorName = comparatorName,
-              outcomeId = thisOutcomeId,
-              databaseId = databaseId))
+  
+  breaks <- c(0.125, 0.25, 0.5, 1, 2, 4, 8)
+  theme <- ggplot2::element_text(colour = "#000000", size = 12)
+  themeRA <- ggplot2::element_text(colour = "#000000", size = 12, hjust = 1)
+  themeLA <- ggplot2::element_text(colour = "#000000", size = 12, hjust = 0)
+  
+  alpha <- 1 - min(0.95 * (nrow(calibratedData)/50000)^0.1, 0.95)
+  yUpperLim <- 1
+  plot <- ggplot2::ggplot(calibratedData, ggplot2::aes(x = logRr, y = seLogRr)) +
+    ggplot2::geom_vline(xintercept = log(breaks), colour = "#AAAAAA", lty = 1, size = 0.5) +
+    ggplot2::geom_abline(ggplot2::aes(intercept = 0, slope = 1/qnorm(0.025)),
+                         colour = rgb(0.8, 0, 0),
+                         linetype = "dashed",
+                         size = 1,
+                         alpha = 0.5) +
+    ggplot2::geom_abline(ggplot2::aes(intercept = 0, slope = 1/qnorm(0.975)),
+                         colour = rgb(0.8, 0, 0),
+                         linetype = "dashed",
+                         size = 1,
+                         alpha = 0.5) +
+    ggplot2::geom_point(size = 2, color = adjustcolor(color$calibrated, alpha.f = .05), alpha = alpha, shape = 16) +
+    ggplot2::geom_point(size = 2, color = adjustcolor(color$uncalibrated, alpha.f = .05), alpha = alpha, shape = 16, data = uncalibratedData) +
+    ggplot2::geom_hline(yintercept = 0) +
+    ggplot2::geom_label(x = log(0.11),
+                        y = 0.99,
+                        alpha = 1,
+                        hjust = "left",
+                        ggplot2::aes(label = nLabel),
+                        size = 5,
+                        data = oneRow) +
+    ggplot2::geom_label(x = log(0.11),
+                        y = 0.9,
+                        alpha = 1,
+                        hjust = "left",
+                        ggplot2::aes(label = uncalibratedMeanLabel),
+                        colour = color$uncalibrated,
+                        size = 5,
+                        data = oneRow) +
+    ggplot2::geom_label(x = log(0.11),
+                        y = 0.81,
+                        alpha = 1,
+                        hjust = "left",
+                        ggplot2::aes(label = calibratedMeanLabel),
+                        colour = color$calibrated,
+                        size = 5,
+                        data = oneRow) +
+    ggplot2::scale_x_continuous(xLabel, limits = log(c(1 / 8, 8)), breaks = log(breaks), labels = breaks) +
+    ggplot2::scale_y_continuous("Standard Error", limits = c(0, yUpperLim)) +
+    ggplot2::theme(panel.grid.minor = ggplot2::element_blank(),
+                   panel.background = ggplot2::element_blank(),
+                   panel.grid.major = ggplot2::element_blank(),
+                   axis.ticks = ggplot2::element_blank(),
+                   axis.text.y = themeRA,
+                   axis.text.x = theme,
+                   axis.title = theme,
+                   legend.key = ggplot2::element_blank(),
+                   strip.text.x = theme,
+                   strip.background = ggplot2::element_blank(),
+                   aspect.ratio = 1 / yUpperLim / qnorm(0.975),
+                   plot.margin=grid::unit(c(0,0,0,1), "pt"),
+                   legend.position = "none")
+  return(plot)
 }
 ```
 
-## SIDIAP
+## Before and after calibration plot
 
 ```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, cache=TRUE}
 
-sidiapCovariate <- readRDS(file.path(studyFolder, "SIDIAP", "shinyData", paste0("covariate_", "SIDIAP", ".rds")))
-colnames(sidiapCovariate) <- SqlRender::snakeCaseToCamelCase(colnames(sidiapCovariate))
+plotCalibrationWrapper <- function(databaseId, analysisId) {
+  covariate <- readRDS(file.path(
+    studyFolder, databaseId, "shinyData", paste0("covariate_", databaseId, ".rds")
+  ))
+  colnames(covariate) <- SqlRender::snakeCaseToCamelCase(colnames(covariate))
+  
+  cmResults <- readRDS(file.path(studyFolder, databaseId, "shinyData", paste0("cohort_method_result_", databaseId, ".rds")))
+  colnames(cmResults) <- SqlRender::snakeCaseToCamelCase(colnames(cmResults))
+  
+  controlResults <- getControlResults(
+    alphaBlockerId, fiveAlphaId, analysisId, databaseId, negativeControlOutcomeIds, cmResults
+  )
+  plot <- plotBeforeAndAfterCalibration(controlResults)
+  return(plot)
+}
 
-sidiapResults <- readRDS(file.path(studyFolder, "SIDIAP", "shinyData", paste0("cohort_method_result_", "SIDIAP", ".rds")))
-colnames(sidiapResults) <- SqlRender::snakeCaseToCamelCase(colnames(sidiapResults))
-
-controlResults <- getControlResults(
-  alphaBlockerId, fiveAlphaId, primaryAnalysisId, "SIDIAP", negativeControlOutcomeIds, sidiapResults
+unadjustedCalibrationPlotList <- lapply(
+  databaseIds[mdrrArgRank],
+  function (databaseId) plotCalibrationWrapper(databaseId, analysisId = 1)
 )
-plotEstimateVsError(controlResults, calibrated = TRUE)
-```
 
+labelPlotList <- lapply(
+  databaseIds[mdrrArgRank],
+  function (databaseId) {
+    label <- databaseIdLabels[[databaseId]]
+    labelCharWidth <- 18
+    nSpace <- labelCharWidth - nchar(label)
+    nSpaceTail <- floor(nSpace / 2)
+    label <- paste0(label, paste0(rep(" ", nSpaceTail), collapse = ""))
+    ggplot2::ggplot() + 
+      ggplot2::annotate("text", x = 0, y = 0, size = 5.5, angle = -90, label = label) +
+      ggplot2::theme_void()
+  }
+)
+
+# Add database name.
+n_database <- length(databaseIds)
+n_plot_first_col <- as.integer(ceiling(n_database / 2))
+plotList <- c(
+  unadjustedCalibrationPlotList[1:n_plot_first_col], 
+  labelPlotList[1:n_plot_first_col],
+  unadjustedCalibrationPlotList[(n_plot_first_col + 1):n_database], 
+  labelPlotList[(n_plot_first_col + 1):n_database]
+)
+plot <- cowplot::plot_grid(
+  plotlist = plotList, ncol = 4, byrow = FALSE,
+  rel_widths = c(1, 0.1, 1, 0.1), rel_heights = c(1.15, 1, 1)
+)
+```
 
 \clearpage
 
