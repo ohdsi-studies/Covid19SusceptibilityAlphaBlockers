@@ -642,6 +642,7 @@ table <- do.call(
                # 
                # sprintf("(%1.2f - %1.2f)", calibratedCi95Lb, calibratedCi95Ub)) %>%
       select(databaseId, targetId, comparatorId, outcomeId, analysisId,
+             rr, ci, p, ci95Lb, ci95Ub,
              calibratedRr, calibratedCi, calibratedP, calibratedCi95Lb, calibratedCi95Ub, i2) %>%
       left_join(prettyNames, by = c("targetId" = "cohortId")) %>% rename(targetName = cohortName) %>%
       left_join(prettyNames, by = c("comparatorId" = "cohortId")) %>% rename(comparatorName = cohortName) %>%
@@ -733,7 +734,12 @@ knitr::kable(meta %>% filter(outcomeId == covidDiagnosisId, databaseId == "Meta-
 table <- table %>% select(-i2) %>% 
   mutate(databaseId = ifelse(databaseId == "Meta-analysis", "Meta-analysis", databaseId))
 
+table <- table %>% 
+  mutate(calibratedRr = rr, 
+         calibratedCi = ci, 
+         calibratedP = p)
 ```
+
 
 
 ```{r, echo=FALSE}
@@ -793,7 +799,7 @@ print(xtable(table_to_print, format = "latex"),
 \end{table}
 % Table ends
 
-% Table begins: relative_risk_stratified_and_matched_analysis_table
+% Table begins: relative_risk_stratified_and_matched_analysis_before_calibration_table
 
 \definecolor{light-gray}{gray}{0.50}
 \begin{table}[H]
@@ -810,6 +816,9 @@ print(xtable(table_to_print, format = "latex"),
       & \multicolumn{1}{c}{HR} & \multicolumn{1}{c}{95\% CI} & \multicolumn{1}{c}{$p$} \\ 
     \midrule \showrowcolors
 ```{r, echo=FALSE, results="asis"}
+
+wideTable <- wideTable %>% 
+  mutate(matchCalRr = replace(matchCalRr, abs(matchCalRr) > 100, NA)) # Set ridiculous values to NA
 
 # Annotate
 
@@ -890,6 +899,7 @@ print(xtable(table_to_print, format = "latex"),
   }
 \end{table}
 % Table ends
+
 
 \clearpage
 
