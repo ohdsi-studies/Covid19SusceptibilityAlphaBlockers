@@ -422,10 +422,29 @@ plotList <- lapply(
 )
 plotList <- do.call(c, plotList)
 
+# Add analysis name
+if (analysisId == 1) {
+  analysisLabel <- "With no covariate adjustments"
+} else if (analysisId == 5) {
+  analysisLabel <- "With PS stratification"
+}
+labelCharWidth <- 54
+nSpace <- labelCharWidth - nchar(analysisLabel)
+nSpaceHead <- floor(nSpace / 2)
+analysisLabel <- paste0(
+  paste0(rep(" ", nSpaceHead), collapse = ""),
+  analysisLabel
+)
+analysisLabelPlot <-
+  ggplot2::ggplot() + 
+  ggplot2::annotate("text", x = 0, y = 0, size = 7.5, angle = 0, label = analysisLabel) +
+  ggplot2::theme_void()
+plotList <- c(list(analysisLabelPlot, NULL), plotList)
+
 plot <- cowplot::plot_grid(
   plotlist = plotList, ncol = 2, 
   rel_widths = c(1, .05), 
-  rel_heights = c(1, .05, 1, 0.05, 1)
+  rel_heights = c(0.15, 1, .05, 1, 0.05, 1)
 )
 
 analysisType <- c("unadjusted", "adjusted", "min-stratified", "min-matched", "stratified", "matched")[analysisId]
